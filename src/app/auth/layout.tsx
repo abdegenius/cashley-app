@@ -1,5 +1,5 @@
 "use client";
-import { useTheme } from "@/providers/themeProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";

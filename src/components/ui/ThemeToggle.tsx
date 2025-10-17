@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "@/providers/themeProvider";
+import { useTheme } from "@/providers/ThemeProvider";
 import { useEffect, useState } from "react";
 
 export function ThemeToggle() {

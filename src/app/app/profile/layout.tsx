@@ -1,4 +1,5 @@
 "use client";
+import { useBack } from "@/hooks/useBack";
 import { ArrowLeft } from "lucide-react";
 
 export default function CenteredLayout({
@@ -6,15 +7,12 @@ export default function CenteredLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const handleBack = () => {
-    window.history.back();
-  };
   return (
-   <div className="h-screen min-h-full flex flex-col bg-background p-6">
+    <div className="w-full overflow-none min-h-screen h-full flex flex-col items-center p-6 bg-background">
       <div className="w-full flex justify-start">
         <button
-          onClick={handleBack}
-          className="p-3 rounded-full placeholder-text hover:bg-card cursor-pointer"
+          onClick={useBack("/app")}
+          className="p-2 rounded-full placeholder-text hover:bg-black/10 cursor-pointer mb-4"
         >
           <ArrowLeft size={24} />
         </button>
