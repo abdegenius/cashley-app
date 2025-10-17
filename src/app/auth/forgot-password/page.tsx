@@ -14,22 +14,24 @@ export default function ForgotPasswordPage() {
           <h2 className="text-3xl font-semibold">Forgot Password</h2>
           <p className="text-sm font-normal placeholder-text">Enter email address below to reset password</p>
         </div>
-        <div className="col-span-full w-full">
-          <TextInput
-            value={email}
-            onChange={setEmail}
-            type={"email"}
-            placeholder="Email Address"
-          />
-        </div>
+        <div className="w-full max-w-sm items-center space-y-6">
+          <div className="col-span-full w-full">
+            <TextInput
+              value={email}
+              onChange={setEmail}
+              type={"email"}
+              placeholder="Email Address"
+            />
+          </div>
 
-        <Button type="secondary" text="Continue" width="w-full" />
+          <Button type="secondary" text="Continue" width="w-full" />
 
-        <div className="flex w-full items-center justify-center flex-row space-x-1">
-          <span className="text-sm font-normal">Remember password?</span>
-          <Link href={"/auth/login"} className=" placeholder-text">
-            Back to login
-          </Link>
+          <div className="flex w-full items-center justify-center flex-row space-x-1">
+            <span className="text-sm font-normal">Remember password?</span>
+            <Link href={"/auth/login"} className=" placeholder-text">
+              Back to login
+            </Link>
+          </div>
         </div>
       </div>
     </div>
