@@ -8,7 +8,7 @@ export default function CenteredLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="w-full overflow-none min-h-screen h-full flex flex-col items-center p-6 bg-background">
+    <div className="w-full overflow-none min-h-screen h-full flex flex-col items-center p-4 bg-background">
       <div className="w-full flex justify-start">
         <button
           onClick={useBack("/app")}
@@ -17,7 +17,7 @@ export default function CenteredLayout({
           <ArrowLeft size={24} />
         </button>
       </div>
-      <div className="w-full h-full">{children}</div>
+      <div className="w-full h-full px-3">{children}</div>
     </div>
   );
 }

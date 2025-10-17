@@ -63,7 +63,7 @@ export default function Profile() {
             label="KYC Verification"
             label2="Tier 1 Verified"
             type="link"
-            link="/app/reports"
+            link="#"
           />
           <MenuItem
             showBorder={true}
@@ -71,7 +71,7 @@ export default function Profile() {
             label="Leaderboard"
             label2="View Cashley weekly ranking"
             type="link"
-            link="/app/expenses"
+            link="#"
           />
         </Section>
         <Section title="Security & Privacy" description="" delay={0.12}>
@@ -81,7 +81,7 @@ export default function Profile() {
             label="Change Pin"
             label2="Update your transaction PIN"
             type="link"
-            link="/app/profile/edit"
+            link="/app/profile/change-pin"
           />
           <MenuItem
             showBorder={true}
@@ -89,7 +89,7 @@ export default function Profile() {
             label="Change Password"
             label2="Update your login password"
             type="link"
-            link="/app/reports"
+            link="/app/profile/change-password"
           />
           <div className="flex items-center justify-between">
             <MenuItem
@@ -98,7 +98,7 @@ export default function Profile() {
               label="Biometrics Login"
               label2="Use fingerprint or face ID to login"
               type="button"
-              link="/app/expenses"
+              link="#"
             />
             <ThemeToggle />
           </div>
@@ -129,7 +129,7 @@ export default function Profile() {
             label="FAQs"
             label2="Ask a question or find answers"
             type="link"
-            link="/app/profile/edit"
+            link="#"
           />
           <MenuItem
             showBorder={true}
@@ -137,7 +137,7 @@ export default function Profile() {
             label="Contact Support"
             label2="Chat with us for assistance"
             type="link"
-            link="/app/reports"
+            link="#"
           />
           <MenuItem
             showBorder={true}
@@ -145,7 +145,7 @@ export default function Profile() {
             label="Submit a Ticket"
             label2=""
             type="link"
-            link="/app/expenses"
+            link="#"
           />
         </Section>
 
@@ -156,7 +156,7 @@ export default function Profile() {
             label="Appearance"
             label2="Choose your preferred theme"
             type="link"
-            link="/app/profile/edit"
+            link="#"
           />
           <MenuItem
             showBorder={true}
@@ -164,7 +164,7 @@ export default function Profile() {
             label="Notifications"
             label2="Manage push notifications"
             type="link"
-            link="/app/reports"
+            link="#"
           />
           <MenuItem
             showBorder={true}
@@ -172,7 +172,7 @@ export default function Profile() {
             label="About Cashley"
             label2=""
             type="link"
-            link="/app/expenses"
+            link="#"
           />
         </Section>
       </div>
