@@ -1,6 +1,7 @@
 "use client";
 
 import Button from "@/components/ui/Button";
+import TextInput from "@/components/ui/TextInput";
 import Link from "next/link";
 import React, { useState } from "react";
 
@@ -13,12 +14,11 @@ export default function ForgotPasswordPage() {
           <h2 className="text-3xl font-semibold">Forgot Password</h2>
           <p className="text-sm font-normal placeholder-text">Enter email address below to reset password</p>
         </div>
-        <div className="w-full bg-card rounded-3xl px-4 py-2">
-          <input
-            type="email"
+        <div className="col-span-full w-full">
+          <TextInput
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="placeholder:placeholder-text bg-card px-2 outline-none border-none w-full py-2"
+            onChange={setEmail}
+            type={"email"}
             placeholder="Email Address"
           />
         </div>

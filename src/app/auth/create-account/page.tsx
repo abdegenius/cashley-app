@@ -1,6 +1,8 @@
 "use client";
 
 import Button from "@/components/ui/Button";
+import PasswordInput from "@/components/ui/PasswordInput";
+import TextInput from "@/components/ui/TextInput";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -31,80 +33,67 @@ export default function ForgotPasswordPage() {
           <p className="text-sm font-normal placeholder-text">Get started using cashley app today!</p>
         </div>
 
-        <div className="w-full grid grid-cols-2 items-center gap-3">
-          <div className="col-span-1 mb-2 w-full bg-card rounded-3xl px-4 py-2">
-            <input
-              type="text"
-              value={firstname}
-              onChange={(e) => setFirstname(e.target.value)}
-              className="placeholder:placeholder-text bg-card px-2 outline-none border-none w-full py-2"
-              placeholder="Firstname"
-            />
+        <div className="w-full grid grid-cols-2 items-center gap-4">
+          <div className="col-span-1 w-full">
+            <div className="col-span-full w-full">
+              <TextInput
+                value={firstname}
+                onChange={setFirstname}
+                type={"text"}
+                placeholder="Firstname"
+              />
+            </div>
           </div>
-          <div className="col-span-1 mb-2 w-full bg-card rounded-3xl px-4 py-2">
-            <input
-              type="text"
+          <div className="col-span-1 w-full">
+            <TextInput
               value={lastname}
-              onChange={(e) => setLastname(e.target.value)}
-              className="placeholder:placeholder-text bg-card px-2 outline-none border-none w-full py-2"
+              onChange={setLastname}
+              type={"text"}
               placeholder="Lastname"
             />
           </div>
 
-          <div className="col-span-full mb-2 w-full bg-card rounded-3xl px-4 py-2">
-            <input
-              type="text"
+          <div className="col-span-full w-full">
+            <TextInput
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="placeholder:placeholder-text bg-card px-2 outline-none border-none w-full py-2"
+              onChange={setUsername}
+              type={"text"}
               placeholder="Username"
             />
           </div>
 
-          <div className="col-span-full mb-2 w-full bg-card rounded-3xl px-4 py-2">
-            <input
-              type="email"
+          <div className="col-span-full w-full">
+            <TextInput
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="placeholder:placeholder-text bg-card px-2 outline-none border-none w-full py-2"
+              onChange={setEmail}
+              type={"email"}
               placeholder="Email Address"
             />
           </div>
 
-          <div className="col-span-full mb-2 w-full bg-card rounded-3xl px-4 py-2">
-            <input
-              type="text"
+          <div className="col-span-full w-full">
+            <TextInput
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="placeholder:placeholder-text bg-card px-2 outline-none border-none w-full py-2"
+              onChange={setPhone}
+              type={"text"}
               placeholder="Phone Number"
             />
           </div>
 
-          <div className="col-span-1 flex flex-rows items-center justify-between mb-2 w-full bg-card rounded-3xl px-4 py-2">
-            <input
-              type={showPassword ? "password" : "text"}
+          <div className="col-span-1 w-full">
+            <PasswordInput
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="placeholder:placeholder-text bg-card  px-2 outline-none border-none w-full py-2"
+              onChange={setPassword}
               placeholder="Password"
             />
-            <button onClick={handleShowPassword} className="placeholder-text">
-              {showPassword ? <Eye /> : <EyeOff />}
-            </button>
           </div>
 
-          <div className="col-span-1 flex flex-rows items-center justify-between mb-2 bg-card rounded-3xl px-4 py-2">
-            <input
-              type={showPasswordConfirm ? "password" : "text"}
+          <div className="col-span-1 w-full">
+            <PasswordInput
               value={passwordConfirm}
-              onChange={(e) => setPasswordConfirm(e.target.value)}
-              className="placeholder:placeholder-text bg-card  px-2 outline-none border-none w-full py-2"
+              onChange={setPasswordConfirm}
               placeholder="Confirm Password"
             />
-            <button onClick={handleShowPasswordConfirm} className="placeholder-text">
-              {showPasswordConfirm ? <Eye /> : <EyeOff />}
-            </button>
           </div>
         </div>
 

@@ -2,6 +2,8 @@
 
 import { Keypad } from "@/components/models/Keypad";
 import Button from "@/components/ui/Button";
+import PasswordInput from "@/components/ui/PasswordInput";
+import TextInput from "@/components/ui/TextInput";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, ScanEye } from "lucide-react";
 import Link from "next/link";
@@ -109,28 +111,24 @@ export default function LoginPage() {
           </div>
         ) : (
           <div className="space-y-3 mt-5 w-full max-w-sm">
-            <div className="w-full  bg-card rounded-3xl px-4 py-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="placeholder:placeholder-text bg-card px-2 outline-none border-none w-full py-2"
-                placeholder="Email Address"
-              />
-            </div>
-            <div className="w-full flex items-center bg-card rounded-3xl px-4 py-2">
-              <input
-                type={showPassword ? "password" : "text"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="placeholder:placeholder-text bg-card  px-2 outline-none border-none w-full py-2"
-                placeholder="Password"
-              />
-              <button onClick={handleShowPassword} className="placeholder-text">
-                {showPassword ? <Eye /> : <EyeOff />}
-              </button>
-            </div>
+            <div className="w-full grid grid-cols-1 gap-4">
+              <div className="col-span-full w-full">
+                <TextInput
+                  value={email}
+                  onChange={setEmail}
+                  type={"email"}
+                  placeholder="Email Address"
+                />
+              </div>
 
+              <div className="col-span-full w-full">
+                <PasswordInput
+                  value={password}
+                  onChange={setPassword}
+                  placeholder="Password"
+                />
+              </div>
+            </div>
             <div className="flex justify-end pt-4">
               <Link href={"/auth/forgot-password"} className="text-center placeholder-text text-sm">
                 Forgot password?
