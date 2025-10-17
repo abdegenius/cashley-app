@@ -1,16 +1,17 @@
-"use client"
+"use client";
 
+import Button from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
 import { Check } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 
 export default function KYCVerification() {
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(1);
 
   // const ren
   return (
-    <div className="flex flex-col gap-10 w-full">
+    <div className="flex flex-col gap-10 h-full overflow-y-scroll w-full">
       <div>
         <h1 className="text-3xl font-bold">KYC Verification</h1>
         <h2 className="text-lg">
@@ -36,24 +37,121 @@ export default function KYCVerification() {
         </div>
       </div>
 
-            <Section title="Verification Tiers" description="" delay={0.12}>
-              <div className=" flex w-full flex-col gap-3">
+      <Section title="Verification Tiers" description="" delay={0.12}>
+        <div className=" flex w-full flex-col gap-3 pb-5 ">
           <div className="flex w-full justify-between items-center">
-            <div className="flex gap-3 items-start">
-                <Image src={"/svg/vector1.svg"} alt="vector1" width={20} height={20}/>
-                <div>
-                    <h1 className="font-bold">Tier 2 - Standard</h1>
-                    <h1 className="text-sm">In Progress</h1>
-                </div>
+            <div className="flex gap-3 items-center">
+              <Image
+                src={"/svg/vector1.svg"}
+                alt="vector1"
+                width={25}
+                height={25}
+              />
+              <div>
+                <h1 className="font-bold">Tier 2 - Standard</h1>
+                <h1 className="text-sm">In Progress</h1>
+              </div>
             </div>
-              <div className="flex placeholder-text gap-2 items-center">
-          <Check size={16} />
-          <span>BVN verification</span>
-              </div>
+            <div className="px-8 py-2 rounded-full font-semibold bg-card">
+              ₦50k/month
+            </div>
           </div>
+          <div className="flex placeholder-text gap-2 items-center">
+            <Check size={20} />
+            <span>BVN verification</span>
+          </div>
+
+          {step === 1 && (
+            <Button
+              type="primary"
+              width="w-full max-w-2xl py-4"
+              text="Start Tier 1 Verification"
+            />
+          )}
+        </div>
+        <div className=" flex w-full flex-col gap-3 pb-5">
+          <div className="flex w-full justify-between items-center">
+            <div className="flex gap-3 items-center">
+              <Image
+                src={"/svg/vector1.svg"}
+                alt="vector1"
+                width={25}
+                height={25}
+              />
+              <div>
+                <h1 className="font-bold">Tier 2 - Standard</h1>
+                <h1 className="text-sm">In Progress</h1>
               </div>
-            </Section>
-      
+            </div>
+            <div className="px-8 py-2 rounded-full font-semibold bg-card">
+              ₦500k/month
+            </div>
+          </div>
+          <div className="flex placeholder-text gap-2 items-center">
+            <Check size={20} />
+            <span>BVN verification</span>
+          </div>
+
+          {step === 2 && (
+            <Button
+              type="primary"
+              width="w-full max-w-2xl py-4"
+              text="Start Tier 2 Verification"
+            />
+          )}
+        </div>
+
+        <div className=" flex w-full flex-col gap-3 pb-5">
+          <div className="flex w-full justify-between items-center">
+            <div className="flex gap-3 items-center">
+              <Image
+                src={"/svg/vector1.svg"}
+                alt="vector1"
+                width={25}
+                height={25}
+              />
+              <div>
+                <h1 className="font-bold">Tier 2 - Standard</h1>
+                <h1 className="text-sm">In Progress</h1>
+              </div>
+            </div>
+            <div className="px-8 py-2 rounded-full font-semibold bg-card">
+              ₦2m /month
+            </div>
+          </div>
+          <div className="flex placeholder-text gap-2 items-center">
+            <Check size={20} />
+            <span>BVN verification</span>
+          </div>
+
+          {step === 3 && (
+            <Button
+              type="primary"
+              width="w-full max-w-2xl py-4"
+              text="Start Tier 3 Verification"
+            />
+          )}
+        </div>
+      </Section>
+
+      <Section title="Tier 3 Benefits" description="" delay={0.12}>
+        <div className=" flex w-full flex-col gap-3 pb-5  border-b ">
+          <div className="flex w-full justify-between items-center">
+            <div className="flex gap-3 items-center">
+              <Image
+                src={"/svg/vector1.svg"}
+                alt="vector1"
+                width={25}
+                height={25}
+              />
+              <div>
+                <h1 className="Higher transaction limits font-bold">Tier 2 - Standard</h1>
+                <h1 className="Up to ₦2,000,000 monthly">In Progress</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Section>
     </div>
   );
 }

@@ -5,10 +5,12 @@ export default function Button({
   width = "w-full",
   text,
   onclick,
+  children,
 }: {
   type?: "primary" | "secondary" | "blue" | "orange" | "purple" | undefined;
   width?: string | undefined;
   text?: string | undefined;
+  children?: string | undefined
   onclick?: React.MouseEventHandler<HTMLButtonElement> | undefined;
 }): React.JSX.Element {
   return (
@@ -24,7 +26,7 @@ export default function Button({
           : type === "orange"
           ? "bg-orange"
           : "bg-purple"
-      } py-3 rounded-3xl text-white font-bold text-lg`}
+      } py-3 rounded-3xl text-white font-bold text-lg ${children}`}
     >
       {text}
     </button>
