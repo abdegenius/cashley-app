@@ -1,67 +1,71 @@
+"use client"
 import Button from "@/components/ui/Button";
-import React from "react";
+import TextInput from "@/components/ui/TextInput";
+import React, { useState } from "react";
 
-export default function EditProfile() {
+export default function EditProfilePage() {
+  const [firstname, setFirstname] = useState<string>("");
+  const [lastname, setLastname] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
   return (
-    <div className="max-w-md mx-auto w-full flex flex-col min-h-full h-full justify-between space-y-10">
-      <div className=" ">
-        <h1 className="text-3xl font-black ">Profile Details</h1>
-        <div className="pb-4 text-lg">Profile Details</div>
-        <div className="space-y-10 w-full  mx-auto text-lg">
-          <div className="space-y-4">
-            <div>
-              <label className="block  font-medium  mb-2">First Name</label>
-
-              <div className="primary-purple-to-blue p-0.5 w-full rounded-3xl outline-none overflow-hidden">
-                <input
-                  type="text"
-                  placeholder="Full Name"
-                  className="w-full px-4 py-4 placeholder-text border outline-none overflow-hidden placeholder:placeholder-text bg-card rounded-3xl"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="block  font-medium  mb-2">
-                Last Name
-              </label>
-                <div className=" p-0.5 w-full rounded-3xl primary-purple-to-blue outline-none overflow-hidden">
-                <input
-                  type="text"
-                  placeholder="Last Name"
-                  className="w-full px-4 py-4 placeholder-text  border outline-none overflow-hidden placeholder:placeholder-text bg-card rounded-3xl"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="Dob" className="block  font-medium  mb-2">
-                Date of Birth
-              </label>
-                <div className="primary-purple-to-blue p-0.5 w-full rounded-3xl outline-none overflow-hidden">
-                <input
-                  type="text"
-                  placeholder="DOb"
-                  className="w-full px-4 py-4 placeholder-text border outline-none overflow-hidden placeholder:placeholder-text bg-card rounded-3xl"
-                />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="email" className="block  font-medium  mb-2">
-                User Name
-              </label>
-              <div className="primary-purple-to-blue p-0.5 w-full rounded-3xl outline-none overflow-hidden">
-                <input
-                  type="text"
-                  placeholder="User name"
-                  className="w-full px-4 py-4 placeholder-text border outline-none overflow-hidden placeholder:placeholder-text bg-card rounded-3xl"
-                />
-              </div>
+    <div className="max-w-lg mx-auto w-full flex flex-col min-h-full h-full justify-between space-y-2">
+      <h1 className="text-xl font-black">Profile Details</h1>
+      <div className="pb-4 text-sm placeholder-text">Update your profile information</div>
+      <div className="space-y-4 w-full mx-auto text-lg pt-4">
+        <div className="w-full grid grid-cols-2 items-center gap-4">
+          <div className="col-span-1 w-full">
+            <div className="col-span-full w-full">
+              <TextInput
+                value={firstname}
+                onChange={setFirstname}
+                type={"text"}
+                placeholder="Firstname"
+              />
             </div>
           </div>
+          <div className="col-span-1 w-full">
+            <TextInput
+              value={lastname}
+              onChange={setLastname}
+              type={"text"}
+              placeholder="Lastname"
+            />
+          </div>
+
+          <div className="col-span-full w-full">
+            <TextInput
+              value={username}
+              onChange={setUsername}
+              type={"text"}
+              placeholder="Username"
+            />
+          </div>
+
+          <div className="col-span-full w-full">
+            <TextInput
+              value={email}
+              onChange={setEmail}
+              type={"email"}
+              placeholder="Email Address"
+            />
+          </div>
+
+          <div className="col-span-full w-full">
+            <TextInput
+              value={phone}
+              onChange={setPhone}
+              type={"text"}
+              placeholder="Phone Number"
+            />
+          </div>
+
         </div>
       </div>
-      <Button type="secondary" text="Save" />
+      <div className="mt-8">
+        <Button type="secondary" text="Save Changes" />
+      </div>
     </div>
   );
 }
