@@ -8,9 +8,9 @@ export default function Home() {
 
   setTimeout(() => {
     router.push("/auth/login");
-  }, 3000);
+  }, 1000);
   return (
-    <div className="font-sans  items-center relative organic-gradient-bg  min-h-screen">
+    <div className="w-full h-full font-sans items-center relative organic-gradient-bg  min-h-100vh">
       <div className="w-full h-screen bg-black/30 absolute top-0 left-0" />
 
       <div className="w-full h-screen relative z-10 flex items-center justify-center">

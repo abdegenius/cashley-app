@@ -8,9 +8,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`antialiased`}>
+      <body className={`antialiased w-full h-full min-h-screen relative`}>
         <ThemeProvider>
-          <div className="max-w-2xl h-screen mx-auto bg-background">{children}</div>
+          <div className="w-full h-full flex items-center flex-col bg-background">{children}</div>
         </ThemeProvider>
       </body>
     </html>
