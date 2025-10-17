@@ -6,16 +6,16 @@ export function Section({ title, description, children, delay = 0.15 }: { title:
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.28 }}
-      className=" rounded-2xl  p-4"
+      className="rounded-2xl w-full"
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold ">{title}</h3>
-          {description && <p className="text-xs  mt-1">{description}</p>}
+          <h3 className="text-sm font-semibold">{title}</h3>
+          {description && <p className="text-xs mt-1">{description}</p>}
         </div>
       </div>
 
-      <div className="flex flex-col ">
+      <div className="flex flex-col">
         {/* ensure MenuItem/ToggleItem render without cramped spacing */}
         <div className="py-1">{children}</div>
       </div>

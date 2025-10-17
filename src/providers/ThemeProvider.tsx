@@ -7,7 +7,7 @@ type Theme = "dark" | "light"
 type ThemeProviderState = {
   theme: Theme
   setTheme: (theme: Theme) => void
-  resolvedTheme: Theme // Same as theme since you don't have "system"
+  resolvedTheme: Theme
 }
 
 const initialState: ThemeProviderState = {

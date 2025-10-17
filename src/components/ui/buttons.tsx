@@ -26,14 +26,12 @@ export function MenuItem({
   amount?: number | string | undefined;
 }) {
   const baseClasses =
-    "w-full flex items-center justify-between gap-3 p-3 transition-all duration-200  hover:bg-[#21A29D]/10";
+    "w-full flex items-center justify-between px-0 py-2 transition-all duration-200 hover:bg-violet-950/10";
   const borderClass = showBorder ? "border-b border-border" : "";
-  const labelClass = `flex-1 text-[15px] font-medium ${
-    isRed ? "text-red-500" : ""
-  }`;
-  const labelClass2 = `flex-1 text-[11px] font-medium ${
-    isRed ? "text-red-500" : ""
-  }`;
+  const labelClass = `flex-1 text-[15px] font-medium ${isRed ? "text-red-500" : ""
+    }`;
+  const labelClass2 = `flex-1 text-[11px] font-medium ${isRed ? "text-red-500" : ""
+    }`;
 
   const iconWrapper =
     "w-10 h-10 flex items-center justify-center rounded-full placeholder-text flex-shrink-0";
@@ -73,7 +71,7 @@ export function MenuItem({
   if (type === "link") {
     return (
       <Link href={link || "#"} className={`${baseClasses} ${borderClass}`}>
-        <div className="flex items-center  py-2 gap-2 flex-1">
+        <div className="flex items-center py-2 gap-2 flex-1">
           <div className={iconWrapper}>{icon}</div>
           <div className="flex flex-col">
             <span className={labelClass}>{label}</span>
@@ -116,12 +114,11 @@ export function ToggleItem({
 }) {
   return (
     <div
-      className={`cursor-pointer transition-all duration-200 rounded-xl p-3 hover:bg-[#21A29D]/10 ${
-        showBorder ? "border-b border-stone-100" : ""
-      }`}
+      className={`cursor-pointer transition-all duration-200 rounded-xl p-4 hover:bg-violet-950/10 ${showBorder ? "border-b border-stone-100" : ""
+        }`}
     >
       <div className="flex items-center gap-4">
-        <div className="w-10 h-10 flex items-center justify-center rounded-full bg-[#21A29D]/10 text-[#21A29D] flex-shrink-0">
+        <div className="w-10 h-10 flex items-center justify-center rounded-full bg-violet-950/5 text-violet-950 flex-shrink-0">
           {icon}
         </div>
         <span className="flex-1 text-[15px] text-stone-700 font-medium">
@@ -129,16 +126,14 @@ export function ToggleItem({
         </span>
         <button
           type="button"
-          className={`w-14 h-8 flex items-center rounded-full transition-all duration-300 ${
-            isToggled === "dark"
-              ? "bg-[#21A29D]/30 justify-end"
-              : "bg-stone-200 justify-start"
-          } p-1`}
+          className={`w-14 h-8 flex items-center rounded-full transition-all duration-300 ${isToggled === "dark"
+            ? "bg-violet-950/30 justify-end"
+            : "bg-stone-200 justify-start"
+            } p-1`}
         >
           <div
-            className={`w-6 h-6 rounded-full transition-all duration-300 ${
-              isToggled ? "bg-[#21A29D]" : "bg-white shadow"
-            }`}
+            className={`w-6 h-6 rounded-full transition-all duration-300 ${isToggled ? "bg-violet-950" : "bg-white shadow"
+              }`}
           ></div>
         </button>
       </div>
