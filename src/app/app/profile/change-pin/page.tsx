@@ -18,7 +18,7 @@ export default function ChangePinPage() {
                         <PasswordInput
                             value={currentPin}
                             onChange={setCurrentPin}
-                            placeholder="Currnet Pin"
+                            placeholder="Current Pin"
                         />
                     </div>
 

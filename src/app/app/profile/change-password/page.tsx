@@ -18,7 +18,7 @@ export default function ChangePasswordPage() {
                         <PasswordInput
                             value={currentPassword}
                             onChange={setCurrentPassword}
-                            placeholder="Currnet Password"
+                            placeholder="Current Password"
                         />
                     </div>
 
