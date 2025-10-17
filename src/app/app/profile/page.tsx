@@ -2,7 +2,7 @@
 
 import { MenuItem } from "@/components/ui/buttons";
 import { Section } from "@/components/ui/Section";
-import { ThemeToggle } from "@/components/ui/themeToggle";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import {
   Bell,
   ChartNoAxesColumn,
