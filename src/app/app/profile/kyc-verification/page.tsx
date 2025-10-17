@@ -1,4 +1,7 @@
+"use client"
+
 import { Section } from "@/components/ui/Section";
+import { Check } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 
@@ -43,7 +46,10 @@ export default function KYCVerification() {
                     <h1 className="text-sm">In Progress</h1>
                 </div>
             </div>
-            
+              <div className="flex placeholder-text gap-2 items-center">
+          <Check size={16} />
+          <span>BVN verification</span>
+              </div>
           </div>
               </div>
             </Section>
