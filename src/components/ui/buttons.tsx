@@ -100,6 +100,21 @@ export function MenuItem({
     );
   }
 
+   if (type === "verify") {
+    return (
+      <Link href={link || "#"} className={`${baseClasses} ${borderClass}`}>
+        <div className="flex items-center gap-4 flex-1">
+          <div className={iconWrapper}>{icon}</div>
+          <div className="flex flex-col">
+            <span className="text-stone-800 font-semibold">{label}</span>
+            <span className="text-sm text-stone-500">Total Amount</span>
+          </div>
+        </div>
+        <span className="px-4 bg-card text-sm rounded-3xl py-2 font-medium">{amount}</span>
+      </Link>
+    );
+  }
+
   return null;
 }
 
