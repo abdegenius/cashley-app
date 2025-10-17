@@ -11,7 +11,7 @@ export default function KYCVerification() {
 
   // const ren
   return (
-    <div className="flex flex-col gap-10 h-full overflow-y-scroll w-full">
+    <div className="flex flex-col gap-10 h-full max-w-lg mx-auto overflow-y-scroll w-full">
       <div>
         <h1 className="text-3xl font-bold">KYC Verification</h1>
         <h2 className="text-lg">
@@ -58,7 +58,7 @@ export default function KYCVerification() {
           </div>
           <div className="flex placeholder-text gap-2 items-center">
             <Check size={20} />
-            <span>BVN verification</span>
+            <span>NIN verification</span>
           </div>
 
           {step === 1 && (
@@ -89,7 +89,7 @@ export default function KYCVerification() {
           </div>
           <div className="flex placeholder-text gap-2 items-center">
             <Check size={20} />
-            <span>BVN verification</span>
+            <span>Selfie verification</span>
           </div>
 
           {step === 2 && (
@@ -135,7 +135,7 @@ export default function KYCVerification() {
       </Section>
 
       <Section title="Tier 3 Benefits" description="" delay={0.12}>
-        <div className=" flex w-full flex-col gap-3 pb-5  border-b ">
+        <div className=" flex w-full flex-col gap-3 pb-5  border-b border-border  ">
           <div className="flex w-full justify-between items-center">
             <div className="flex gap-3 items-center">
               <Image
@@ -145,13 +145,68 @@ export default function KYCVerification() {
                 height={25}
               />
               <div>
-                <h1 className="Higher transaction limits font-bold">Tier 2 - Standard</h1>
-                <h1 className="Up to ₦2,000,000 monthly">In Progress</h1>
+                <h1 className="font-bold">Higher transaction limits</h1>
+                <h1 className="">Up to ₦2,000,000 monthly</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className=" flex w-full flex-col gap-3 pb-5  border-b border-border py-5 ">
+          <div className="flex w-full justify-between items-center">
+            <div className="flex gap-3 items-center">
+              <Image
+                src={"/svg/vector1.svg"}
+                alt="vector1"
+                width={25}
+                height={25}
+              />
+              <div>
+                <h1 className="font-bold">Crypto transaction access</h1>
+                <h1 className="">Receive cryptocurrencies</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className=" flex w-full flex-col gap-3 pb-5  border-b border-border py-5">
+          <div className="flex w-full justify-between items-center">
+            <div className="flex gap-3 items-center">
+              <Image
+                src={"/svg/vector1.svg"}
+                alt="vector1"
+                width={25}
+                height={25}
+              />
+              <div>
+                <h1 className="font-bold">Priority customer support</h1>
+                <h1 className="">Faster response times</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className=" flex w-full flex-col gap-3 pb-5  border-b  border-border py-5">
+          <div className="flex w-full justify-between items-center">
+            <div className="flex gap-3 items-center">
+              <Image
+                src={"/svg/vector1.svg"}
+                alt="vector1"
+                width={25}
+                height={25}
+              />
+              <div>
+                <h1 className="font-bold"> Need Help?</h1>
+                <h1 className="">
+                  Having trouble with verification? Our support team is here to
+                  help.
+                </h1>
               </div>
             </div>
           </div>
         </div>
       </Section>
+
+      <button className="text-lg font-black border gradient-border py-2 rounded-[20px]">
+        Contact Support
+      </button>
     </div>
   );
 }
