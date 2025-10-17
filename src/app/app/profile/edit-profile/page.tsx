@@ -12,7 +12,7 @@ export default function EditProfile() {
             <div>
               <label className="block  font-medium  mb-2">First Name</label>
 
-              <div className="primary-purple-to-blue p-1 w-full rounded-3xl outline-none overflow-hidden">
+              <div className="primary-purple-to-blue p-0.5 w-full rounded-3xl outline-none overflow-hidden">
                 <input
                   type="text"
                   placeholder="Full Name"
@@ -25,11 +25,11 @@ export default function EditProfile() {
               <label htmlFor="phone" className="block  font-medium  mb-2">
                 Last Name
               </label>
-                <div className="primary-purple-to-blue p-1 w-full rounded-3xl outline-none overflow-hidden">
+                <div className=" p-0.5 w-full rounded-3xl primary-purple-to-blue outline-none overflow-hidden">
                 <input
                   type="text"
                   placeholder="Last Name"
-                  className="w-full px-4 py-4 placeholder-text border outline-none overflow-hidden placeholder:placeholder-text bg-card rounded-3xl"
+                  className="w-full px-4 py-4 placeholder-text  border outline-none overflow-hidden placeholder:placeholder-text bg-card rounded-3xl"
                 />
               </div>
             </div>
@@ -38,7 +38,7 @@ export default function EditProfile() {
               <label htmlFor="Dob" className="block  font-medium  mb-2">
                 Date of Birth
               </label>
-                <div className="primary-purple-to-blue p-1 w-full rounded-3xl outline-none overflow-hidden">
+                <div className="primary-purple-to-blue p-0.5 w-full rounded-3xl outline-none overflow-hidden">
                 <input
                   type="text"
                   placeholder="DOb"
@@ -50,7 +50,7 @@ export default function EditProfile() {
               <label htmlFor="email" className="block  font-medium  mb-2">
                 User Name
               </label>
-              <div className="primary-purple-to-blue p-1 w-full rounded-3xl outline-none overflow-hidden">
+              <div className="primary-purple-to-blue p-0.5 w-full rounded-3xl outline-none overflow-hidden">
                 <input
                   type="text"
                   placeholder="User name"
