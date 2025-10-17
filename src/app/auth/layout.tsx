@@ -21,7 +21,7 @@ export default function CenteredLayout({
 
 
   return (
-    <div className="w-full overflow-none min-h-screen h-full flex flex-col items-center p-4 bg-background">
+    <div className="w-full overflow-none min-h-screen h-full flex flex-col items-center p-6 bg-background">
       <div className="flex items-center justify-center flex-col max-w-lg w-full">
         {pathname !== "/auth" && (
           <div className="flex w-full flex flex-row items-center justify-between mb-6">

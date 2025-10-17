@@ -70,7 +70,7 @@ export default function LoginPage() {
 
   return (
     <div className="w-full h-full flex flex-col my-auto items-center justify-between space-y-6">
-      <div className="w-full flex flex-col space-y-12">
+      <div className="w-full flex flex-col space-y-12 items-center">
         <div className="flex items-center gap-2 bg-card p-2 flex-1 w-full rounded-full">
           {[
             { id: 1, title: "Sign In with Pin" },
