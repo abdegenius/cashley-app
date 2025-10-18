@@ -91,7 +91,7 @@ body {
 .bg-purple {
   background: var(--purple);
 }
-.transaparent {
+.transparent {
   background: rgb(var(--transparent));
 }
 
