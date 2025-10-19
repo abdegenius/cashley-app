@@ -73,7 +73,7 @@ body {
 }
 
 .border-border {
-  border-color: rgb(var(--border));
+  border-color: rgb(var(--placeholder));
 }
 
 .bg-background {

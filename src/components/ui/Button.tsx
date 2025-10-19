@@ -8,7 +8,14 @@ export default function Button({
   children,
   loading,
 }: {
-  type?: "primary" | "secondary" | "blue" | "orange" | "purple" | undefined;
+  type?:
+    | "primary"
+    | "secondary"
+    | "blue"
+    | "orange"
+    | "purple"
+    | "card"
+    | undefined;
   width?: string | undefined;
   text?: string | undefined;
   children?: string | undefined;
@@ -28,7 +35,11 @@ export default function Button({
           ? "bg-blue"
           : type === "orange"
           ? "bg-orange"
-          : "bg-purple"
+          : type === "purple"
+          ? "bg-purple"
+          : type === "card"
+          ? "bg-card"
+          : "bg-transparent"
       } py-3 rounded-3xl text-white font-bold text-lg relative ${children}`}
     >
       {text}
