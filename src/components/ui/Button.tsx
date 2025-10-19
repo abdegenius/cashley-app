@@ -45,6 +45,7 @@ export default function Button({
       ? "bg-card"
       : "bg-transparent"
     } 
+    cursor-pointer
     py-3 
     rounded-3xl 
     text-white 
