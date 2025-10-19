@@ -172,7 +172,7 @@ export default function Profile() {
             label="About Cashley"
             label2=""
             type="link"
-            link="#"
+            link="/app/profile/about"
           />
         </Section>
       </div>
