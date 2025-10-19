@@ -1,16 +1,23 @@
-"use client"
-
-import { ArrowLeft } from "lucide-react";
-import { ReactNode } from "react";
+"use client";
 import { useBack } from "@/hooks/useBack";
+import { ArrowLeft } from "lucide-react";
 
-export default function HomeLayout({ children }: { children: ReactNode }) {
+export default function CenteredLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div className="w-full bg-background min-h-screen h-full flex justify-center ">
-      <button onClick={useBack("/home")}  className="hover:bg-card p-2 absolute top-7 left-10 cursor-pointer  rounded-full">
-        <ArrowLeft size={24} />
-      </button>
-      <div className="w-full max-w-xl mt-8">{children}</div>
+    <div className="w-full overflow-none min-h-screen h-full flex flex-col items-center p-4 bg-background">
+      <div className="w-full flex justify-start">
+        <button
+          onClick={useBack("/app")}
+          className="p-2 rounded-full placeholder-text hover:bg-black/10 cursor-pointer mb-4"
+        >
+          <ArrowLeft size={24} />
+        </button>
+      </div>
+      <div className="w-full h-full max-w-xl px-3">{children}</div>
     </div>
   );
 }

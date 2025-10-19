@@ -110,7 +110,7 @@ body {
 .purple-bg {
   background: rgb(var(--purple));
 }
-.transaparent {
+.transparent {
   background: rgb(var(--transparent));
 }
 
