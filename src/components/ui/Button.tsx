@@ -6,16 +6,19 @@ export default function Button({
   text,
   onclick,
   children,
+  loading,
 }: {
   type?: "primary" | "secondary" | "blue" | "orange" | "purple" | undefined;
   width?: string | undefined;
   text?: string | undefined;
-  children?: string | undefined
+  children?: string | undefined;
   onclick?: React.MouseEventHandler<HTMLButtonElement> | undefined;
+  loading?: boolean;
 }): React.JSX.Element {
   return (
     <button
       onClick={onclick}
+      disabled={loading}
       className={`${width} ${
         type === "primary"
           ? "primary-purple-to-blue"
@@ -26,9 +29,12 @@ export default function Button({
           : type === "orange"
           ? "bg-orange"
           : "bg-purple"
-      } py-3 rounded-3xl text-white font-bold text-lg ${children}`}
+      } py-3 rounded-3xl text-white font-bold text-lg relative ${children}`}
     >
       {text}
+      {loading && (
+        <span className="absolute top-0 w-full bg-black/50 rounded-3xl left-0 h-full" />
+      )}
     </button>
   );
 }

@@ -34,7 +34,7 @@
 
 .dark {
   --background: #1b1a1a;
-  --foreground: #ffffff;
+  --foreground: #f3f4f6;
   --placeholder: #666666;
   --card: #292929;
   --transparent: 0, 0, 0, 0.3;
@@ -56,10 +56,15 @@
   --base-color-1: #f8fafc;
   --base-color-2: #f1f5f9;
 }
+.hover\:bg-card:hover {
+  background-color: var(--card);
+}
 
 .gradient-border {
-  /* border: 2px solid; */
-  border-image: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899) 1;
+  background: linear-gradient(white, white) padding-box,
+    linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899) border-box;
+  border: 2px solid transparent;
+  border-radius: 50px;
 }
 
 body {
@@ -74,6 +79,10 @@ body {
 .bg-background {
   background-color: var(--background);
 }
+.hover\:bg-hover:hover {
+  background-color: var(--background);
+}
+
 .placeholder-text {
   color: var(--placeholder);
 }
@@ -82,14 +91,24 @@ body {
   background: var(--card);
 }
 
-.bg-blue {
-  background: var(--blue);
+
+.blue-text {
+  color: rgb(var(--blue));
 }
-.bg-orange {
-  background: var(--orange);
+.orange-text {
+  color: rgb(var(--orange));
 }
-.bg-purple {
-  background: var(--purple);
+.purple-text {
+  color: rgb(var(--purple));
+}
+.blue-bg {
+  background: rgb(var(--blue));
+}
+.orange-bg {
+  background: rgb(var(--orange));
+}
+.purple-bg {
+  background: rgb(var(--purple));
 }
 .transaparent {
   background: rgb(var(--transparent));

@@ -8,6 +8,7 @@ interface TextInputProps {
     placeholder?: string;
     type?: string;
     className?: string;
+    currency? : string;
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -16,10 +17,12 @@ const TextInput: React.FC<TextInputProps> = ({
     placeholder = "",
     type = "text",
     className = "",
+    currency
 }) => {
     return (
         <div
-            className={`w-full flex bg-card rounded-3xl p-4`}>
+            className={`w-full flex bg-card rounded-3xl p-4 text-md`}>
+                {currency && <span>{currency}</span>}
             <input
                 type={type}
                 value={value}
