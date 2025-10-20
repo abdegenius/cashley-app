@@ -75,9 +75,9 @@ export default function Home() {
           </div>
         </div>
 
-        <button className="cursor-pointer hover:bg-card p-2 rounded-full placeholder-text">
+        <Link href={"/app/notifications"} className="cursor-pointer hover:bg-card p-2 rounded-full placeholder-text">
           <Bell size={24} />
-        </button>
+        </Link>
       </div>
 
       <div className="space-y-6 relative">

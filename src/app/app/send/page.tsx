@@ -235,7 +235,7 @@ export default function Send() {
 
       <div className="w-full">
         <div className="flex justify-between items-center py-5">
-          <h1 className="text-xl">Recent Transfers</h1>
+          <h1 className="text-xl">Recent Recipients</h1>
         </div>
 
         {quickSend.map((tag) => (

@@ -493,6 +493,7 @@ export default function GiftCard() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {variations.map((variation) => (
                       <div
+                      key={variation.variation_id}
                         className={` rounded-2xl text-center transition-all p-0.5 ${
                           formData.variation?.variation_id ===
                           variation.variation_id
