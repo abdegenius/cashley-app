@@ -115,11 +115,13 @@ export default function Home() {
               type="secondary"
               text="Send Money"
               width="text-sm sm:text-lg w-full"
+              href="/app/send"
             />
             <Button
               type="primary"
               text="Receive Money"
               width="text-sm sm:text-lg w-full"
+             
             />
           </div>
 
@@ -130,8 +132,8 @@ export default function Home() {
             </div>
           </div>
           <div className="flex justify-center items-center gap-2">
-            <span className="w-4 h-4 rounded-full bg-stone-300"></span>
-            <span className="w-4 h-4 rounded-full bg-stone-300"></span>
+            <span className="w-4 h-4 rounded-full bg-card"></span>
+            <span className="w-4 h-4 rounded-full bg-card"></span>
           </div>
         </div>
 
