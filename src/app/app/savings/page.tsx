@@ -94,7 +94,7 @@ export default function Savings() {
 
           <div className="w-full gap-6 flex items-center">
             <Button type="secondary" text="Add Funds" href="/app/savings/add-funds"/>
-            <Button type="primary" text="Withdrawal" href="/app/savings/withdrawal" />
+            <Button type="primary" text="Withdrawal" href="/app/savings/withdraw" />
           </div>
         </div>
 

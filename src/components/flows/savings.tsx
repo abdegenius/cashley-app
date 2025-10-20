@@ -203,9 +203,11 @@ export default function SavingsAction({
             { id: "weekly", label: "Weekly" },
             { id: "monthly", label: "Monthly" },
           ].map((freq) => (
+           <div key={freq.id} className={`${frequency === freq.id ? "primary-purple-to-blue" : ""} p-0.5 rounded-full`}>
+
             <div
               onClick={() => setFrequency(freq.id as any)}
-              key={freq.id}
+              
               className="w-full cursor-pointer bg-card rounded-full py-4 px-6 flex items-center justify-between"
             >
               <div className="flex gap-3 items-center">
@@ -219,6 +221,7 @@ export default function SavingsAction({
                 />
               </div>
             </div>
+           </div>
           ))}
         </div>
       </div>
