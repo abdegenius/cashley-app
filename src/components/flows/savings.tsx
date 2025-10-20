@@ -1,7 +1,14 @@
 "use client";
 
 import Button from "@/components/ui/Button";
-import { CalendarDays, Plus, CircleQuestionMark, PiggyBank, Home, Wallet } from "lucide-react";
+import {
+  CalendarDays,
+  Plus,
+  CircleQuestionMark,
+  PiggyBank,
+  Home,
+  Wallet,
+} from "lucide-react";
 import React, { useState } from "react";
 
 type ActionType = "add" | "withdraw" | "new";
@@ -15,17 +22,28 @@ interface SavingsActionProps {
     savedAmount: number;
     dueDate: string;
   };
-  onConfirm?: (amount: number, frequency: string, paymentMethod: string) => void;
+  onConfirm?: (
+    amount: number,
+    frequency: string,
+    paymentMethod: string
+  ) => void;
   onCancel?: () => void;
 }
 
-export default function SavingsAction({ type, savingsGoal, onConfirm, onCancel }: SavingsActionProps) {
+export default function SavingsAction({
+  type,
+  savingsGoal,
+  onConfirm,
+  onCancel,
+}: SavingsActionProps) {
   const [amount, setAmount] = useState<string>("");
-  const [frequency, setFrequency] = useState<"once" | "weekly" | "monthly">("once");
+  const [frequency, setFrequency] = useState<"once" | "weekly" | "monthly">(
+    "once"
+  );
   const [paymentMethod, setPaymentMethod] = useState<string>("cashly");
 
   const numbers = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000];
-  
+
   const paymentMethods = [
     {
       accountName: "cashly",
@@ -69,7 +87,7 @@ export default function SavingsAction({ type, savingsGoal, onConfirm, onCancel }
         icon: Wallet,
       },
       new: {
-        title: "New Savings Goal",
+        title: "",
         amountTitle: "How much would you like to add?",
         buttonText: "Create Goal",
         showSavingsGoal: false,
@@ -78,7 +96,7 @@ export default function SavingsAction({ type, savingsGoal, onConfirm, onCancel }
         icon: PiggyBank,
       },
     };
-    
+
     return config[type] || config.add;
   };
 
@@ -108,7 +126,9 @@ export default function SavingsAction({ type, savingsGoal, onConfirm, onCancel }
           </div>
           <div className="">
             <h4 className="">Amount</h4>
-            <h4 className="font-black">₦{savingsGoal.targetAmount.toLocaleString()}</h4>
+            <h4 className="font-black">
+              ₦{savingsGoal.targetAmount.toLocaleString()}
+            </h4>
           </div>
         </div>
 
@@ -118,8 +138,8 @@ export default function SavingsAction({ type, savingsGoal, onConfirm, onCancel }
             <div>{Math.round(progress)}%</div>
           </div>
           <div className="w-full bg-card rounded-2xl overflow-hidden h-2">
-            <div 
-              className="primary-purple-to-blue h-full" 
+            <div
+              className="primary-purple-to-blue h-full"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -150,15 +170,21 @@ export default function SavingsAction({ type, savingsGoal, onConfirm, onCancel }
 
       <div className="w-full grid grid-cols-2 sm:grid-cols-4 gap-4">
         {numbers?.map((num) => (
-          <button
+          <div
             key={num}
-            onClick={() => handleNumberClick(num)}
-            className={`hover:bg-hover transition-all duration-300 w-full rounded-full p-4 ${
-              amount === num.toString() ? "primary-purple-to-blue text-white" : "bg-card"
+            className={`rounded-4xl ${
+              amount === num.toString()
+                ? "primary-purple-to-blue p-0.5"
+                : "bg-card"
             }`}
           >
-            ₦{num.toLocaleString()}
-          </button>
+            <button
+              onClick={() => handleNumberClick(num)}
+              className={`hover:bg-hover bg-card transition-all duration-300 w-full rounded-full p-4 `}
+            >
+              ₦{num.toLocaleString()}
+            </button>
+          </div>
         ))}
       </div>
     </div>
@@ -170,21 +196,24 @@ export default function SavingsAction({ type, savingsGoal, onConfirm, onCancel }
     return (
       <div className="w-full space-y-4">
         <h1 className="text-xl font-black">Frequency</h1>
-        
+
         <div className="space-y-3">
           {[
             { id: "once", label: "One-time" },
             { id: "weekly", label: "Weekly" },
             { id: "monthly", label: "Monthly" },
           ].map((freq) => (
-            <div key={freq.id} className="w-full bg-card rounded-full py-4 px-6 flex items-center justify-between">
+            <div
+              onClick={() => setFrequency(freq.id as any)}
+              key={freq.id}
+              className="w-full cursor-pointer bg-card rounded-full py-4 px-6 flex items-center justify-between"
+            >
               <div className="flex gap-3 items-center">
                 <CalendarDays size={20} className="placeholder-text" />
                 <p className="font-medium">{freq.label}</p>
               </div>
-              <div className="rounded-full border border-border p-1">
+              <div className="rounded-full border-border p-1">
                 <Button
-                  onclick={() => setFrequency(freq.id as any)}
                   type={frequency === freq.id ? "secondary" : "card"}
                   width="w-5 h-5 flex flex-none"
                 />
@@ -210,6 +239,7 @@ export default function SavingsAction({ type, savingsGoal, onConfirm, onCancel }
         <div className="space-y-3">
           {methods?.map((method) => (
             <div
+              onClick={() => setPaymentMethod(method.accountName)}
               key={method.accountName}
               className="w-full bg-card rounded-full py-4 px-6 flex items-center justify-between"
             >
@@ -220,14 +250,17 @@ export default function SavingsAction({ type, savingsGoal, onConfirm, onCancel }
                 <div>
                   <p className="font-medium">{method.bankName}</p>
                   {method.accountNumber && (
-                    <p className="text-xs text-gray-500">{method.accountNumber}</p>
+                    <p className="text-xs text-gray-500">
+                      {method.accountNumber}
+                    </p>
                   )}
                 </div>
               </div>
               <div className="rounded-full border border-border p-1">
                 <Button
-                  onclick={() => setPaymentMethod(method.accountName)}
-                  type={paymentMethod === method.accountName ? "secondary" : "card"}
+                  type={
+                    paymentMethod === method.accountName ? "secondary" : "card"
+                  }
                   width="w-5 h-5 flex flex-none"
                 />
               </div>

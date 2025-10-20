@@ -181,14 +181,7 @@ export default function GiftCard() {
     }
   }, [searchQuery]);
 
-  const getHeaderTitle = () => {
-    if (step === 1) return "Select Gift Card";
-    if (step === 2) return "Select Country & Amount";
-    if (step === 3) return "Summary";
-    if (step === 4) return "Enter PIN";
-    if (step === 5) return success ? "Voucher Generated" : "Transaction Failed";
-    return "Buy Gift Card";
-  };
+
 
   // Fetch variations when provider is selected
   useEffect(() => {
@@ -803,15 +796,17 @@ export default function GiftCard() {
 
   return (
     <div className="w-full h-full  mx-auto max-w-xl flex flex-col">
+      {step > 1 && (
+        <div className=" flex items-center justify-between">
+          <button
+            onClick={handleBack}
+            className="p-2 hover:bg-card rounded-full transition-colors"
+          >
+            <ArrowLeft size={24} />
+          </button>
+        </div>
+      )}
       {/* Header */}
-      <div className=" flex items-center justify-between">
-        <button
-          onClick={handleBack}
-          className="p-2 hover:bg-card rounded-full transition-colors"
-        >
-          <ArrowLeft size={24} />
-        </button>
-      </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">

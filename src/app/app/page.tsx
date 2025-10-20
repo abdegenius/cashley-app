@@ -50,7 +50,7 @@ export default function Home() {
     {
       name: "Crypto",
       icon: <Bitcoin size={24} className="purple-text" />,
-      link: "/app/crypto",
+      link: "/app/deposite",
     },
     {
       name: "Savings",
