@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Fingerprint } from "lucide-react";
+import { ArrowRight, Check, Fingerprint } from "lucide-react";
 
 export function Keypad({
     numbers,
@@ -7,7 +7,8 @@ export function Keypad({
     onDelete,
     onConfirm,
     disableConfirm,
-    loading
+    loading,
+    step
 }: {
     numbers: string[];
     onNumberClick: (num: string) => void;
@@ -15,6 +16,7 @@ export function Keypad({
     onConfirm: () => void;
     disableConfirm: boolean;
     loading: boolean;
+    step?: number
 }) {
     return (
         <div className="grid grid-cols-3 gap-3 mx-auto sm:w-90 justify-center items-center">
@@ -25,7 +27,7 @@ export function Keypad({
                             key={idx}
                             whileTap={{ scale: 0.9 }}
                             onClick={onDelete}
-                            className="text-lg py-4 rounded-2xl bg-background font-semibold hover:bg-stone-200 transition-all"
+                            className="text-lg w-20 h-20 rounded-full bg-background font-semibold mx-auto hover:bg-stone-200 transition-all shadow-sm flex items-center justify-center"
                         >
                             ⌫
                         </motion.button>
@@ -37,7 +39,7 @@ export function Keypad({
                             whileTap={{ scale: 0.95 }}
                             onClick={onConfirm}
                             disabled={disableConfirm || loading}
-                            className={`text-lg py-4 rounded-2xl font-semibold transition-all flex items-center justify-center ${disableConfirm || loading
+                            className={`text-lg w-20 h-20 rounded-full font-semibold mx-auto hover:bg-stone-100  transition-all shadow-sm flex items-center justify-center ${disableConfirm || loading
                                 ? "bg-background text-stone-400 cursor-not-allowed"
                                 : "primary-purple-to-blue shadow-md"
                                 }`}
@@ -45,7 +47,23 @@ export function Keypad({
                             <Fingerprint size={36} />
                         </motion.button>
                     );
-                } else {
+                } else if (num === "#" && step) {
+                    return (
+                        <motion.button
+                            key={idx}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={onConfirm}
+                            disabled={disableConfirm || loading}
+                            className={`text-lg w-20 h-20 rounded-full font-semibold mx-auto hover:bg-stone-100  transition-all shadow-sm flex items-center justify-center ${disableConfirm || loading
+                                ? "bg-background text-stone-400 cursor-not-allowed"
+                                : "primary-purple-to-blue shadow-md"
+                                }`}
+                        >
+                            {step == 1 ? <ArrowRight size={36} /> : <Check size={36} />}
+                        </motion.button>
+                    );
+                }
+                else {
                     return (
                         <motion.button
                             key={idx}

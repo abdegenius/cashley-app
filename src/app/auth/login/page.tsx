@@ -141,7 +141,7 @@ export default function LoginPage() {
       <Button type="secondary" text="Log in" width="w-full max-w-sm" />
 
       <div className="flex w-full items-center justify-center flex-row space-x-1">
-        <span className="text-sm font-normal">Don't have an account?</span>
+        <span className="text-sm font-normal">{"Don't have an account?"}</span>
         <Link href={"/auth/create-account"} className=" placeholder-text">
           Create account now..
         </Link>

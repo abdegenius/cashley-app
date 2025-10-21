@@ -71,7 +71,7 @@ export default function Profile() {
             label="Leaderboard"
             label2="View Cashley weekly ranking"
             type="link"
-            link="app/leaderboard"
+            link="/app/leaderboard"
           />
         </Section>
         <Section title="Security & Privacy" description="" delay={0.12}>

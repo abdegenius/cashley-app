@@ -36,7 +36,7 @@ export default function Balances({
     {
       currency: "NGN",
       amount: 10000,
-      type: "Deposite",
+      type: "Deposit",
       date: "Tuesday, July 1, 2025 - 8:00AM",
     },
     {
@@ -48,7 +48,7 @@ export default function Balances({
     {
       currency: "USD",
       amount: 1000,
-      type: "Deposite",
+      type: "Deposit",
       date: "Tuesday, July 1, 2025 - 8:00AM",
     },
     {
@@ -60,7 +60,7 @@ export default function Balances({
     {
       currency: "NGN",
       amount: 10000,
-      type: "Deposite",
+      type: "Deposit",
       date: "Tuesday, July 1, 2025 - 8:00AM",
     },
     {
@@ -72,13 +72,13 @@ export default function Balances({
     {
       currency: "USD",
       amount: 1000,
-      type: "Deposite",
+      type: "Deposit",
       date: "Tuesday, July 1, 2025 - 8:00AM",
     },
     {
       currency: "NGN",
       amount: 10000,
-      type: "Deposite",
+      type: "Deposit",
       date: "Tuesday, July 1, 2025 - 8:00AM",
     },
     {
@@ -96,7 +96,7 @@ export default function Balances({
     {
       currency: "USD",
       amount: 1000,
-      type: "Deposite",
+      type: "Deposit",
       date: "Tuesday, July 1, 2025 - 8:00AM",
     },
   ];

@@ -37,7 +37,7 @@ export default function SavingsAction({
   onCancel,
 }: SavingsActionProps) {
   const [amount, setAmount] = useState<string>("");
-  const [frequency, setFrequency] = useState<"once" | "weekly" | "monthly">(
+  const [frequency, setFrequency] = useState<"once" | "weekly" | "monthly" | string>(
     "once"
   );
   const [paymentMethod, setPaymentMethod] = useState<string>("cashly");
@@ -206,7 +206,7 @@ export default function SavingsAction({
            <div key={freq.id} className={`${frequency === freq.id ? "primary-purple-to-blue" : ""} p-0.5 rounded-full`}>
 
             <div
-              onClick={() => setFrequency(freq.id as any)}
+              onClick={() => setFrequency(freq.id)}
               
               className="w-full cursor-pointer bg-card rounded-full py-4 px-6 flex items-center justify-between"
             >

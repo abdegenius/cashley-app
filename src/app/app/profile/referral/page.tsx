@@ -12,7 +12,7 @@ export default function ReferralProgram() {
       await navigator.clipboard.writeText(referralCode);
       alert("Referral code copied to clipboard!");
     } catch (err) {
-      console.error("Failed to copy text: ", err);
+      console.error("Failed to copy text:", err);
     }
   };
 
@@ -23,7 +23,7 @@ export default function ReferralProgram() {
       <div className="w-full bg-card rounded-xl flex-col flex items-center justify-center p-4 gap-2">
         <Image
           src={"/svg/warning.svg"}
-          alt="piggy bank "
+          alt="piggy bank"
           width={100}
           height={100}
         />
@@ -164,7 +164,7 @@ export default function ReferralProgram() {
               <div className="w-2 h-2 rounded-full bg-primary"></div>
             </div>
             <div>
-              Referral bonus paid after friend's first ₦5,000+ transaction
+              {"Referral bonus paid after friend's first ₦5,000+ transaction"}
             </div>
           </div>
 

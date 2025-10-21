@@ -177,7 +177,7 @@ export default function Send() {
               </div>
               <div className="space-y-1 text-left">
                 <h4 className="text-lg">Send to Nickname</h4>
-                <h4 className="text-sm text-gray-500">Enter recipient's unique @nickname</h4>
+                <h4 className="text-sm text-gray-500">{"Enter recipient's unique @nickname"}</h4>
               </div>
             </div>
             <ArrowRight size={24} className="text-gray-400" />
@@ -193,7 +193,7 @@ export default function Send() {
               </div>
               <div className="space-y-1 text-left">
                 <h4 className="text-lg">Send via email</h4>
-                <h4 className="text-sm text-gray-500">Enter recipient's email address</h4>
+                <h4 className="text-sm text-gray-500">{"Enter recipient's email address"}</h4>
               </div>
             </div>
             <ArrowRight size={24} className="text-gray-400" />
@@ -209,7 +209,7 @@ export default function Send() {
               </div>
               <div className="space-y-1 text-left">
                 <h4 className="text-lg">Send via phone</h4>
-                <h4 className="text-sm text-gray-500">Enter recipient's phone number</h4>
+                <h4 className="text-sm text-gray-500">{"Enter recipient's phone number"}</h4>
               </div>
             </div>
             <ArrowRight size={24} className="text-gray-400" />
