@@ -39,7 +39,7 @@ export default function KYCVerification() {
 
       <Section title="Verification Tiers" description="" delay={0.12}>
         <div className=" flex w-full flex-col gap-3 pb-5 ">
-          <div className="flex w-full justify-between items-center">
+          <div className="flex w-full justify-between items-center  p-2">
             <div className="flex gap-3 items-center">
               <Image
                 src={"/svg/vector1.svg"}
@@ -70,7 +70,7 @@ export default function KYCVerification() {
           )}
         </div>
         <div className=" flex w-full flex-col gap-3 pb-5">
-          <div className="flex w-full justify-between items-center">
+          <div className="flex w-full justify-between items-center  p-2">
             <div className="flex gap-3 items-center">
               <Image
                 src={"/svg/vector1.svg"}
@@ -102,7 +102,7 @@ export default function KYCVerification() {
         </div>
 
         <div className=" flex w-full flex-col gap-3 pb-5">
-          <div className="flex w-full justify-between items-center">
+          <div className="flex w-full justify-between items-center  p-2">
             <div className="flex gap-3 items-center">
               <Image
                 src={"/svg/vector1.svg"}
@@ -135,8 +135,8 @@ export default function KYCVerification() {
       </Section>
 
       <Section title="Tier 3 Benefits" description="" delay={0.12}>
-        <div className=" flex w-full flex-col gap-3 pb-5  border-b border-border  ">
-          <div className="flex w-full justify-between items-center">
+        <div className=" flex w-full flex-col gap-3 pb-5    ">
+          <div className="flex w-full justify-between items-center  p-2">
             <div className="flex gap-3 items-center">
               <Image
                 src={"/svg/vector1.svg"}
@@ -151,8 +151,8 @@ export default function KYCVerification() {
             </div>
           </div>
         </div>
-        <div className=" flex w-full flex-col gap-3 pb-5  border-b border-border py-5 ">
-          <div className="flex w-full justify-between items-center">
+        <div className=" flex w-full flex-col gap-3 pb-5   py-5 ">
+          <div className="flex w-full justify-between items-center  p-2">
             <div className="flex gap-3 items-center">
               <Image
                 src={"/svg/vector1.svg"}
@@ -167,8 +167,8 @@ export default function KYCVerification() {
             </div>
           </div>
         </div>
-        <div className=" flex w-full flex-col gap-3 pb-5  border-b border-border py-5">
-          <div className="flex w-full justify-between items-center">
+        <div className=" flex w-full flex-col gap-3 pb-5   py-5">
+          <div className="flex w-full justify-between items-center  p-2">
             <div className="flex gap-3 items-center">
               <Image
                 src={"/svg/vector1.svg"}
@@ -184,7 +184,7 @@ export default function KYCVerification() {
           </div>
         </div>
         <div className=" flex w-full flex-col gap-3 pb-5  border-b  border-border py-5">
-          <div className="flex w-full justify-between items-center">
+          <div className="flex w-full justify-between items-center  p-2">
             <div className="flex gap-3 items-center">
               <Image
                 src={"/svg/vector1.svg"}
@@ -204,9 +204,11 @@ export default function KYCVerification() {
         </div>
       </Section>
 
-      <button className="text-lg font-black border gradient-border py-2 rounded-[20px]">
-        Contact Support
-      </button>
+      <div className="w-full p-0.5 rounded-full  primary-orange-to-purple">
+        <button className="text-lg  font-black w-full bg-card gradient-border  py-2 rounded-full">
+          Contact Support
+        </button>
+      </div>
     </div>
   );
 }

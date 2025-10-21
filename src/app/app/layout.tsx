@@ -14,7 +14,16 @@ export default function CenteredLayout({
   const router = useRouter();
   const pathname = usePathname();
 
-  const isActive = (linkPath: string) => pathname === linkPath;
+  const isActive = (linkPath: string) => {
+    if (linkPath === "/app") {
+      return pathname === "/app" || 
+             pathname === "/app/" || 
+             !pathname.startsWith("/app/services") && 
+             !pathname.startsWith("/app/card") && 
+             !pathname.startsWith("/app/profile");
+    }
+    return pathname.startsWith(linkPath);
+  };
 
   const navItems = [
     { icon: Home, name: "Home", link: "/app" },
@@ -23,7 +32,6 @@ export default function CenteredLayout({
     { icon: UserCircle, name: "Profile", link: "/app/profile" },
   ];
 
-  // Bounce animation for loader dots
   const bounceTransition = {
     y: {
       duration: 0.4,

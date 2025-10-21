@@ -63,7 +63,7 @@ export default function Profile() {
             label="KYC Verification"
             label2="Tier 1 Verified"
             type="link"
-            link="app/profile/kyc-verification"
+            link="/app/profile/kyc-verification"
           />
           <MenuItem
             showBorder={true}
