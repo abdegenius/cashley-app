@@ -73,7 +73,7 @@ body {
 }
 
 .border-border {
-  border-color: rgb(var(--border));
+  border: 1px solid rgb(var(--border));
 }
 
 .bg-background {
@@ -90,7 +90,6 @@ body {
 .bg-card {
   background: var(--card);
 }
-
 
 .blue-text {
   color: rgb(var(--blue));

@@ -63,7 +63,7 @@ export default function Profile() {
             label="KYC Verification"
             label2="Tier 1 Verified"
             type="link"
-            link="#"
+            link="app/profile/kyc-verification"
           />
           <MenuItem
             showBorder={true}
@@ -71,7 +71,7 @@ export default function Profile() {
             label="Leaderboard"
             label2="View Cashley weekly ranking"
             type="link"
-            link="#"
+            link="app/leaderboard"
           />
         </Section>
         <Section title="Security & Privacy" description="" delay={0.12}>
@@ -91,17 +91,7 @@ export default function Profile() {
             type="link"
             link="/app/profile/change-password"
           />
-          <div className="flex items-center justify-between">
-            <MenuItem
-              showBorder={false}
-              icon={<Fingerprint size={18} />}
-              label="Biometrics Login"
-              label2="Use fingerprint or face ID to login"
-              type="button"
-              link="#"
-            />
-            <ThemeToggle />
-          </div>
+          
         </Section>
 
         <div className="w-full bg-card rounded-xl gap-4 py-6 px-4 sm:px-6 flex flex-col items-start justify-start">
@@ -129,7 +119,7 @@ export default function Profile() {
             label="FAQs"
             label2="Ask a question or find answers"
             type="link"
-            link="#"
+            link="/app/faq"
           />
           <MenuItem
             showBorder={true}
@@ -137,7 +127,7 @@ export default function Profile() {
             label="Contact Support"
             label2="Chat with us for assistance"
             type="link"
-            link="#"
+            link="/app/profile/chat"
           />
           <MenuItem
             showBorder={true}
@@ -156,7 +146,7 @@ export default function Profile() {
             label="Appearance"
             label2="Choose your preferred theme"
             type="link"
-            link="#"
+            link="/app/profile/appearance"
           />
           <MenuItem
             showBorder={true}
@@ -164,7 +154,7 @@ export default function Profile() {
             label="Notifications"
             label2="Manage push notifications"
             type="link"
-            link="#"
+            link="/app/notification"
           />
           <MenuItem
             showBorder={true}
@@ -172,7 +162,7 @@ export default function Profile() {
             label="About Cashley"
             label2=""
             type="link"
-            link="#"
+            link="/app/profile/about"
           />
         </Section>
       </div>
