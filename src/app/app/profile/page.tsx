@@ -63,7 +63,7 @@ export default function Profile() {
             label="KYC Verification"
             label2="Tier 1 Verified"
             type="link"
-            link="app/profile/kyc-verification"
+            link="/app/profile/kyc-verification"
           />
           <MenuItem
             showBorder={true}
@@ -71,7 +71,7 @@ export default function Profile() {
             label="Leaderboard"
             label2="View Cashley weekly ranking"
             type="link"
-            link="app/leaderboard"
+            link="/app/leaderboard"
           />
         </Section>
         <Section title="Security & Privacy" description="" delay={0.12}>
