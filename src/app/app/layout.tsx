@@ -42,7 +42,7 @@ export default function CenteredLayout({
           <ArrowLeft size={24} />
         </button>
       </div>
-      <div className="w-full h-full max-w-xl px-3">{children}</div>
+      <div className="w-full h-full max-w-xl mb-20 px-3">{children}</div>
 
        <div
             className="max-w-xl  mx-auto bg-card fixed bottom-0 left-0 right-0
