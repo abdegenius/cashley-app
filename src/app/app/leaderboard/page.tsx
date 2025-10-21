@@ -99,8 +99,8 @@ export default function LeaderboardPage() {
                     <div className="text-2xl font-semibold">All Rankings</div>
 
                     <ul className="w-full items-start justify-start space-y-2 divide-y divide-stone-200">
-                        {leaderboards.map((user) => (
-                            <li className="w-full pb-4 pt-2 flex flex-row items-center justify-start space-x-2">
+                        {leaderboards.map((user, i) => (
+                            <li key={i} className="w-full pb-4 pt-2 flex flex-row items-center justify-start space-x-2">
                                 <div className="w-full flex flex-row items-center justify-start">
                                     <div className="w-12 h-12 rounded-full">
                                         <Image
