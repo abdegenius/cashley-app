@@ -467,7 +467,7 @@ export default function Purchase({ type }: PurchaseProps) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="space-y-8 w-full min-h-[89vh] flex flex-col justify-end"
+            className="space-y-8 w-full h-full flex flex-col justify-end"
           >
             <div className="w-full bg-card py-5 rounded-t-3xl">
               <div className="space-y-1">
@@ -716,29 +716,35 @@ function ProviderSelect({ providers, value, onChange }: ProviderSelectProps) {
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {providers.map((provider) => (
-          <motion.button
+          <div
             key={provider.service_id}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onChange(provider.service_id)}
-            className={`flex flex-col items-center  rounded-2xl overflow-hidden transition-all ${
-              value === provider.service_id ? "bg-primary/10" : "bg-card"
+            className={` rounded-2xl p-0.5 ${
+              value === provider.service_id
+                ? "primary-purple-to-blue"
+                : "bg-card"
             }`}
           >
-            <div className="w-full h-auto  mb-2 flex items-center justify-center">
-              <div className=" w-full h-20 relative">
-                <Image
-                  src={provider.logo}
-                  alt={provider.service_name}
-                  fill
-                  className="object-cover"
-                />
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => onChange(provider.service_id)}
+              className={`flex flex-col items-center w-full rounded-2xl overflow-hidden transition-all bg-card`}
+            >
+              <div className="w-full h-auto  mb-2 flex items-center justify-center">
+                <div className=" w-full h-20 relative">
+                  <Image
+                    src={provider.logo}
+                    alt={provider.service_name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
               </div>
-            </div>
-            <span className="text-sm font-medium py-1 text-center">
-              {provider.service_name}
-            </span>
-          </motion.button>
+              <span className="text-sm font-medium py-1 text-center">
+                {provider.service_name}
+              </span>
+            </motion.button>
+          </div>
         ))}
       </div>
     </div>
@@ -765,31 +771,38 @@ function VariationSelect({
       </label>
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
         {variations.map((variation) => (
-          <motion.button
+          <div
             key={variation.variation_id}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => onSelect(variation)}
-            className={`w-full p-4 rounded-2xl text-left transition-all ${
+            className={` rounded-2xl p-0.5 ${
               value?.variation_id === variation.variation_id
-                ? "bg-primary/10"
+                ? "primary-purple-to-blue"
                 : "bg-card"
             }`}
           >
-            <div className="flex flex-col  justify-between items-center">
-              <div>
-                <h4 className="font-black text-center">
-                  {type === "tv"
-                    ? variation.package_bouquet
-                    : variation.data_plan}
-                </h4>
-                <p className="text-sm text-center">{variation.service_name}</p>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onSelect(variation)}
+              className={`w-full p-4 rounded-2xl text-left transition-all bg-card
+            `}
+            >
+              <div className="flex flex-col  justify-between items-center">
+                <div>
+                  <h4 className="font-black text-center">
+                    {type === "tv"
+                      ? variation.package_bouquet
+                      : variation.data_plan}
+                  </h4>
+                  <p className="text-sm text-center">
+                    {variation.service_name}
+                  </p>
+                </div>
+                <span className="text-center text-lg">
+                  ₦{parseInt(variation.price).toLocaleString()}
+                </span>
               </div>
-              <span className="text-center text-lg">
-                ₦{parseInt(variation.price).toLocaleString()}
-              </span>
-            </div>
-          </motion.button>
+            </motion.button>
+          </div>
         ))}
       </div>
     </div>
