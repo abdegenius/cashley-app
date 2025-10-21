@@ -7,7 +7,7 @@ export default function Home() {
   const router = useRouter();
 
   setTimeout(() => {
-    router.push("/auth/login");
+    router.push("/auth");
   }, 1000);
   return (
     <div className="w-full h-full font-sans items-center relative organic-gradient-bg  min-h-100vh">

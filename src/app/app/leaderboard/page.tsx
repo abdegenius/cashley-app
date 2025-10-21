@@ -89,7 +89,7 @@ export default function LeaderboardPage() {
                             </div>
                         </div>
 
-                        <div className="w-16 h-16 px-4 text-center rounded-full flex-1 flex items-center justify-center mx-auto primary-purple-to-blue text-md font-bold text-white">
+                        <div className="w-16 h-16 px-4 text-center rounded-full flex-1 flex items-center justify-center mx-auto primary-purple-to-blue text-md font-bold">
                             24th
                         </div>
 
@@ -98,7 +98,7 @@ export default function LeaderboardPage() {
 
                     <div className="text-2xl font-semibold">All Rankings</div>
 
-                    <ul className="w-full items-start justify-start space-y-2 divide-y divide-white/10">
+                    <ul className="w-full items-start justify-start space-y-2 divide-y divide-stone-200">
                         {leaderboards.map((user) => (
                             <li className="w-full pb-4 pt-2 flex flex-row items-center justify-start space-x-2">
                                 <div className="w-full flex flex-row items-center justify-start">
@@ -117,7 +117,7 @@ export default function LeaderboardPage() {
                                     </div>
                                 </div>
 
-                                <div className="w-12 h-12 p-4 text-center rounded-full flex-1 flex items-center justify-center mx-auto bg-card text-sm font-bold text-white">
+                                <div className="w-12 h-12 p-4 text-center rounded-full flex-1 flex items-center justify-center mx-auto bg-card text-lg font-semibold">
                                     {getRankTitle(user.id)}
                                 </div>
 

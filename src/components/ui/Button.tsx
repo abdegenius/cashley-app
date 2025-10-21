@@ -19,17 +19,16 @@ export default function Button({
     <button
       onClick={onclick}
       disabled={loading}
-      className={`${width} ${
-        type === "primary"
+      className={`${width} ${type === "primary"
           ? "primary-purple-to-blue"
           : type === "secondary"
-          ? "primary-orange-to-purple"
-          : type === "blue"
-          ? "bg-blue"
-          : type === "orange"
-          ? "bg-orange"
-          : "bg-purple"
-      } py-3 rounded-3xl text-white font-bold text-lg relative ${children}`}
+            ? "primary-orange-to-purple"
+            : type === "blue"
+              ? "bg-blue"
+              : type === "orange"
+                ? "bg-orange"
+                : "bg-purple"
+        } py-3 rounded-3xl text-white font-bold text-lg relative cursor-pointer ${children}`}
     >
       {text}
       {loading && (

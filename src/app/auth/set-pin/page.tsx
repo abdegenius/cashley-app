@@ -2,6 +2,7 @@
 
 import { Keypad } from "@/components/models/Keypad";
 import Button from "@/components/ui/Button";
+import { toDigitArray } from "@/utils/string";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 import React, { useState } from "react";
@@ -11,11 +12,11 @@ export default function SetPin() {
   const [confirmPin, setConfirmPin] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showPin, setshowPin] = useState<boolean>(false);
   const [step, setStep] = useState(1);
 
-  const handleShowPassword = () => {
-    setShowPassword(!showPassword);
+  const handleShowPin = () => {
+    setshowPin(!showPin);
   };
 
   const validatePins = () => {
@@ -69,19 +70,22 @@ export default function SetPin() {
   };
 
   const renderDots = (val: string) => (
-    <div className="flex justify-center gap-3 mb-6">
-      {[...Array(4)].map((_, i) => (
+    <div className="w-full flex justify-center gap-3 mb-6">
+      {!showPin ? [...Array(4)].map((_, i) => (
         <motion.div
           key={i}
           animate={{ scale: val[i] ? 1.1 : 1 }}
           transition={{ type: "spring", stiffness: 300 }}
-          className={`w-4 h-4 rounded-full ${
-            val[i]
-              ? "primary-purple-to-blue shadow-md"
-              : "bg-stone-200 border border-stone-300"
-          }`}
+          className={`w-6 h-6 rounded-full ${val[i]
+            ? "primary-purple-to-blue shadow-md"
+            : "bg-stone-200 border border-stone-300"
+            }`}
         ></motion.div>
-      ))}
+      )) :
+        toDigitArray(pin).map((p, i) => (
+          <span key={i} className="text-4xl font-bold font-mono text-center px-2">{p}</span>
+        ))
+      }
     </div>
   );
 
@@ -98,22 +102,22 @@ export default function SetPin() {
                 Enter a 4-digit PIN to secure your account
               </p>
               <button
-                onClick={handleShowPassword}
+                onClick={handleShowPin}
                 className="cursor-pointer text-gray-500 hover:text-gray-700"
                 type="button"
               >
-                {showPassword ? (
+                {showPin ? (
                   <Eye size={16} className="inline" />
                 ) : (
                   <EyeOff size={16} className="inline" />
                 )}
                 <span className="ml-2 text-xs">
-                  {showPassword ? "Hide PIN" : "Show PIN"}
+                  {showPin ? "Hide" : "Show"}
                 </span>
               </button>
-              {showPassword && pin && (
-                <div className="mt-2 text-lg font-mono">{pin}</div>
-              )}
+              {/* {showPin && pin && (
+                
+              )} */}
             </div>
 
             <Keypad
@@ -123,6 +127,7 @@ export default function SetPin() {
               onConfirm={handleConfirm}
               disableConfirm={pin.length < 4}
               loading={false}
+              step={step}
             />
           </div>
         );
@@ -140,20 +145,20 @@ export default function SetPin() {
                 <span className="text-red-500 text-sm block mb-2">{error}</span>
               )}
               <button
-                onClick={handleShowPassword}
+                onClick={handleShowPin}
                 className="cursor-pointer text-gray-500 hover:text-gray-700"
                 type="button"
               >
-                {showPassword ? (
+                {showPin ? (
                   <Eye size={16} className="inline" />
                 ) : (
                   <EyeOff size={16} className="inline" />
                 )}
                 <span className="ml-2 text-xs">
-                  {showPassword ? "Hide PIN" : "Show PIN"}
+                  {showPin ? "Hide PIN" : "Show PIN"}
                 </span>
               </button>
-              {showPassword && confirmPin && (
+              {showPin && confirmPin && (
                 <div className="mt-2 text-lg font-mono">{confirmPin}</div>
               )}
             </div>
@@ -165,6 +170,7 @@ export default function SetPin() {
               onConfirm={handleConfirm}
               disableConfirm={confirmPin.length < 4}
               loading={false}
+              step={step}
             />
           </div>
         );
@@ -181,9 +187,9 @@ export default function SetPin() {
     "7",
     "8",
     "9",
-    "✓",
-    "0",
     "←",
+    "0",
+    "#",
   ];
 
   const handleBack = () => {
@@ -209,13 +215,13 @@ export default function SetPin() {
             width="w-full"
           />
         )}
-        <Button
+        {/* <Button
           loading={loading}
           onclick={handleNext}
           type="secondary"
           text={step === 1 ? "Continue" : "Set PIN"}
           width="w-full"
-        />
+        /> */}
       </div>
     </div>
   );
