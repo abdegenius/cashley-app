@@ -15,10 +15,13 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Home() {
   const [showbal, setShobal] = useState<string | null>(null);
   const [balanceProp, setBalanceProp] = useState<string | null>(null);
+
+  const {user} = useAuth()
 
   const handleShowbal = (id: string) => {
     if (showbal === id) setShobal(id);
