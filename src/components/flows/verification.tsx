@@ -7,6 +7,9 @@ import { motion } from "framer-motion";
 import { Check, Camera } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import Webcam from "react-webcam";
+import { z } from "zod";
+import api from "@/libs/axios";
+import toast from "react-hot-toast";
 
 type VerificationType = "bvn" | "nin" | "selfie";
 
@@ -14,16 +17,33 @@ interface VerifyProps {
   type: VerificationType;
 }
 
+const bvnSchema = z.object({
+  bvn: z
+    .string()
+    .min(11, "BVN must be exactly 11 digits")
+    .max(11, "BVN must be exactly 11 digits")
+    .regex(/^\d+$/, "BVN must contain only numbers"),
+});
+
+const ninSchema = z.object({
+  nin: z
+    .string()
+    .min(11, "NIN must be exactly 11 digits")
+    .max(11, "NIN must be exactly 11 digits")
+    .regex(/^\d+$/, "NIN must contain only numbers"),
+});
+
 export default function Verify({ type }: VerifyProps) {
   const [step, setStep] = useState(1);
   const [otp, setOtp] = useState("");
   const [loading, showLoading] = useState(false);
+  const [bvnNumber, setBvnNumber] = useState("");
+  const [ninNumber, setNinNumber] = useState("");
   const webcamRef = useRef<Webcam>(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [error, setError] = useState<string>("");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
-  // Start camera automatically when selfie verification is active
   useEffect(() => {
     if (type === "selfie" && step === 1) {
       setIsCameraOn(true);
@@ -32,7 +52,6 @@ export default function Verify({ type }: VerifyProps) {
     }
   }, [type, step]);
 
-  // Capture photo from webcam
   const capturePhoto = () => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
@@ -53,7 +72,6 @@ export default function Verify({ type }: VerifyProps) {
   };
 
   const handleNext = () => {
-    // If it's selfie verification and step 1, capture the image first
     if (type === "selfie" && step === 1) {
       const image = capturePhoto();
       if (image) {
@@ -65,12 +83,63 @@ export default function Verify({ type }: VerifyProps) {
     }
   };
 
-  const handleLoading = () => {
+  const verifyBvn = async (bvn: string) => {
+    try {
+      const validatedData = bvnSchema.parse({ bvn });
+
+      const response = await api.post("/user/verify/bvn", validatedData);
+      if (response.data && !response.data.error) {
+        toast.success("BVN Uploaded successfully");
+      } else {
+        const err = response.data.message;
+        toast.error("Failed to upload BVN", err);
+      }
+    } catch (error) {
+      console.log("failed to upload BVN", error);
+    }
+  };
+
+  const verifyNin = async (nin: string) => {
+    try {
+      const validatedData = ninSchema.parse({ nin });
+      const response = await api.post("/user/verify/nin", validatedData);
+
+      if (response.data && !response.data.error) {
+        toast.success("NIN Uploaded successfully");
+      } else {
+        const err = response.data.message;
+        toast.error("Failed to upload NIN", err);
+      }
+    } catch (error) {
+      if (error) {
+        console.log("Fail to send", error);
+      }
+      throw error;
+    }
+  };
+
+  const handleLoading = async () => {
     showLoading(true);
-    setTimeout(() => {
+    setError("");
+
+    try {
+      if (type === "bvn" && bvnNumber) {
+        const result = await verifyBvn(bvnNumber);
+        console.log("BVN Verification Result:", result);
+      } else if (type === "nin" && ninNumber) {
+        const result = await verifyNin(ninNumber);
+        console.log("NIN Verification Result:", result);
+      }
+
+      setTimeout(() => {
+        showLoading(false);
+        handleNext();
+      }, 3000);
+    } catch (err) {
       showLoading(false);
-      handleNext();
-    }, 3000);
+      setError(err instanceof Error ? err.message : "Verification failed");
+      console.error("Verification error:", err);
+    }
   };
 
   const handleConfirm = () => {
@@ -79,6 +148,20 @@ export default function Verify({ type }: VerifyProps) {
       setOtp("");
       handleLoading();
     }
+  };
+
+  const handleInputChange = (value: string) => {
+    if (type === "bvn") {
+      setBvnNumber(value);
+    } else if (type === "nin") {
+      setNinNumber(value);
+    }
+  };
+
+  const getCurrentInputValue = () => {
+    if (type === "bvn") return bvnNumber;
+    if (type === "nin") return ninNumber;
+    return "";
   };
 
   const keypadNumbers = [
@@ -171,13 +254,11 @@ export default function Verify({ type }: VerifyProps) {
               setIsCameraOn(false);
             }}
             className="w-full h-full object-cover"
-            mirrored={true} 
+            mirrored={true}
           />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="w-70 h-70 border-2 border-white rounded-full opacity-60"></div>
           </div>
-
-          
         </>
       ) : error ? (
         <div className="w-full h-full flex flex-col items-center justify-center text-gray-500">
@@ -254,12 +335,15 @@ export default function Verify({ type }: VerifyProps) {
             {type === "selfie" ? (
               renderSelfieFrame()
             ) : (
-              <TextInput
-                value=""
-                onChange={() => {}}
-                placeholder={config.placeholder}
-                type={config.inputType}
-              />
+              <div>
+                <TextInput
+                  value={getCurrentInputValue()}
+                  onChange={handleInputChange}
+                  placeholder={config.placeholder}
+                  type={config.inputType}
+                />
+                {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+              </div>
             )}
           </div>
         );
@@ -268,10 +352,9 @@ export default function Verify({ type }: VerifyProps) {
           <div className="">
             <h1 className="text-3xl font-black">{config.title}</h1>
             <h3 className="text-lg pb-10">
-              {type === "selfie" 
+              {type === "selfie"
                 ? "Your selfie has been captured. Please verify this is you."
-                : config.step2Description
-              }
+                : config.step2Description}
             </h3>
             {type === "selfie" ? (
               <>
@@ -345,6 +428,9 @@ export default function Verify({ type }: VerifyProps) {
           type="secondary"
           text="Continue"
           width="py-4"
+          disabled={
+            !getCurrentInputValue() || getCurrentInputValue().length !== 11
+          }
         />
       )}
 

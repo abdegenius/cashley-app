@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import api from "@/libs/axios";
 import toast from "react-hot-toast";
+import { setToLocalStorage } from "@/libs/local-storage";
 
 const UpdateUserSchema = z.object({
   firstname: z.string().min(1, "First name must be valid"),
@@ -73,6 +74,9 @@ export default function EditProfilePage() {
       const res = await api.post("/user/profile", data);
       if (res.data && !res.data.err) {
         toast.success("Profile updated successfully");
+        if (res.data.data.user) {
+          setToLocalStorage("user", JSON.stringify(res.data.data.user));
+        }
       } else {
         const errorMessage = res.data.message;
         toast.error("failed to update profile", errorMessage);

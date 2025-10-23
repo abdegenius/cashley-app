@@ -56,8 +56,8 @@ export default function LoginPage() {
       const res = await api.post<ApiResponse>("/auth/login", data);
       if (res?.data && !res.data.error) {
         toast.success("Logged in successfully");
-        deleteFromCookie("token");
         setToCookie("token", res.data.data.token);
+        deleteFromCookie("token");
         if (res.data.data.user) {
           setToLocalStorage("user", JSON.stringify(res.data.data.user));
         }

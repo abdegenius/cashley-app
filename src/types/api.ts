@@ -47,3 +47,14 @@ export interface User {
   email_verification_otp: string;
   email_verification_status: string;
 }
+
+
+export interface Notification {
+  id: string;
+  title: string;
+  date: string;
+  description: string;
+  isRead?: boolean;
+  type?: string;
+  createdAt?: string;
+}
