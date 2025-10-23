@@ -50,7 +50,6 @@ export default function LoginPage() {
     trigger(field);
   };
 
-  // ✅ Email/Password Login
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true);
     try {
@@ -81,7 +80,6 @@ export default function LoginPage() {
     }
   };
 
-  // ✅ PIN Login Handler
   const onPinSubmit = async () => {
     if (pin.length !== 4) {
       toast.error("Please enter a 4-digit PIN");
@@ -90,7 +88,6 @@ export default function LoginPage() {
     
     setLoading(true);
     try {
-      // Adjust this endpoint based on your PIN login API
       const res = await api.post<ApiResponse>("/auth/login/pin", { pin });
       if (res?.data && !res.data.error) {
         toast.success("Logged in successfully");
@@ -134,7 +131,7 @@ export default function LoginPage() {
 
   const handleConfirm = () => {
     if (pin.length === 4) {
-      onPinSubmit(); // Call PIN login when PIN is complete
+      onPinSubmit();
     }
   };
 

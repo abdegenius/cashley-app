@@ -21,8 +21,12 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Profile() {
+
+  const {user} = useAuth()
+  console.log("User", user)
   return (
     <div className="w-full h-full flex items-start justify-center">
       <div className="w-full flex flex-col gap-10 max-w-lg">
@@ -35,14 +39,14 @@ export default function Profile() {
               className="object-cover"
             />
           </div>
-          <div>Tali Nanzing Moses</div>
+          <div>{user?.firstname + " " + user?.lastname}</div>
           <div className="flex gap-2 items-center">
-            <span className="text-lg font-black">8101842464</span>
+            <span className="text-lg font-black">{user?.phone}</span>
             <button>
               <Copy size={16} />
             </button>
           </div>
-          <div>@Nanzing</div>
+          <div>{user?.username}</div>
           <div className="py-2 px-6 bg-background rounded-3xl flex gap-1 items-center text-purple-600">
             <span>Verified Account</span>
             <CircleAlert size={16} />
@@ -102,7 +106,7 @@ export default function Profile() {
           <div className="flex justify-between w-full items-center">
             <div className="">
               <div className="text-xs">Your Referral Code</div>
-              <div className=" font-bold">TALINANZING12345</div>
+              <div className=" font-bold">{user?.referral_code}</div>
             </div>
             <button className="placeholder-text">
               <Copy size={16} />

@@ -17,18 +17,21 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
+
 export default function Home() {
   const [showbal, setShobal] = useState<string | null>(null);
   const [balanceProp, setBalanceProp] = useState<string | null>(null);
 
   const {user} = useAuth()
 
+  console.log("XXXXXXXX", user)
+
   const handleShowbal = (id: string) => {
     if (showbal === id) setShobal(id);
   };
   const balance = [
-    { currency: "NGN", value: "₦125,000.00", symbol: "₦" },
-    { currency: "USD", value: "25000.00", symbol: "$" },
+    { currency: "NGN", value: user?.ngn_balance, symbol: "₦" },
+    { currency: "USD", value: user?.usdt_balance, symbol: "$" },
   ];
 
   const showbalance = (type: string) => {
