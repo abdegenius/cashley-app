@@ -5,7 +5,6 @@ import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft,
   Check,
   X,
   Eye,
@@ -17,6 +16,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
+import api from "@/libs/axios";
+import { ApiResponse } from "@/types/api";
+import toast from "react-hot-toast";
 
 type PurchaseType = "airtime" | "data" | "tv";
 
@@ -36,19 +38,22 @@ type TransactionData = {
 };
 
 type Provider = {
-  service_id: string;
-  service_name: string;
-  logo: string;
+  serviceID: string;
+  name: string;
+  image: string;
+  minimium_amount: string;
+  maximum_amount: string;
+  product_type: string;
 };
 
 type Variation = {
-  variation_id: string;
-  service_name: string;
-  service_id: string;
-  price: string;
-  data_plan?: string;
-  package_bouquet?: string;
+  variation_code: string;
+  name: string;
+  variation_amount: string;
+  fixedPrice: string;
+  serviceID?: string;
 };
+
 
 export default function Purchase({ type }: PurchaseProps) {
   const [step, setStep] = useState(1);
@@ -68,8 +73,8 @@ export default function Purchase({ type }: PurchaseProps) {
 
   const [providers, setProviders] = useState<Provider[]>([]);
   const [variations, setVariations] = useState<Variation[]>([]);
-
   const presetAmounts = [100, 200, 500, 1000, 2000, 5000];
+
 
   const getConfig = () => {
     const config = {
@@ -82,6 +87,7 @@ export default function Purchase({ type }: PurchaseProps) {
         placeholder: "+2348012345678",
         showAmountGrid: true,
         showVariations: false,
+        apiServiceType: "airtime"
       },
       data: {
         title: "Purchase Data",
@@ -92,6 +98,7 @@ export default function Purchase({ type }: PurchaseProps) {
         placeholder: "Enter phone number",
         showAmountGrid: false,
         showVariations: true,
+        apiServiceType: "data"
       },
       tv: {
         title: "Cable Subscription",
@@ -102,6 +109,7 @@ export default function Purchase({ type }: PurchaseProps) {
         placeholder: "Enter smartcard number",
         showAmountGrid: false,
         showVariations: true,
+        apiServiceType: "tv-subscription"
       },
     };
 
@@ -110,169 +118,101 @@ export default function Purchase({ type }: PurchaseProps) {
 
   const config = getConfig();
 
-  // Get dynamic header based on step and user selection
-  const getHeaderTitle = () => {
-    if (step === 1) return config.step1Title;
-    if (step === 2) return "Summary";
-    if (step === 3) return "Enter PIN";
-    if (step === 4)
-      return success ? "Transaction Successful" : "Transaction Failed";
-    return config.title;
-  };
+ const fetchProviders = async () => {
+  setLoading(true);
+  try {
+    console.log('Fetching providers for service type:', config.apiServiceType);
+    
+    const response = await api.get<ApiResponse>(
+      `/general/bill/service?service=${config.apiServiceType}`
+    );
+    
+    console.log('Providers API Response:', response.data);
+    
+    if (response.data.error === false) {
+      const providersData: Provider[] = response.data.data.map((provider: any) => ({
+        serviceID: provider.serviceID,
+        name: provider.name,
+        image: provider.image,
+        minimium_amount: provider.minimium_amount,
+        maximum_amount: provider.maximum_amount,
+        product_type: provider.product_type
+      }));
+      console.log('Processed providers:', providersData);
+      setProviders(providersData);
+    } else {
+      console.error("API Error:", response.data.message);
+      toast.error(`Failed to load providers: ${response.data.message}`);
+      setProviders([]);
+    }
+  } catch (error: any) {
+    console.error("Network Error:", error);
+    toast.error(`Network error: ${error.message}`);
+    setProviders([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+const fetchVariations = async (serviceID: string) => {
+  setLoading(true);
+  try {
+    console.log('Fetching variations for serviceID:', serviceID);
+    
+    const response = await api.get<ApiResponse>(
+      `/general/bill/service-variations?service_id=${serviceID}`
+    );
+    
+    console.log('Variations API Response:', response.data);
+    
+    if (response.data.error === false && response.data.data.variations) {
+      const variationsData: Variation[] = response.data.data.variations.map((variation: any) => ({
+        variation_code: variation.variation_code,
+        name: variation.name,
+        variation_amount: variation.variation_amount,
+        fixedPrice: variation.fixedPrice,
+        serviceID: serviceID
+      }));
+      console.log('Processed variations:', variationsData);
+      setVariations(variationsData);
+    } else {
+      console.error("API Error:", response.data.message);
+      toast.error(`Failed to load plans: ${response.data.message}`);
+      setVariations([]);
+    }
+  } catch (error: any) {
+    console.error("Network Error:", error);
+    toast.error(`Network error: ${error.message}`);
+    setVariations([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  if (!formData.service_id) return;
+
+  // Validate serviceID format
+  if (typeof formData.service_id !== 'string' || formData.service_id.trim() === '') {
+    console.error('Invalid service_id format:', formData.service_id);
+    return;
+  }
+
+  if (config.showVariations) {
+    fetchVariations(formData.service_id);
+  }
+}, [formData.service_id, type, config.showVariations]);
 
   // Fetch providers on mount
-  useEffect(() => {
-    const fetchProviders = async () => {
-      setLoading(true);
-      try {
-        const mockProviders: Provider[] = [
-          { service_id: "mtn", service_name: "MTN", logo: "/img/mtn.png" },
-          {
-            service_id: "airtel",
-            service_name: "Airtel",
-            logo: "/img/airtel.png",
-          },
-          { service_id: "glo", service_name: "Glo", logo: "/img/glo.png" },
-          {
-            service_id: "9mobile",
-            service_name: "9mobile",
-            logo: "/img/9mobile.png",
-          },
-        ];
-
-        const tvProviders: Provider[] = [
-          { service_id: "dstv", service_name: "DSTV", logo: "/img/dstv.png" },
-          { service_id: "gotv", service_name: "GOTV", logo: "/img/gotv.png" },
-          {
-            service_id: "startimes",
-            service_name: "StarTimes",
-            logo: "/img/startimes.png",
-          },
-          {
-            service_id: "showmax",
-            service_name: "Showmax",
-            logo: "/img/shomax.png",
-          },
-        ];
-
-        setProviders(type === "tv" ? tvProviders : mockProviders);
-      } catch (error) {
-        console.error("Failed to fetch providers:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+ useEffect(() => {
     fetchProviders();
   }, [type]);
 
   useEffect(() => {
     if (!formData.service_id) return;
 
-    const fetchVariations = async () => {
-      setLoading(true);
-      try {
-        const mockVariations: Variation[] =
-          type === "data"
-            ? [
-                {
-                  variation_id: "1",
-                  service_id: formData.service_id,
-                  service_name: " 1 Day",
-                  price: "100",
-                  data_plan: "100MB ",
-                },
-                {
-                  variation_id: "2",
-                  service_id: formData.service_id,
-                  service_name: "7 Days",
-                  price: "500",
-                  data_plan: "1GB",
-                },
-                {
-                  variation_id: "3",
-                  service_id: formData.service_id,
-                  service_name: "30 Days",
-                  price: "2000",
-                  data_plan: "5GB",
-                },
-                {
-                  variation_id: "4",
-                  service_id: formData.service_id,
-                  service_name: "30 Days",
-                  price: "2000",
-                  data_plan: "5GB",
-                },
-                {
-                  variation_id: "5",
-                  service_id: formData.service_id,
-                  service_name: "30 Days",
-                  price: "2000",
-                  data_plan: "5GB",
-                },
-                {
-                  variation_id: "6",
-                  service_id: formData.service_id,
-                  service_name: "30 Days",
-                  price: "2000",
-                  data_plan: "5GB",
-                },
-              ]
-            : [
-                {
-                  variation_id: "1",
-                  service_id: formData.service_id,
-                  service_name: "DStv Yanga",
-                  price: "4000",
-                  package_bouquet: "DStv Yanga - Entertainment",
-                },
-                {
-                  variation_id: "2",
-                  service_id: formData.service_id,
-                  service_name: "DStv Compact",
-                  price: "10500",
-                  package_bouquet: "DStv Compact - Premium",
-                },
-                {
-                  variation_id: "3",
-                  service_id: formData.service_id,
-                  service_name: "DStv Premium",
-                  price: "24500",
-                  package_bouquet: "DStv Premium - Ultimate",
-                },
-                {
-                  variation_id: "4",
-                  service_id: formData.service_id,
-                  service_name: "DStv Premium",
-                  price: "24500",
-                  package_bouquet: "DStv Premium - Ultimate",
-                },
-                {
-                  variation_id: "5",
-                  service_id: formData.service_id,
-                  service_name: "DStv Premium",
-                  price: "24500",
-                  package_bouquet: "DStv Premium - Ultimate",
-                },
-                {
-                  variation_id: "6",
-                  service_id: formData.service_id,
-                  service_name: "DStv Premium",
-                  price: "24500",
-                  package_bouquet: "DStv Premium - Ultimate",
-                },
-              ];
-
-        setVariations(mockVariations);
-      } catch (error) {
-        console.error("Failed to fetch variations:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     if (config.showVariations) {
-      fetchVariations();
+      fetchVariations(formData.service_id);
     }
   }, [formData.service_id, type, config.showVariations]);
 
@@ -313,47 +253,74 @@ export default function Purchase({ type }: PurchaseProps) {
     }
   };
 
+  
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Create transaction data
-      const transactionData: TransactionData = {
-        dateTime: new Date().toLocaleString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-          hour: "numeric",
-          minute: "2-digit",
-          second: "2-digit",
-        }),
-        paymentMethod: "Cashley",
-        status: "Completed",
-        description:
-          type === "data"
-            ? "Data plan"
-            : type === "airtime"
-            ? "Airtime"
-            : "TV Subscription",
-        transactionId: `TRX${Date.now()}`,
-        providerLogo:
-          providers.find((p) => p.service_id === formData.service_id)?.logo ||
-          "",
-        providerName:
-          providers.find((p) => p.service_id === formData.service_id)
-            ?.service_name || "",
-        planName:
-          formData.variation?.data_plan ||
-          formData.variation?.package_bouquet ||
-          "",
+      // Prepare request data based on purchase type
+      const requestData: any = {
+        phone: formData.customer_id,
+        amount: parseFloat(formData.amount),
+        service_id: formData.service_id,
+        pin: otp.join("")
       };
 
-      setSuccess(true);
-      setReference(transactionData.transactionId);
-      setFormData((prev) => ({ ...prev, transactionData }));
+      if (type === "data" && formData.variation) {
+        requestData.variation_code = formData.variation.variation_code;
+      } else if (type === "tv" && formData.variation) {
+        requestData.smartcard_number = formData.customer_id;
+        requestData.variation_code = formData.variation.variation_code;
+        requestData.type = "renew";
+      }
+
+      let endpoint = "";
+      switch (type) {
+        case "airtime":
+          endpoint = "/transactions/buy-airtime";
+          break;
+        case "data":
+          endpoint = "/transactions/buy-data";
+          break;
+        case "tv":
+          endpoint = "/transactions/buy-tv";
+          break;
+      }
+
+      const response = await api.post<ApiResponse>(endpoint, requestData);
+
+      if (response.data.error === false) {
+        // Create transaction data from response
+        const transactionData: TransactionData = {
+          dateTime: new Date().toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            second: "2-digit",
+          }),
+          paymentMethod: "Cashley",
+          status: response.data.data.status,
+          description: response.data.data.description || 
+            (type === "data" ? "Data plan" : 
+             type === "airtime" ? "Airtime" : "TV Subscription"),
+          transactionId: response.data.data?.session_id || `TRX${Date.now()}`,
+          providerLogo: providers.find((p) => p.serviceID === formData.service_id)?.image || "",
+          providerName: providers.find((p) => p.serviceID === formData.service_id)?.name || "",
+          planName: formData.variation?.name || "",
+        };
+
+        setSuccess(true);
+        setReference(transactionData.transactionId);
+        setFormData((prev) => ({ ...prev, transactionData }));
+      } else {
+        throw new Error(response.data.message || "Transaction failed");
+      }
+      
       handleNext();
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Transaction failed:", error);
       setSuccess(false);
       handleNext();
     } finally {
@@ -361,17 +328,6 @@ export default function Purchase({ type }: PurchaseProps) {
     }
   };
 
-  //   const handleReset = () => {
-  //     setStep(1);
-  //     setOtp(["", "", "", ""]);
-  //     setSuccess(null);
-  //     setFormData({
-  //       service_id: "",
-  //       amount: "",
-  //       customer_id: "",
-  //       variation: null,
-  //     });
-  //   };
 
   const isStep1Valid = () => {
     if (!formData.service_id) return false;
@@ -403,6 +359,7 @@ export default function Purchase({ type }: PurchaseProps) {
                 onChange={(service_id) =>
                   setFormData((prev) => ({ ...prev, service_id }))
                 }
+                loading={loading}
               />
 
               {config.showVariations && formData.service_id && (
@@ -413,10 +370,11 @@ export default function Purchase({ type }: PurchaseProps) {
                     setFormData((prev) => ({
                       ...prev,
                       variation,
-                      amount: variation.price,
+                      amount: variation.variation_amount,
                     }))
                   }
                   type={type}
+                  loading={loading}
                 />
               )}
 
@@ -427,6 +385,8 @@ export default function Purchase({ type }: PurchaseProps) {
                     setFormData((prev) => ({ ...prev, amount }))
                   }
                   presetAmounts={presetAmounts}
+                  minAmount={providers.find(p => p.serviceID === formData.service_id)?.minimium_amount}
+                  maxAmount={providers.find(p => p.serviceID === formData.service_id)?.maximum_amount}
                 />
               )}
 
@@ -457,12 +417,13 @@ export default function Purchase({ type }: PurchaseProps) {
                 text="Continue"
                 width="w-full py-4"
                 disabled={!isStep1Valid()}
+                loading={loading}
               />
             </div>
           </motion.div>
         );
 
-      case 2:
+ case 2:
         return (
           <motion.div
             initial={{ opacity: 0 }}
@@ -489,8 +450,7 @@ export default function Purchase({ type }: PurchaseProps) {
                     className=""
                   />
                   <span className="font-black w-full">
-                    {formData.variation?.data_plan ||
-                      formData.variation?.package_bouquet}
+                    {formData.variation?.name || "Custom Amount"}
                   </span>
                 </div>
 
@@ -500,8 +460,8 @@ export default function Purchase({ type }: PurchaseProps) {
                     label={type === "tv" ? "Provider" : "Network"}
                     value={
                       providers.find(
-                        (p) => p.service_id === formData.service_id
-                      )?.service_name || ""
+                        (p) => p.serviceID === formData.service_id
+                      )?.name || ""
                     }
                   />
                   <ReviewItem
@@ -528,6 +488,7 @@ export default function Purchase({ type }: PurchaseProps) {
             </div>
           </motion.div>
         );
+
 
       case 3:
         return (
@@ -593,13 +554,13 @@ export default function Purchase({ type }: PurchaseProps) {
           </motion.div>
         );
 
-      case 4:
+   case 4:
         return (
           <div className="space-y-10">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="space-y-8 text-center bg-card rounded-2xl px-3"
+              className="space-y-8 text-center py-5 bg-card rounded-2xl px-3"
             >
               <motion.div
                 initial={{ scale: 0 }}
@@ -695,7 +656,7 @@ export default function Purchase({ type }: PurchaseProps) {
   };
 
   return (
-    <div className="w-full h-full min-h-screen mx-auto max-w-xl flex flex-col">
+    <div className="w-full h-full mx-auto max-w-xl flex flex-col">
       {/* Content */}
       <div className="flex-1 p-6 overflow-y-auto">
         <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
@@ -709,17 +670,55 @@ interface ProviderSelectProps {
   providers: Provider[];
   value: string;
   onChange: (service_id: string) => void;
+  loading?: boolean;
 }
 
-function ProviderSelect({ providers, value, onChange }: ProviderSelectProps) {
+function ProviderSelect({ providers, value, onChange, loading }: ProviderSelectProps) {
+
+    const getProviderImage = (provider: Provider) => {
+    const imageMap: { [key: string]: string } = {
+      'mtn': '/img/mtn.png',
+      'airtel': '/img/airtel.png',
+      'glo': '/img/glo.png',
+      'etisalat': '/img/9mobile.png',
+      '9mobile': '/img/9mobile.png',
+      'foreign-airtime': '/img/international.png',
+      'dstv': '/img/dstv.png',
+      'gotv': '/img/gotv.png',
+      'startimes': '/img/startimes.png',
+      'showmax': '/img/showmax.png',
+      'airtel-data': '/img/airtel.png',
+      'mtn-data': '/img/mtn.png',
+      'glo-data': '/img/glo.png',
+      'etisalat-data': '/img/9mobile.png',
+    };
+    
+    return imageMap[provider.serviceID] || '/img/placeholder.png';
+  };
+
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="rounded-2xl p-0.5 bg-card animate-pulse">
+              <div className="flex flex-col items-center w-full rounded-2xl overflow-hidden bg-card h-24"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {providers.map((provider) => (
           <div
-            key={provider.service_id}
+            key={provider.serviceID}
             className={` rounded-2xl p-0.5 ${
-              value === provider.service_id
+              value === provider.serviceID
                 ? "primary-purple-to-blue"
                 : "bg-card"
             }`}
@@ -727,21 +726,24 @@ function ProviderSelect({ providers, value, onChange }: ProviderSelectProps) {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => onChange(provider.service_id)}
+              onClick={() => onChange(provider.serviceID)}
               className={`flex flex-col items-center w-full rounded-2xl overflow-hidden transition-all bg-card`}
             >
               <div className="w-full h-auto  mb-2 flex items-center justify-center">
-                <div className=" w-full h-20 relative">
+                <div className="w-full h-20 relative">
                   <Image
-                    src={provider.logo}
-                    alt={provider.service_name}
+                    src={getProviderImage(provider)}
+                    alt={provider.name}
                     fill
                     className="object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/img/placeholder.png";
+                    }}
                   />
                 </div>
               </div>
               <span className="text-sm font-medium py-1 text-center">
-                {provider.service_name}
+                {provider.name}
               </span>
             </motion.button>
           </div>
@@ -756,6 +758,7 @@ interface VariationSelectProps {
   value: Variation | null;
   onSelect: (variation: Variation) => void;
   type: PurchaseType;
+  loading?: boolean;
 }
 
 function VariationSelect({
@@ -763,7 +766,25 @@ function VariationSelect({
   value,
   onSelect,
   type,
+  loading
 }: VariationSelectProps) {
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <label className="text-sm font-semibold">
+          Select {type === "tv" ? "Package" : "Data Plan"}
+        </label>
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="rounded-2xl p-0.5 bg-card animate-pulse">
+              <div className="w-full p-4 rounded-2xl bg-card h-24"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <label className="text-sm font-semibold">
@@ -772,9 +793,9 @@ function VariationSelect({
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
         {variations.map((variation) => (
           <div
-            key={variation.variation_id}
+            key={variation.variation_code}
             className={` rounded-2xl p-0.5 ${
-              value?.variation_id === variation.variation_id
+              value?.variation_code === variation.variation_code
                 ? "primary-purple-to-blue"
                 : "bg-card"
             }`}
@@ -789,16 +810,14 @@ function VariationSelect({
               <div className="flex flex-col  justify-between items-center">
                 <div>
                   <h4 className="font-black text-center">
-                    {type === "tv"
-                      ? variation.package_bouquet
-                      : variation.data_plan}
+                    {variation.name}
                   </h4>
                   <p className="text-sm text-center">
-                    {variation.service_name}
+                    {type === "tv" ? "Package" : "Data Plan"}
                   </p>
                 </div>
                 <span className="text-center text-lg">
-                  ₦{parseInt(variation.price).toLocaleString()}
+                  ₦{parseFloat(variation.variation_amount).toLocaleString()}
                 </span>
               </div>
             </motion.button>
@@ -813,9 +832,11 @@ interface AmountGridProps {
   value: string;
   onChange: (value: string) => void;
   presetAmounts: number[];
+  minAmount?: string;
+  maxAmount?: string;
 }
 
-function AmountGrid({ value, onChange, presetAmounts }: AmountGridProps) {
+function AmountGrid({ value, onChange, presetAmounts, minAmount, maxAmount }: AmountGridProps) {
   return (
     <div className="space-y-4">
       <label className="text-sm font-semibold">Amount</label>
@@ -843,10 +864,21 @@ function AmountGrid({ value, onChange, presetAmounts }: AmountGridProps) {
         placeholder="Custom amount"
         type="number"
         currency="₦"
+        // min={minAmount}
+        // max={maxAmount}
       />
+      
+      {(minAmount || maxAmount) && (
+        <p className="text-xs text-gray-500">
+          Amount range: ₦{parseFloat(minAmount || "0").toLocaleString()} - ₦{parseFloat(maxAmount || "0").toLocaleString()}
+        </p>
+      )}
     </div>
   );
 }
+
+
+
 
 function ReviewItem({ label, value }: { label: string; value: string }) {
   return (

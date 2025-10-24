@@ -4,6 +4,8 @@ import api from "@/libs/axios";
 import React, { useEffect, useState } from "react";
 import { Notification } from "@/types/api";
 import { useAuth } from "@/hooks/useAuth";
+import { setToCookie, deleteFromCookie } from "@/libs/cookies";
+import { setToLocalStorage } from "@/libs/local-storage";
 
 export default function Notifications() {
   const [activeTab, setActiveTab] = useState<number>(1);
@@ -19,6 +21,10 @@ export default function Notifications() {
       
       const notificationsData = res.data.data?.data || [];
       setNotifications(notificationsData);
+       
+              if (res.data.data) {
+                setToLocalStorage("notifications", JSON.stringify(res.data.data));
+              }
       
     } catch (err) {
       console.log("Failed to fetch notifications", err);

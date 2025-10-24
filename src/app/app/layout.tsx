@@ -7,13 +7,10 @@ import {
   CreditCard,
   Grid2X2,
   Home,
-  LayoutGrid,
-  List,
-  Send,
   UserCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 export default function CenteredLayout({
   children,
@@ -21,9 +18,9 @@ export default function CenteredLayout({
   children: React.ReactNode;
 }) {
   const { loading, authenticated } = useAuth();
-
-  const router = useRouter();
   const pathname = usePathname();
+  
+  const goBack = useBack("/app");
 
   const isActive = (linkPath: string) => {
     if (linkPath === "/app") {
@@ -57,18 +54,18 @@ export default function CenteredLayout({
     return (
       <div className="flex flex-col items-center justify-center h-screen ganic-gradient-bg">
         <div className="flex items-center gap-2 w-20 h-20 rounded-full border-r-4 animate-spin border-purple-500">
-        
         </div>
        <div className="">
         Loading
        </div>
       </div>
     );
+    
   return authenticated ? (
     <div className="w-full overflow-none min-h-screen h-full flex flex-col items-center p-4 bg-background">
       <div className="w-full flex justify-start">
         <button
-          onClick={useBack("/app")}
+          onClick={goBack} // Use the pre-defined function, don't call the hook here
           className="p-2 rounded-full placeholder-text hover:bg-black/10 cursor-pointer mb-4"
         >
           <ArrowLeft size={24} />
