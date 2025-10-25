@@ -362,6 +362,28 @@ useEffect(() => {
                 loading={loading}
               />
 
+                   {formData.service_id &&
+                (config.showAmountGrid || formData.variation) && (
+                  <div className="space-y-3">
+                    <label className="text-sm font-semibold">
+                      {config.customerLabel}
+                    </label>
+
+                    <div className="w-full flex gap-3 items-center">
+                      <div className="p-4 my-3 rounded-full bg-card">+234</div>
+                      <TextInput
+                        value={formData.customer_id}
+                        onChange={(customer_id) =>
+                          setFormData((prev) => ({ ...prev, customer_id }))
+                        }
+                        placeholder={config.placeholder}
+                        type="tel"
+                      />
+                    </div>
+                  </div>
+                )}
+
+
               {config.showVariations && formData.service_id && (
                 <VariationSelect
                   variations={variations}
@@ -390,27 +412,7 @@ useEffect(() => {
                 />
               )}
 
-              {formData.service_id &&
-                (config.showAmountGrid || formData.variation) && (
-                  <div className="space-y-3">
-                    <label className="text-sm font-semibold">
-                      {config.customerLabel}
-                    </label>
-
-                    <div className="w-full flex gap-3 items-center">
-                      <div className="p-4 my-3 rounded-full bg-card">+234</div>
-                      <TextInput
-                        value={formData.customer_id}
-                        onChange={(customer_id) =>
-                          setFormData((prev) => ({ ...prev, customer_id }))
-                        }
-                        placeholder={config.placeholder}
-                        type="tel"
-                      />
-                    </div>
-                  </div>
-                )}
-
+         
               <Button
                 onclick={handleNext}
                 type="secondary"
@@ -691,6 +693,9 @@ function ProviderSelect({ providers, value, onChange, loading }: ProviderSelectP
       'mtn-data': '/img/mtn.png',
       'glo-data': '/img/glo.png',
       'etisalat-data': '/img/9mobile.png',
+      'smile-direct': '/img/smile.png',
+      'spectranet': '/img/spectranet.png',
+      'glo-sme-data': '/img/glo.png',
     };
     
     return imageMap[provider.serviceID] || '/img/placeholder.png';
@@ -786,11 +791,11 @@ function VariationSelect({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 h-full ">
       <label className="text-sm font-semibold">
         Select {type === "tv" ? "Package" : "Data Plan"}
       </label>
-      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 max-h-100 overflow-y-scroll">
         {variations.map((variation) => (
           <div
             key={variation.variation_code}
@@ -804,7 +809,7 @@ function VariationSelect({
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onSelect(variation)}
-              className={`w-full p-4 rounded-2xl text-left transition-all bg-card
+              className={`w-full text-sm p-4 rounded-2xl text-left transition-all bg-card
             `}
             >
               <div className="flex flex-col  justify-between items-center">
@@ -812,13 +817,13 @@ function VariationSelect({
                   <h4 className="font-black text-center">
                     {variation.name}
                   </h4>
-                  <p className="text-sm text-center">
+                  {/* <p className="text-sm text-center">
                     {type === "tv" ? "Package" : "Data Plan"}
-                  </p>
+                  </p> */}
                 </div>
-                <span className="text-center text-lg">
+                {/* <span className="text-center text-sm">
                   ₦{parseFloat(variation.variation_amount).toLocaleString()}
-                </span>
+                </span> */}
               </div>
             </motion.button>
           </div>

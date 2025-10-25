@@ -217,7 +217,6 @@ export default function LoginPage() {
             </Link>
           </div>
         ) : (
-          // ✅ Email/Password Login Section
           <form 
             onSubmit={handleSubmit(onSubmit)} 
             className="space-y-3 mt-5 w-full max-w-sm"
@@ -269,7 +268,6 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            {/* ✅ Submit button INSIDE the form */}
             <Button
               varient="submit"
               disabled={loading}
@@ -280,7 +278,6 @@ export default function LoginPage() {
         )}
       </div>
 
-      {/* Only show this button for PIN login */}
       {activeTab === 1 && (
         <Button
           disabled={loading || pin.length !== 4}

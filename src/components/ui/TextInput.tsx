@@ -9,9 +9,11 @@ interface TextInputProps {
     type?: string;
     className?: string;
     currency? : string;
+    disabled?:boolean;
 }
 
 const TextInput: React.FC<TextInputProps> = ({
+    disabled = false,
     value,
     onChange,
     placeholder = "",
@@ -26,6 +28,7 @@ const TextInput: React.FC<TextInputProps> = ({
             <input
                 type={type}
                 value={value}
+                disabled={disabled}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
                 className={`placeholder:placeholder-text bg-card rounded-3xl text-md font-medium px-2 select-none appearance-none outline-none border-none w-full ${className}`}
