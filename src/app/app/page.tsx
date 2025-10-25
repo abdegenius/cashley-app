@@ -14,13 +14,37 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import TransactionHistory from "@/components/models/transactionHistory";
+import api from "@/libs/axios";
+import { ApiResponse } from "@/types/api";
+import {Transaction} from '@/types/api'
 
 
 export default function Home() {
   const [showbal, setShobal] = useState<string | null>(null);
   const [balanceProp, setBalanceProp] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
+  
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    useEffect(() => {
+      const fetchTransactions = async () => {
+        try {
+          const res = await api.get<ApiResponse>("/transactions/history");
+  
+          if (res.data.error === false) {
+            setTransactions(res.data.data.data);
+          }
+        } catch (error) {
+          console.error("Failed to fetch transactions:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchTransactions();
+    }, []);
 
   const {user} = useAuth()
 
@@ -167,7 +191,9 @@ export default function Home() {
 
         <div className="flex flex-col gap-6">
           <h1 className="text-xl font-black">Recent transactions</h1>
-          <div className="flex flex-col gap-4"></div>
+          <div className="flex flex-col gap-4">
+            <TransactionHistory transactions={transactions} />
+          </div>
         </div>
         <div
           className={`${

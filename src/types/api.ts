@@ -58,3 +58,15 @@ export interface Notification {
   type?: string;
   createdAt?: string;
 }
+
+
+export interface Transaction {
+  id: number;
+  reference: string;
+  type: "debit" | "credit";
+  action: string;
+  amount: string;
+  status: "completed" | "failed" | "pending";
+  description: string;
+  created_at: string;
+}
