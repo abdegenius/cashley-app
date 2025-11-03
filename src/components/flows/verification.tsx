@@ -17,12 +17,32 @@ interface VerifyProps {
   type: VerificationType;
 }
 
+interface NinData {
+  nin: string;
+}
+
+
+interface BvnData {
+  bvn: string;
+  dateOfBirth: string;
+  street: string;
+  street2: string;
+  city: string;
+  state: string;
+  zipcode: string;
+}
 const bvnSchema = z.object({
   bvn: z
     .string()
     .min(11, "BVN must be exactly 11 digits")
     .max(11, "BVN must be exactly 11 digits")
     .regex(/^\d+$/, "BVN must contain only numbers"),
+  dateOfBirth: z.string().min(1, "Date of Birth is required"),
+  street: z.string().min(1, "Street is required"),
+  street2: z.string().optional(),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  zipcode: z.string().min(1, "Zipcode is required"),
 });
 
 const ninSchema = z.object({
@@ -37,8 +57,19 @@ export default function Verify({ type }: VerifyProps) {
   const [step, setStep] = useState(1);
   const [otp, setOtp] = useState("");
   const [loading, showLoading] = useState(false);
-  const [bvnNumber, setBvnNumber] = useState("");
-  const [ninNumber, setNinNumber] = useState("");
+  const [bvnData, setBvnData] = useState<BvnData>({
+    bvn: "",
+    dateOfBirth: "",
+    street: "",
+    street2: "",
+    city: "",
+    state: "",
+    zipcode: "",
+  });
+  
+   const [ninData, setNinData] = useState<NinData>({
+    nin: "",
+  });
   const webcamRef = useRef<Webcam>(null);
   const [isCameraOn, setIsCameraOn] = useState(false);
   const [error, setError] = useState<string>("");
@@ -83,9 +114,9 @@ export default function Verify({ type }: VerifyProps) {
     }
   };
 
-  const verifyBvn = async (bvn: string) => {
+  const verifyBvn = async (data: BvnData) => {
     try {
-      const validatedData = bvnSchema.parse({ bvn });
+      const validatedData = bvnSchema.parse(data);
 
       const response = await api.post("/user/verify/bvn", validatedData);
       if (response.data && !response.data.error) {
@@ -99,35 +130,39 @@ export default function Verify({ type }: VerifyProps) {
     }
   };
 
-  const verifyNin = async (nin: string) => {
+ const verifyNin = async (data: NinData) => {
     try {
-      const validatedData = ninSchema.parse({ nin });
+      const validatedData = ninSchema.parse(data);
       const response = await api.post("/user/verify/nin", validatedData);
 
       if (response.data && !response.data.error) {
-        toast.success("NIN Uploaded successfully");
+        toast.success("NIN verified successfully");
+        // Store the data locally or in context if needed
+        console.log("NIN Data stored:", validatedData);
+        return response.data;
       } else {
         const err = response.data.message;
-        toast.error("Failed to upload NIN", err);
+        toast.error("Failed to verify NIN", err);
+        throw new Error(err);
       }
     } catch (error) {
-      if (error) {
-        console.log("Fail to send", error);
+      if (error instanceof z.ZodError) {
+        throw new Error(error.issues[0].message);
       }
       throw error;
     }
   };
 
-  const handleLoading = async () => {
+const handleLoading = async () => {
     showLoading(true);
     setError("");
 
     try {
-      if (type === "bvn" && bvnNumber) {
-        const result = await verifyBvn(bvnNumber);
+      if (type === "bvn") {
+        const result = await verifyBvn(bvnData);
         console.log("BVN Verification Result:", result);
-      } else if (type === "nin" && ninNumber) {
-        const result = await verifyNin(ninNumber);
+      } else if (type === "nin") {
+        const result = await verifyNin(ninData);
         console.log("NIN Verification Result:", result);
       }
 
@@ -141,7 +176,6 @@ export default function Verify({ type }: VerifyProps) {
       console.error("Verification error:", err);
     }
   };
-
   const handleConfirm = () => {
     if (otp.length === 4) {
       console.log("PIN entered:", otp);
@@ -150,19 +184,60 @@ export default function Verify({ type }: VerifyProps) {
     }
   };
 
-  const handleInputChange = (value: string) => {
+ const handleInputChange = (field: string, value: string) => {
     if (type === "bvn") {
-      setBvnNumber(value);
+      setBvnData(prev => ({
+        ...prev,
+        [field]: value
+      }));
     } else if (type === "nin") {
-      setNinNumber(value);
+      setNinData(prev => ({
+        ...prev,
+        [field]: value
+      }));
     }
   };
+    const labelToFieldName = (label: string): string => {
+    const fieldMap: { [key: string]: string } = {
+      "Bvn Number": "bvn",
+      "Date of Birth": "dateOfBirth",
+      "Street": "street",
+      "Street 2": "street2",
+      "City": "city",
+      "State": "state",
+      "Zipcode": "zipcode",
+      "NIN Number": "nin"
+    };
+    return fieldMap[label] || label.toLowerCase().replace(/\s+/g, '');
+  };
 
-  const getCurrentInputValue = () => {
-    if (type === "bvn") return bvnNumber;
-    if (type === "nin") return ninNumber;
+    const getFieldValue = (fieldLabel: string) => {
+    const fieldName = labelToFieldName(fieldLabel);
+    
+    if (type === "bvn") {
+      return bvnData[fieldName as keyof BvnData] || "";
+    } else if (type === "nin") {
+      return ninData[fieldName as keyof NinData] || "";
+    }
     return "";
   };
+  const isBvnDataComplete = () => {
+    return (
+      bvnData.bvn.length === 11 &&
+      bvnData.dateOfBirth &&
+      bvnData.street &&
+      bvnData.city &&
+      bvnData.state &&
+      bvnData.zipcode
+    );
+  };
+
+   const isNinDataComplete = () => {
+    return ninData.nin.length === 11;
+  };
+
+
+
 
   const keypadNumbers = [
     "1",
@@ -183,6 +258,15 @@ export default function Verify({ type }: VerifyProps) {
     const config = {
       bvn: {
         title: "BVN Verification",
+           fields: [
+          { label: "Bvn Number", type: "number", required: true },
+          { label: "Date of Birth", type: "date", required: true },
+          { label: "Street", type: "text", required: true },
+          { label: "Street 2", type: "text", required: false },
+          { label: "City", type: "text", required: true },
+          { label: "State", type: "text", required: true },
+          { label: "Zipcode", type: "number", required: true },
+        ],
         step1Description:
           "Secure your account and unlock full access by verifying your BVN. It's quick, safe, and helps us keep your Cashley account protected.",
         step2Description:
@@ -193,6 +277,9 @@ export default function Verify({ type }: VerifyProps) {
       },
       nin: {
         title: "NIN Verification",
+         fields: [
+          { label: "NIN Number", type: "number", required: true },
+        ],
         step1Description:
           "Launch YouTube courses and hints by verifying your NIN.",
         step2Description:
@@ -202,6 +289,7 @@ export default function Verify({ type }: VerifyProps) {
         inputType: "number" as const,
       },
       selfie: {
+         fields: [],
         title: "Selfie Verification",
         step1Description:
           "Secure your account and unlock full access by creating a new face. It's quick, safe, and helps keep your Cashley account protected.",
@@ -335,19 +423,22 @@ export default function Verify({ type }: VerifyProps) {
             {type === "selfie" ? (
               renderSelfieFrame()
             ) : (
-              <div>
-                <TextInput
-                  value={getCurrentInputValue()}
-                  onChange={handleInputChange}
-                  placeholder={config.placeholder}
-                  type={config.inputType}
-                />
+              <div className="space-y-2">
+                {config.fields?.map((field) => (
+                  <TextInput
+                    key={field.label}
+                    value={getFieldValue(field.label)}
+                    onChange={(value) => handleInputChange(labelToFieldName(field.label), value)}
+                    placeholder={field.label}
+                    type={field.type as any}
+                    // required={field.required}
+                  />
+                ))}
                 {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
               </div>
             )}
           </div>
-        );
-      case 2:
+        );case 2:
         return (
           <div className="">
             <h1 className="text-3xl font-black">{config.title}</h1>
@@ -429,7 +520,7 @@ export default function Verify({ type }: VerifyProps) {
           text="Continue"
           width="py-4"
           disabled={
-            !getCurrentInputValue() || getCurrentInputValue().length !== 11
+            type === "bvn" ? !isBvnDataComplete() : !isNinDataComplete()
           }
         />
       )}
@@ -442,6 +533,7 @@ export default function Verify({ type }: VerifyProps) {
           width="py-4"
         />
       )}
+
 
       {showKeypad && (
         <div className="w-full bg-card py-5 flex max-w-xl mx-auto items-center absolute bottom-0 left-0">

@@ -61,7 +61,7 @@ export default function CenteredLayout({
       </div>
     );
     
-  return authenticated ? (
+  return (
     <div className="w-full overflow-none min-h-screen h-full flex flex-col items-center p-4 bg-background">
       <div className="w-full flex justify-start">
         <button
@@ -112,7 +112,5 @@ export default function CenteredLayout({
         })}
       </div>
     </div>
-  ) : (
-    <></>
-  );
+ )
 }
