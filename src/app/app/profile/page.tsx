@@ -4,6 +4,7 @@ import Button from "@/components/ui/Button";
 import { MenuItem } from "@/components/ui/buttons";
 import { Section } from "@/components/ui/Section";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   ChartNoAxesColumn,
@@ -15,6 +16,7 @@ import {
   Headphones,
   Keyboard,
   LockKeyhole,
+  LogOut,
   Ticket,
   User,
   UserCircle,
@@ -22,11 +24,27 @@ import {
 import Image from "next/image";
 import React from "react";
 import { useAuth } from "@/hooks/useAuth";
+import toast from "react-hot-toast";
+import api from "@/libs/axios";
+import { ApiResponse } from "@/types/api";
 
 export default function Profile() {
+  const { user } = useAuth();
+  console.log("User", user);
 
-  const {user} = useAuth()
-  console.log("User", user)
+  const router = useRouter();
+  const logOut = async () => {
+    try {
+      const res = await api.post<ApiResponse>("/auth/logout");
+      if (res.data.message === "Account logged out") {
+        toast.success("Logged out successfully");
+        router.push("/auth/login");
+      }
+      return res;
+    } catch {
+      toast.error("failed to Logout");
+    }
+  };
   return (
     <div className="w-full h-full flex items-start justify-center">
       <div className="w-full flex flex-col gap-10 max-w-lg">
@@ -95,7 +113,6 @@ export default function Profile() {
             type="link"
             link="/app/profile/change-password"
           />
-          
         </Section>
 
         <div className="w-full bg-card rounded-xl gap-4 py-6 px-4 sm:px-6 flex flex-col items-start justify-start">
@@ -168,6 +185,15 @@ export default function Profile() {
             type="link"
             link="/app/profile/about"
           />
+
+          <div className="w-full p-0.5 rounded-2xl primary-orange-to-purple">
+            <button onClick={logOut} className="w-full cursor-pointer py-5 px-4 rounded-2xl bg-card flex items-center justify-between">
+              <span  className="">
+                Log out
+              </span>
+              <LogOut />
+            </button>
+          </div>
         </Section>
       </div>
     </div>
