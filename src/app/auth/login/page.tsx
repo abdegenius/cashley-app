@@ -170,53 +170,9 @@ export default function LoginPage() {
   return (
     <div className="w-full h-full flex flex-col my-auto items-center justify-between space-y-6">
       <div className="w-full flex flex-col space-y-12 items-center">
-        <div className="flex items-center gap-2 bg-card p-2 flex-1 w-full rounded-full">
-          {[
-            { id: 1, title: "Sign In with Pin" },
-            { id: 2, title: "Sign in with Email" },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`w-1/2 truncate flex-1 font-medium text-sm p-3 rounded-3xl transition-all duration-300 ${
-                activeTab === tab.id
-                  ? "primary-purple-to-blue shadow-md text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {tab.title}
-            </button>
-          ))}
-        </div>
+       <h1 className="font-black text-xl">Log in to Cashly</h1>
 
-        {activeTab === 1 ? (
-          // ✅ PIN Login Section
-          <div className="w-full flex flex-col justify-around">
-            {renderDots(pin)}
-
-            <div className="text-center mb-8">
-              <h2 className="text-xl mb-2">Enter PIN</h2>
-              <p className="text-sm text-gray-500">Enter your 4-digit PIN</p>
-            </div>
-            
-            <Keypad
-              numbers={keypadNumbers}
-              onNumberClick={handleNumberClick}
-              onDelete={handleDelete}
-              onConfirm={handleConfirm}
-              disableConfirm={pin.length < 4}
-              loading={loading}
-            />
-
-            <Link
-              href={"/auth/forgot-password"}
-              className="text-center text-blue-600 text-sm pt-4 hover:underline"
-            >
-              Forgot PIN?
-            </Link>
-          </div>
-        ) : (
+     
           <form 
             onSubmit={handleSubmit(onSubmit)} 
             className="space-y-3 mt-5 w-full max-w-sm"
@@ -275,18 +231,10 @@ export default function LoginPage() {
               width="w-full"
             />
           </form>
-        )}
+      
       </div>
 
-      {activeTab === 1 && (
-        <Button
-          disabled={loading || pin.length !== 4}
-          onclick={onPinSubmit}
-          type="secondary"
-          text={loading ? "Signing in..." : "Log in"}
-          width="w-full max-w-sm"
-        />
-      )}
+  
 
       <div className="flex w-full items-center justify-center flex-row space-x-1">
         <span className="text-sm font-normal text-gray-600">
