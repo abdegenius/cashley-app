@@ -76,7 +76,7 @@ useEffect(() => {
 
   useEffect(() => {
     setImageSrc(
-      resolvedTheme === "dark" ? "/svg/cashly.svg" : "/svg/cashly-dark.svg"
+      resolvedTheme === "dark" ? "/svg/cashley.svg" : "/svg/cashley-dark.svg"
     );
   }, [resolvedTheme]);
 
@@ -277,12 +277,12 @@ useEffect(() => {
               </div>
               <div className="space-y-1 text-left">
                 <h4 className="text-lg">Send to Nickname</h4>
-                <h4 className="text-sm text-gray-500">
+                <h4 className="text-sm text-zinc-500">
                   {"Enter recipient's unique @nickname"}
                 </h4>
               </div>
             </div>
-            <ArrowRight size={24} className="text-gray-400" />
+            <ArrowRight size={24} className="text-zinc-400" />
           </button>
 
           <button
@@ -295,12 +295,12 @@ useEffect(() => {
               </div>
               <div className="space-y-1 text-left">
                 <h4 className="text-lg">Send via email</h4>
-                <h4 className="text-sm text-gray-500">
+                <h4 className="text-sm text-zinc-500">
                   {"Enter recipient's email address"}
                 </h4>
               </div>
             </div>
-            <ArrowRight size={24} className="text-gray-400" />
+            <ArrowRight size={24} className="text-zinc-400" />
           </button>
 
           <button
@@ -313,12 +313,12 @@ useEffect(() => {
               </div>
               <div className="space-y-1 text-left">
                 <h4 className="text-lg">Send via phone</h4>
-                <h4 className="text-sm text-gray-500">
+                <h4 className="text-sm text-zinc-500">
                   {"Enter recipient's phone number"}
                 </h4>
               </div>
             </div>
-            <ArrowRight size={24} className="text-gray-400" />
+            <ArrowRight size={24} className="text-zinc-400" />
           </button>
 
           <button
@@ -331,12 +331,12 @@ useEffect(() => {
               </div>
               <div className="space-y-1 text-left">
                 <h4 className="text-lg">Send to other bank</h4>
-                <h4 className="text-sm text-gray-500">
+                <h4 className="text-sm text-zinc-500">
                   Transfer to any Nigerian bank account
                 </h4>
               </div>
             </div>
-            <ArrowRight size={24} className="text-gray-400" />
+            <ArrowRight size={24} className="text-zinc-400" />
           </button>
         </div>
       </div>
@@ -422,7 +422,7 @@ useEffect(() => {
             </button>
             <h1 className="text-2xl sm:text-4xl font-bold">{config.title}</h1>
           </div>
-          <p className="text-gray-500 mb-4">{config.description}</p>
+          <p className="text-zinc-500 mb-4">{config.description}</p>
 
           <TextInput
             value={getCurrentInputValue()}
@@ -512,7 +512,7 @@ useEffect(() => {
             {sendMethod === "bank" &&
               `${formData.bankName} - ${formData.bankAccount}`}
           </h1>
-          <h4 className="text-gray-600">
+          <h4 className="text-zinc-600">
             {sendMethod === "nickname" && "Cashley User"}
             {sendMethod === "email" && "Cashley User"}
             {sendMethod === "phone" && "Cashley User"}
@@ -530,7 +530,7 @@ useEffect(() => {
           />
 
           {formData.amount && (
-            <div className="text-sm text-gray-600">Available: ₦125,000.00</div>
+            <div className="text-sm text-zinc-600">Available: ₦125,000.00</div>
           )}
         </div>
 
@@ -609,7 +609,7 @@ useEffect(() => {
                 <div className="p-8 rounded-full bg-card" />
                 <div className="space-y-1 text-left">
                   <h4 className="text-lg">Send to Cashley user</h4>
-                  <h4 className="text-sm text-gray-500">
+                  <h4 className="text-sm text-zinc-500">
                     Send to users via nickname, email, or phone
                   </h4>
                 </div>
@@ -621,7 +621,7 @@ useEffect(() => {
                 <div className="p-8 rounded-full bg-card" />
                 <div className="space-y-1 text-left">
                   <h4 className="text-lg">Send to other bank</h4>
-                  <h4 className="text-sm text-gray-500">
+                  <h4 className="text-sm text-zinc-500">
                     Transfer to any Nigerian bank account
                   </h4>
                 </div>
@@ -801,8 +801,8 @@ useEffect(() => {
 
               <div className="flex items-center gap-3 justify-center">
                 <Image
-                  src={imageSrc || "/svg/cashly.svg"}
-                  alt="cashly"
+                  src={imageSrc || "/svg/cashley.svg"}
+                  alt="cashley"
                   width={69}
                   height={20}
                 />

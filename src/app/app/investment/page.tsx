@@ -15,7 +15,7 @@ import Link from "next/link";
 import TextInput from "@/components/ui/TextInput";
 
 export default function Investment() {
-  const whyCashly = [
+  const whyCashley = [
     {
       title: "Secure",
       description: "Bank-level security",
@@ -172,7 +172,7 @@ export default function Investment() {
         <h1 className="text-xl font-black">Why Invest with Cashley? </h1>
 
         <div className="p-8 grid grid-cols-2 gap-10 w-full">
-          {whyCashly?.map((why, id) => (
+          {whyCashley?.map((why, id) => (
             <div
               key={id}
               className="w-full flex flex-col gap-1 items-center justify-center"

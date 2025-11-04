@@ -79,14 +79,14 @@ export default function Notifications() {
                 </div>
               ))
             ) : (
-              <div className="text-center text-gray-500 py-8">
+              <div className="text-center text-zinc-500 py-8">
                 No unread notifications
               </div>
             )}
           </div>
         ) : (
           <div className="space-y-3 mt-5 w-full max-w-sm">
-            <div className="text-center text-gray-500 py-8">
+            <div className="text-center text-zinc-500 py-8">
               No read notifications
             </div>
           </div>

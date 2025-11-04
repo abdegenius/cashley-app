@@ -5,7 +5,7 @@ import PasswordInput from "@/components/ui/PasswordInput";
 import z from "zod";
 import TextInput from "@/components/ui/TextInput";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import api from "@/libs/axios";
@@ -13,18 +13,20 @@ import { useForm } from "react-hook-form";
 import { ApiResponse } from "@/types/api";
 import toast from "react-hot-toast";
 import { deleteFromCookie, setToCookie } from "@/libs/cookies";
-import { setToLocalStorage } from "@/libs/local-storage";
+import { getFromLocalStorage, setToLocalStorage } from "@/libs/local-storage";
 
 const VerifySchema = z.object({
   email: z.email("Email is required").min(10, "Enter a valid email"),
   otp: z.string().min(6, "Otp is required"),
 });
 
-type LoginFormData = z.infer<typeof VerifySchema>;
+type VerifyOTPFormData = z.infer<typeof VerifySchema>;
 
 export default function Verify() {
   const router = useRouter();
+  const stored_email = getFromLocalStorage('email')
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState(stored_email);
 
   const {
     register,
@@ -33,25 +35,32 @@ export default function Verify() {
     setValue,
     watch,
     trigger,
-  } = useForm<LoginFormData>({
+  } = useForm<VerifyOTPFormData>({
     resolver: zodResolver(VerifySchema),
     mode: "onChange",
   });
 
   const formValues = watch();
 
-  const handleInputChange = (field: keyof LoginFormData) => (value: string) => {
+  const handleInputChange = (field: keyof VerifyOTPFormData) => (value: string) => {
     setValue(field, value);
     trigger(field);
   };
 
+  useEffect(() => {
+    if (!email) {
+      router.push('/auth/create-account');
+    }
+  }, [email])
+
+
   // ✅ Email/otp Login
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: VerifyOTPFormData) => {
     setLoading(true);
     try {
       const res = await api.post<ApiResponse>("/auth/register", data);
       if (res?.data && !res.data.error) {
-        toast.success("Logged in successfully");
+        toast.success("Account created successfully");
         deleteFromCookie("token");
         setToCookie("token", res.data.data.token);
         if (res.data.data.user) {
@@ -59,13 +68,13 @@ export default function Verify() {
         }
         router.push("/app");
       } else {
-        const errorMessage = res?.data?.message || "Login failed";
+        const errorMessage = res?.data?.message || "Account verification failed";
         toast.error(errorMessage);
       }
     } catch (err: any) {
-      console.error("Login error", err);
+      console.error("Account verification error", err);
       if (err.response) {
-        toast.error(err.response.data?.message || "Login failed");
+        toast.error(err.response.data?.message || "Account verification failed");
       } else if (err.request) {
         toast.error("Network error: Unable to connect to server");
       } else {
@@ -84,16 +93,17 @@ export default function Verify() {
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-3 mt-5 w-full max-w-sm"
         >
-          <div className="w-full grid grid-cols-1 gap-4">
+          <div className="w-full grid grid-cols-1 gap-2.5 items-start">
             <div className="col-span-full w-full">
               <TextInput
-                value={formValues.email || ""}
-                onChange={handleInputChange("email")}
-                type={"text"}
-                placeholder="Email or Username"
+                value={String(email)}
+                type={"email"}
+                placeholder="Email address"
+                onChange={() => { }}
+                disabled={true}
               />
               {errors.email && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-red-500 text-xs mt-0">
                   {errors.email.message}
                 </p>
               )}
@@ -101,27 +111,28 @@ export default function Verify() {
 
             <div className="col-span-full w-full">
               <div className="relative">
-                <PasswordInput
+                <TextInput
                   value={formValues.otp || ""}
                   onChange={handleInputChange("otp")}
-                  placeholder="otp"
+                  placeholder="Enter O.T.P"
                 />
               </div>
             </div>
           </div>
 
           <Button
+            type="secondary"
             varient="submit"
             disabled={loading}
-            text={loading ? "Signing in..." : "Log in"}
+            text={loading ? "Signing in..." : "Verify"}
             width="w-full"
           />
         </form>
       </div>
 
       <div className="flex w-full items-center justify-center flex-row space-x-1">
-        <span className="text-sm font-normal text-gray-600">
-          {"Don't have an account?"}
+        <span className="text-sm font-normal text-zinc-600">
+          {"Already have an account?"}
         </span>
         <Link
           href={"/auth/login"}

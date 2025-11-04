@@ -12,11 +12,12 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import api from "@/libs/axios";
 import { ApiResponse } from "@/types/api";
+import { setToLocalStorage } from "@/libs/local-storage";
 
 const registerSchema = z
   .object({
-    firstname: z.string().min(2, "First name must be at least 2 characters"),
-    lastname: z.string().min(2, "Last name must be at least 2 characters"),
+    firstname: z.string().min(2, "Firstname is too short"),
+    lastname: z.string().min(2, "Lastname is too short"),
     username: z
       .string()
       .min(4, "Username must be at least 4 characters")
@@ -24,7 +25,7 @@ const registerSchema = z
         /^[a-zA-Z0-9_]+$/,
         "Username can only contain letters, numbers, and underscores"
       ),
-    email: z.email("Invalid email address"),
+    email: z.email("Enter a valid email address"),
     phone: z
       .string()
       .regex(
@@ -85,12 +86,13 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const { passwordConfirm, ...payload } = data;
-      
+
       const res = await api.post<ApiResponse>("/auth/register/initiate", payload);
 
       if (res?.data && !res.data.error) {
-        toast.success("Account created successfully!");
-        router.push("/auth/login");
+        toast.success("Please verify your email address to complete verification");
+        setToLocalStorage("email", payload.email);
+        router.push("/auth/verify-otp");
       } else {
         const errorMessage = res?.data?.message || "Registration failed";
         toast.error(errorMessage);
@@ -124,8 +126,11 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
-          <div className="w-full grid grid-cols-2 items-center gap-4">
+
+          <div className="w-full grid grid-cols-2 items-center gap-2.5 items-start">
+
             <div className="col-span-1 w-full">
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Firstname</p>
               <TextInput
                 value={formValues.firstname || ""}
                 onChange={handleInputChange("firstname")}
@@ -133,13 +138,14 @@ export default function RegisterPage() {
                 placeholder="Firstname"
               />
               {errors.firstname && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-red-500 text-xs mt-0 pl-2">
                   {errors.firstname.message}
                 </p>
               )}
             </div>
 
             <div className="col-span-1 w-full">
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Lastname</p>
               <TextInput
                 value={formValues.lastname || ""}
                 onChange={handleInputChange("lastname")}
@@ -147,13 +153,14 @@ export default function RegisterPage() {
                 placeholder="Lastname"
               />
               {errors.lastname && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-red-500 text-xs mt-0 pl-2">
                   {errors.lastname.message}
                 </p>
               )}
             </div>
 
             <div className="col-span-full w-full">
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Username</p>
               <TextInput
                 value={formValues.username || ""}
                 onChange={handleInputChange("username")}
@@ -161,13 +168,14 @@ export default function RegisterPage() {
                 placeholder="Username"
               />
               {errors.username && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-red-500 text-xs mt-0 pl-2">
                   {errors.username.message}
                 </p>
               )}
             </div>
 
             <div className="col-span-full w-full">
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Email address</p>
               <TextInput
                 value={formValues.email || ""}
                 onChange={handleInputChange("email")}
@@ -175,13 +183,14 @@ export default function RegisterPage() {
                 placeholder="Email Address"
               />
               {errors.email && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-red-500 text-xs mt-0 pl-2">
                   {errors.email.message}
                 </p>
               )}
             </div>
 
             <div className="col-span-full w-full">
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Phone Number</p>
               <TextInput
                 value={formValues.phone || ""}
                 onChange={(value) => {
@@ -193,37 +202,37 @@ export default function RegisterPage() {
                 placeholder="2348012345678"
               />
               {errors.phone && (
-                <p className="text-red-500 text-xs mt-1">
+                <p className="text-red-500 text-xs mt-0 pl-2">
                   {errors.phone.message}
                 </p>
               )}
             </div>
 
             <div className="col-span-1 w-full">
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Password</p>
               <PasswordInput
                 value={formValues.password || ""}
                 onChange={handleInputChange("password")}
                 placeholder="Password"
               />
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.password.message}
-                </p>
-              )}
             </div>
 
             <div className="col-span-1 w-full">
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Password Again</p>
               <PasswordInput
                 value={formValues.passwordConfirm || ""}
                 onChange={handleInputChange("passwordConfirm")}
                 placeholder="Confirm Password"
               />
-              {errors.passwordConfirm && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.passwordConfirm.message}
-                </p>
-              )}
             </div>
+            <div className="col-span-full w-full py-0 -mt-2">
+              {errors.password || errors.passwordConfirm ? (
+                <p className="text-red-500 text-xs mt-0 pl-2">
+                  {errors.password?.message || errors.passwordConfirm?.message}
+                </p>
+              ) : <></>}
+            </div>
+
           </div>
 
           <Button
@@ -236,8 +245,8 @@ export default function RegisterPage() {
         </form>
 
         <div className="flex w-full items-center justify-center flex-row space-x-1">
-          <span className="text-sm font-normal">Already have an account?</span>
-          <Link href={"/auth/login"} className="placeholder-text">
+          <span className="text-sm font-normal text-zinc-500">Already have an account?</span>
+          <Link href={"/auth/login"} className="text-sm text-zinc-300">
             Log in
           </Link>
         </div>

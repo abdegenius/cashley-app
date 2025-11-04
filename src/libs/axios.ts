@@ -42,7 +42,7 @@ api.interceptors.response.use(
     } else if (status === 401) {
       deleteFromCookie("token");
       deleteFromLocalStorage("user")
-      // return window.location.assign("/auth");
+      return window.location.assign("/auth");
     } else if (status > 401 && status < 500) {
       return response;
     } else {

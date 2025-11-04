@@ -15,7 +15,7 @@ export default function CenteredLayout({
 
   useEffect(() => {
     setImageSrc(
-      resolvedTheme === "dark" ? "/svg/cashly.svg" : "/svg/cashly-dark.svg"
+      resolvedTheme === "dark" ? "/svg/cashley.svg" : "/svg/cashley-dark.svg"
     );
   }, [resolvedTheme]);
 
@@ -26,7 +26,7 @@ export default function CenteredLayout({
         {pathname !== "/auth" && (
           <div className="flex w-full flex-row items-center justify-between mb-6">
             <div className="w-100 h-10 relative flex justify-start">
-              <Image src={imageSrc || "/svg/cashly.svg"} alt="cashly" width={100} height={30} />
+              <Image src={imageSrc || "/svg/cashley.svg"} alt="cashley" width={100} height={30} />
             </div>
           </div>
         )}

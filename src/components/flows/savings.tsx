@@ -40,23 +40,23 @@ export default function SavingsAction({
   const [frequency, setFrequency] = useState<"once" | "weekly" | "monthly" | string>(
     "once"
   );
-  const [paymentMethod, setPaymentMethod] = useState<string>("cashly");
+  const [paymentMethod, setPaymentMethod] = useState<string>("cashley");
 
   const numbers = [1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000];
 
   const paymentMethods = [
     {
-      accountName: "cashly",
+      accountName: "cashley",
       accountNumber: "8101842464",
-      bankName: "Cashly Account Balance",
+      bankName: "Cashley Account Balance",
     },
   ];
 
   const withdrawMethods = [
     {
-      accountName: "cashly",
+      accountName: "cashley",
       accountNumber: "8101842464",
-      bankName: "Cashly Account Balance",
+      bankName: "Cashley Account Balance",
     },
     {
       accountName: "bank",
@@ -253,7 +253,7 @@ export default function SavingsAction({
                 <div>
                   <p className="font-medium">{method.bankName}</p>
                   {method.accountNumber && (
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-zinc-500">
                       {method.accountNumber}
                     </p>
                   )}

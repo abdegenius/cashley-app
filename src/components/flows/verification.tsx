@@ -349,7 +349,7 @@ const handleLoading = async () => {
           </div>
         </>
       ) : error ? (
-        <div className="w-full h-full flex flex-col items-center justify-center text-gray-500">
+        <div className="w-full h-full flex flex-col items-center justify-center text-zinc-500">
           <Camera size={48} className="mb-4" />
           <p className="text-center">{error}</p>
           <button
@@ -363,7 +363,7 @@ const handleLoading = async () => {
           </button>
         </div>
       ) : (
-        <div className="w-full h-full flex flex-col items-center justify-center text-gray-500">
+        <div className="w-full h-full flex flex-col items-center justify-center text-zinc-500">
           <div className="w-20 h-20 relative flex items-center justify-center animate-spin">
             <div className="w-full bottom-[45%] h-0.5 rounded-full absolute blue-bg rotate-90" />
             <div className="w-full bottom-[45%] h-0.5 rounded-full absolute purple-bg rotate-45" />
@@ -385,7 +385,7 @@ const handleLoading = async () => {
           className="w-full h-full object-cover"
         />
       ) : (
-        <div className="w-full h-full flex flex-col items-center justify-center text-gray-500">
+        <div className="w-full h-full flex flex-col items-center justify-center text-zinc-500">
           <Camera size={48} className="mb-4" />
           <p>No image captured</p>
         </div>

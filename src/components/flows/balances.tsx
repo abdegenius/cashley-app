@@ -165,7 +165,7 @@ export default function Balances({
                   <div className="text-lg font-semibold">
                     {balance.currency}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-zinc-500">
                     {formatDate(trx.created_at)}
                   </div>
                 </div>
@@ -182,14 +182,14 @@ export default function Balances({
                       {trx.type === "credit" ? "+" : "-"}
                       {formatAmount(trx.amount, balance.currency)}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-zinc-500">
                       {getDisplayType(trx.action, trx.type)}
                     </div>
                     {trx.status === "failed" && (
                       <div className="text-xs text-red-500 mt-1">Failed</div>
                     )}
                   </div>
-                  <EllipsisVertical size={18} className="text-gray-400" />
+                  <EllipsisVertical size={18} className="text-zinc-400" />
                 </div>
               </div>
             ))

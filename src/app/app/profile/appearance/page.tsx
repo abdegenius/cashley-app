@@ -76,7 +76,7 @@ export default function Appearance() {
               <Settings size={24} className="placeholder-text" />
               <div>
                 <p className="font-bold">System</p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-zinc-500">
                   {resolvedTheme === "dark"
                     ? "Using dark theme"
                     : "Using light theme"}

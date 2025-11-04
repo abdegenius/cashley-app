@@ -874,7 +874,7 @@ function AmountGrid({ value, onChange, presetAmounts, minAmount, maxAmount }: Am
       />
       
       {(minAmount || maxAmount) && (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-zinc-500">
           Amount range: ₦{parseFloat(minAmount || "0").toLocaleString()} - ₦{parseFloat(maxAmount || "0").toLocaleString()}
         </p>
       )}

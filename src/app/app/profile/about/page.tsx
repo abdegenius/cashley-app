@@ -11,7 +11,7 @@ export default function About() {
 
   useEffect(() => {
     setImageSrc(
-      resolvedTheme === "dark" ? "/svg/cashly.svg" : "/svg/cashly-dark.svg"
+      resolvedTheme === "dark" ? "/svg/cashley.svg" : "/svg/cashley-dark.svg"
     );
   }, [resolvedTheme]);
 
@@ -19,8 +19,8 @@ export default function About() {
     <div className="w-full  h-full flex flex-col justify-end bg-card">
       <div className="text-center bg-background flex flex-col items-center  space-y-10 py-6 px-4">
         <Image
-          src={imageSrc || "/svg/cashly.svg"}
-          alt="cashly"
+          src={imageSrc || "/svg/cashley.svg"}
+          alt="cashley"
           width={100}
           height={30}
         />

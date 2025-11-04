@@ -280,7 +280,7 @@ export default function SetPin() {
 
             <div className="text-center mb-8">
               <h2 className="text-xl mb-2">Create PIN</h2>
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm text-zinc-600 mb-2">
                 Enter a 4-digit PIN to secure your account
               </p>
               {errors.pin && (
@@ -290,7 +290,7 @@ export default function SetPin() {
               )}
               <button
                 onClick={handleShowPin}
-                className="cursor-pointer text-gray-500 hover:text-gray-700"
+                className="cursor-pointer text-zinc-500 hover:text-zinc-700"
                 type="button"
               >
                 {showPin ? (
@@ -325,7 +325,7 @@ export default function SetPin() {
 
             <div className="text-center mb-8">
               <h2 className="text-xl mb-2">Confirm PIN</h2>
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm text-zinc-600 mb-2">
                 Re-enter your 4-digit PIN to confirm
               </p>
               {(error || errors.confirm_pin) && (
@@ -335,7 +335,7 @@ export default function SetPin() {
               )}
               <button
                 onClick={handleShowPin}
-                className="cursor-pointer text-gray-500 hover:text-gray-700"
+                className="cursor-pointer text-zinc-500 hover:text-zinc-700"
                 type="button"
               >
                 {showPin ? (

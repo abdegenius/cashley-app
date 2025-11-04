@@ -39,7 +39,7 @@ export default function Deposit() {
   ];
 
   const nairaAccounts = [
-    { type: "Account Number", address: "8101842464", bank: "Cashly Bank" },
+    { type: "Account Number", address: "8101842464", bank: "Cashley Bank" },
     { type: "Email Address", address: "talinanzing111@gmail.com" },
     { type: "Nickname", address: "@lawless" },
   ];
@@ -104,12 +104,12 @@ export default function Deposit() {
                     </div>
                     <div>
                       <div className="font-black text-lg">{method.title}</div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-zinc-500">
                         {method.description}
                       </div>
                     </div>
                   </div>
-                  <ArrowRight size={20} className="text-gray-400" />
+                  <ArrowRight size={20} className="text-zinc-400" />
                 </div>
               ))}
             </div>
@@ -134,11 +134,11 @@ export default function Deposit() {
                       </div>
                       <div>
                         <div className="font-black text-lg">{account.type}</div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-zinc-500">
                           {account.address}
                         </div>
                         {account.bank && (
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-zinc-400">
                             {account.bank}
                           </div>
                         )}
@@ -180,11 +180,11 @@ export default function Deposit() {
                   >
                     <div>
                       <div className="font-semibold">{network.name}</div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-zinc-500">
                         Fee: {network.fee}
                       </div>
                     </div>
-                    <ArrowRight size={20} className="text-gray-400" />
+                    <ArrowRight size={20} className="text-zinc-400" />
                   </div>
                 ))}
               </div>
@@ -209,7 +209,7 @@ export default function Deposit() {
                     ? "Bitcoin Network"
                     : "Ethereum (ERC-20)"}
                 </h4>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-zinc-500">
                   Fee:{" "}
                   {selectedMethod === "usdt"
                     ? "~$0.5 - 2"

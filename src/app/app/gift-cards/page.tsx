@@ -367,7 +367,7 @@ export default function GiftCard() {
               {/* Search Bar */}
               <div className="relative">
                 <Search
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 text-zinc-400"
                   size={20}
                 />
                 <TextInput
@@ -418,7 +418,7 @@ export default function GiftCard() {
 
               {filteredProviders.length === 0 && (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">
+                  <p className="text-zinc-500">
                     No gift cards found matching your search.
                   </p>
                 </div>

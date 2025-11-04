@@ -16,19 +16,20 @@ export default function ForgotPasswordPage() {
         </div>
         <div className="w-full max-w-sm items-center space-y-6">
           <div className="col-span-full w-full">
+            <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Email address</p>
             <TextInput
               value={email}
               onChange={setEmail}
               type={"email"}
-              placeholder="Email Address"
+              placeholder="Email address"
             />
           </div>
 
           <Button type="secondary" text="Continue" width="w-full" />
 
           <div className="flex w-full items-center justify-center flex-row space-x-1">
-            <span className="text-sm font-normal">Remember password?</span>
-            <Link href={"/auth/login"} className=" placeholder-text">
+            <span className="text-sm font-normal text-zinc-500">Remember password?</span>
+            <Link href={"/auth/login"} className="text-zinc-300 text-sm">
               Back to login
             </Link>
           </div>

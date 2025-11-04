@@ -20,8 +20,8 @@ export default function Home() {
 
       <div className="w-full h-screen relative z-10 flex items-center justify-center">
         <Image
-          src={"/svg/cashly.svg"}
-          alt="Cashly logo"
+          src={"/svg/cashley.svg"}
+          alt="Cashley logo"
           width={200}
           height={50}
         />
