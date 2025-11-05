@@ -6,7 +6,7 @@ import { Bell, Eye, EyeOff } from "lucide-react";
 import Button from "@/components/ui/Button";
 import TransactionHistory from "@/components/modals/transactionHistory";
 import api from "@/lib/axios";
-import { ApiResponse, Transaction } from "@/types/api";
+import { ApiResponse, BankAccount, Transaction } from "@/types/api";
 import { formatToNGN, formatToUSD } from "@/utils/amount";
 import { services } from "@/utils/string";
 import { useAuthContext } from "@/context/AuthContext";
@@ -19,6 +19,8 @@ export default function DashboardPage() {
     ngn: false,
     usd: false,
   });
+  const [bankAccount, setBankAccount] = useState<BankAccount | null>(null);
+  const [showBankAccount, setShowBankAccount] = useState<boolean>(false);
 
   const handleToggleBalance = useCallback((id: string) => {
     setVisibleBalances(prev => ({

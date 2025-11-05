@@ -170,6 +170,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
 
   const handleSubmit = async () => {
     setPurchasing(true);
+    setStep(1);
     try {
       let payload = {
         service_id: formData.service_id, pin: pinExtractor(otp), amount: formData.amount,
@@ -442,7 +443,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
             onBack={handlePrev}
           />}
         {success && transaction && (
-          <div className="fixed z-3 inset-0 w-full h-full bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center max-w-xl mx-auto p-4">
+          <div className="fixed z-5 inset-0 w-full h-full bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center max-w-xl mx-auto p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -546,6 +547,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
         )}
         {(purchasing || verifying) && <LoadingOverlay />}
       </div>
+
     </div>
   );
 }

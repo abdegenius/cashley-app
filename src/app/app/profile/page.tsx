@@ -12,7 +12,6 @@ import {
   CircleQuestionMark,
   Contact,
   Copy,
-  Fingerprint,
   Headphones,
   Keyboard,
   LockKeyhole,
@@ -27,22 +26,11 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { ApiResponse } from "@/types/api";
 import { useAuthContext } from "@/context/AuthContext";
+import { logoutModal } from "@/controllers/logout-modal";
 
 export default function ProfilePage() {
   const { user } = useAuthContext();
   const router = useRouter();
-  const logOut = async () => {
-    try {
-      const res = await api.post<ApiResponse>("/auth/logout");
-      if (res.data.message === "Account logged out") {
-        toast.success("Logged out successfully");
-        router.push("/auth/login");
-      }
-      return res;
-    } catch {
-      toast.error("failed to Logout");
-    }
-  };
   return (
     <div className="w-full h-full flex items-start justify-center">
       <div className="w-full flex flex-col gap-10 max-w-lg">
@@ -185,7 +173,8 @@ export default function ProfilePage() {
           />
 
           <div className="w-full p-0.5 rounded-2xl primary-orange-to-purple">
-            <button onClick={logOut} className="w-full cursor-pointer py-5 px-4 rounded-2xl bg-card flex items-center justify-between">
+            <button
+              onClick={() => logoutModal.open()} className="w-full cursor-pointer py-5 px-4 rounded-2xl bg-card flex items-center justify-between">
               <span className="">
                 Log out
               </span>
