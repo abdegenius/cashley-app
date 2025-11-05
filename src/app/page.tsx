@@ -18,7 +18,7 @@ export default function Home() {
     <div className="w-full h-full font-sans items-center relative organic-gradient-bg  min-h-100vh">
       <div className="w-full h-screen bg-black/30 absolute top-0 left-0" />
 
-      <div className="w-full h-screen relative z-10 flex items-center justify-center">
+      <div className="w-full h-screen relative flex items-center justify-center">
         <Image
           src={"/svg/cashley.svg"}
           alt="Cashley logo"

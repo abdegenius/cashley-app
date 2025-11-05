@@ -65,8 +65,7 @@ export default function CenteredLayout({
           className="fixed w-full max-w-xl mx-auto bottom-0 left-0 right-0">
           <div className="w-full bg-card rounded-t-4xl border-t-8 border-zinc-950/30
           pb-[env(safe-area-inset-bottom)] flex items-center justify-between w-full
-          backdrop-blur-lg  shadow-[0_-2px_10px_rgba(0,0,0,0.08)] py-8
-           z-10"
+          backdrop-blur-lg  shadow-[0_-2px_10px_rgba(0,0,0,0.08)] py-8"
           >
             {navItems.map((item, id) => {
               const Icon = item.icon;

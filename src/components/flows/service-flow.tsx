@@ -369,10 +369,10 @@ export default function Purchase({ type, user }: PurchaseProps) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="z-10 fixed max-w-xl inset-0 mx-auto space-y-8 w-full h-full"
+            className="z-1 fixed max-w-xl inset-0 mx-auto space-y-8 w-full h-full"
           >
-            <div className="z-10 inset-0 relative w-full h-full backdrop-blur-sm bg-zinc-900/10" />
-            <div className="bottom-0 absolute z-20 w-full h-auto flex flex-col justify-end items-end">
+            <div className="z-1 inset-0 relative w-full h-full backdrop-blur-sm bg-zinc-900/10" />
+            <div className="bottom-0 absolute z-2 w-full h-auto flex flex-col justify-end items-end">
               <div className="w-full bg-card py-5 rounded-t-3xl">
                 <div className="space-y-1">
                   <h2 className="text-2xl font-black w-full text-center">
@@ -442,7 +442,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
             onBack={handlePrev}
           />}
         {success && transaction && (
-          <div className="fixed z-50 inset-0 w-full h-full bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center max-w-xl mx-auto p-4">
+          <div className="fixed z-3 inset-0 w-full h-full bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center max-w-xl mx-auto p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -534,7 +534,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
                 </div>
               </div>
             </motion.div>
-            <div className="my-6 w-full flex gap-4">
+            <div className="my-6 w-full flex gap-4 px-4">
               <button className="w-full p-4 rounded-full bg-card">
                 Share as image
               </button>

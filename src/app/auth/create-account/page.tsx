@@ -34,11 +34,11 @@ const registerSchema = z
       ),
     password: z
       .string()
-      .min(6, "Password must be at least 6 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/,
-        "Password must contain uppercase, lowercase, number, and special character"
-      ),
+      .min(6, "Password must be at least 6 characters"),
+      // .regex(
+      //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/,
+      //   "Password must contain uppercase, lowercase, number, and special character"
+      // )
     passwordConfirm: z.string(),
   })
   .refine((data) => data.password === data.passwordConfirm, {

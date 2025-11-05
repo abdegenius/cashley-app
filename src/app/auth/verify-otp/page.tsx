@@ -66,7 +66,7 @@ export default function Verify() {
         if (res.data.data.user) {
           setToLocalStorage("user", JSON.stringify(res.data.data.user));
         }
-        router.push("/app/set-pin");
+        router.push("/auth/set-pin");
       } else {
         const errorMessage = res?.data?.message || "Account verification failed";
         toast.error(errorMessage);
@@ -107,7 +107,7 @@ export default function Verify() {
             <div className="col-span-full w-full">
               <div className="relative">
                 <TextInput
-                  className="placeholder:font-normal placeholder:text-sm placeholder:tracking-normal text-center font-black text-3xl tracking-[1rem]"
+                  className="placeholder:font-normal placeholder:text-2xl placeholder:tracking-normal text-center font-black text-3xl tracking-[1rem]"
                   value={formValues.otp || ""}
                   onChange={handleInputChange("otp")}
                   placeholder="Enter O.T.P"

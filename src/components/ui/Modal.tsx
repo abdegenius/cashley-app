@@ -14,7 +14,7 @@ const Modal: React.FC<ModalProps> = ({ show, onClose, children }) => {
         <AnimatePresence>
             {show && (
                 <motion.div
-                    className="fixed inset-0 z-50 flex items-end justify-center w-full max-w-xl mx-auto"
+                    className="fixed inset-0 z-10 flex items-end justify-center w-full max-w-xl mx-auto"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}

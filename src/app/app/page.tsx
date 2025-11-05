@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button";
 import TransactionHistory from "@/components/modals/transactionHistory";
 import api from "@/lib/axios";
 import { ApiResponse, Transaction } from "@/types/api";
-import { formatToNGN } from "@/utils/amount";
+import { formatToNGN, formatToUSD } from "@/utils/amount";
 import { services } from "@/utils/string";
 import { useAuthContext } from "@/context/AuthContext";
 
@@ -86,7 +86,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 gap-4">
           {balances.map(balance => {
             const isVisible = visibleBalances[balance.id];
-            const amount = formatToNGN(Number(balance.value));
+            const amount = balance.id == "ngn" ? formatToNGN(Number(balance.value)) : formatToUSD(Number(balance.value));
 
             return (
               <div

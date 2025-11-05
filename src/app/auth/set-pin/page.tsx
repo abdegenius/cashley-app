@@ -203,81 +203,12 @@ export default function SetPin() {
     </div>
   );
 
-  // Alternative: Simple text input style
-  const renderTextInput = (val: string, showValue: boolean) => (
-    <div className="w-full flex justify-center mb-6">
-      <div className="relative">
-        <input
-          ref={inputRef}
-          type={showValue ? "text" : "password"}
-          inputMode="numeric"
-          pattern="[0-9]*"
-          maxLength={4}
-          value={val}
-          readOnly
-          className="
-            w-48 h-12 text-center text-2xl font-bold font-mono
-            border-2 border-stone-300 rounded-xl bg-stone-50
-            focus:outline-none focus:border-purple-500 focus:bg-purple-50
-            transition-all duration-200
-          "
-          placeholder="••••"
-        />
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          {val.length === 0 && (
-            <span className="text-stone-400 text-lg">Enter PIN</span>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
-  // Alternative: Character-by-character input
-  const renderCharInput = (val: string, showValue: boolean) => (
-    <div className="w-full flex justify-center mb-6">
-      <div
-        className="flex gap-2 items-center"
-        onClick={handleInputClick}
-      >
-        {[...Array(4)].map((_, i) => (
-          <motion.div
-            key={i}
-            animate={{
-              scale: val[i] ? 1.05 : 1,
-              borderColor: val[i] ? '#8b5cf6' : '#d6d3d1'
-            }}
-            transition={{ type: "spring", stiffness: 300 }}
-            className={`
-              w-12 h-12 rounded-lg border-2 flex items-center justify-center
-              text-xl font-bold font-mono bg-white transition-all duration-200
-              ${i === val.length ? 'ring-2 ring-purple-400 shadow-md' : ''}
-            `}
-          >
-            {val[i] ? (
-              showValue ? (
-                <span className="text-purple-700">{val[i]}</span>
-              ) : (
-                <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-              )
-            ) : (
-              <span className="text-stone-300 text-lg">○</span>
-            )}
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-
   const renderStep = () => {
     switch (step) {
       case 1:
         return (
           <div className="w-full flex flex-col justify-around">
             {renderInput(pin, showPin)}
-            {/* Or use one of the alternatives: */}
-            {/* {renderTextInput(pin, showPin)} */}
-            {/* {renderCharInput(pin, showPin)} */}
-
             <div className="text-center mb-8">
               <h2 className="text-xl mb-2">Create PIN</h2>
               <p className="text-sm text-zinc-600 mb-2">
@@ -319,9 +250,6 @@ export default function SetPin() {
         return (
           <div className="w-full flex flex-col justify-around">
             {renderInput(confirm_pin, showPin)}
-            {/* Or use one of the alternatives: */}
-            {/* {renderTextInput(confirm_pin, showPin)} */}
-            {/* {renderCharInput(confirm_pin, showPin)} */}
 
             <div className="text-center mb-8">
               <h2 className="text-xl mb-2">Confirm PIN</h2>

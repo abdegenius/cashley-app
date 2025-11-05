@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { ApiResponse } from "@/types/api";
 import { tree } from "next/dist/build/templates/app-page";
+import { LoadingOverlay } from "../Loading";
 
 type VerificationType = "bvn" | "nin";
 
@@ -196,24 +197,6 @@ export default function Verify({ type }: VerifyProps) {
         return config[type];
     };
 
-    const renderLoadingScreen = (text: string) => (
-        <div className="fixed min-h-screen bg-black/50 backdrop-blur-sm inset-0 z-50 max-w-xl mx-auto h-full w-full transparent-bg flex items-center justify-center">
-            <div className="w-full absolute rounded-t-3xl space-y-0 flex flex-col justify-center items-center px-12">
-                <div className="w-20 h-20 relative flex items-center justify-center animate-spin mb-2">
-                    <div className="w-full bottom-[45%] h-0.5 rounded-full absolute blue-bg rotate-90" />
-                    <div className="w-full bottom-[45%] h-0.5 rounded-full absolute purple-bg rotate-45" />
-                    <div className="w-full bottom-[45%] h-0.5 rounded-full absolute orange-bg -rotate-45" />
-                    <div className="w-full bottom-[45%] h-0.5 rounded-full absolute blue-bg -rotate-" />
-                    <div className="w-10 h-10 rounded-full bg-black relative z-99"></div>
-                    <div className="w-5 h-5 rounded-full bg-black absolute top-0 z-99"></div>
-                    <div className="w-5 h-5 rounded-full bg-black absolute top-0 z-99"></div>
-                </div>
-                <h2 className="text-2xl font-black text-stone-400">Please Wait</h2>
-                <h4 className="text-sm text-stone-200">{text}</h4>
-            </div>
-        </div>
-    );
-
     const renderStep = () => {
         const config = getVerificationConfig();
 
@@ -236,7 +219,7 @@ export default function Verify({ type }: VerifyProps) {
                             ))}
                             {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
                         </div>
-                        {loading && renderLoadingScreen(config.loadingText)}
+                        {loading && <LoadingOverlay />}
                     </div>
 
                 ); case 2:

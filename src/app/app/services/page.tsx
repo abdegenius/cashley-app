@@ -1,3 +1,4 @@
+"use client"
 import { services } from "@/utils/string";
 import Link from "next/link";
 import React from "react";
