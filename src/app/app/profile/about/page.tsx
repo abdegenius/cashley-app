@@ -8,6 +8,7 @@ import { useBack } from "@/hooks/useBack";
 export default function About() {
   const { resolvedTheme } = useTheme();
   const [imageSrc, setImageSrc] = useState("");
+  const goBack = useBack();
 
   useEffect(() => {
     setImageSrc(
@@ -30,10 +31,10 @@ export default function About() {
           crypto — all in one seamless app.
         </div>
 
-        <div onClick={useBack()} className="w-full rounded-full p-0.5 primary-purple-to-blue">
-            <button className="w-full py-4 bg-background rounded-full">
-                close
-            </button>
+        <div onClick={goBack} className="w-full rounded-full p-0.5 primary-purple-to-blue">
+          <button className="w-full py-4 bg-background rounded-full">
+            close
+          </button>
         </div>
       </div>
     </div>

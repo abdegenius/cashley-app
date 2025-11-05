@@ -8,16 +8,16 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import api from "@/libs/axios";
+import api from "@/lib/axios";
 import { useForm } from "react-hook-form";
 import { ApiResponse } from "@/types/api";
 import toast from "react-hot-toast";
-import { deleteFromCookie, setToCookie } from "@/libs/cookies";
-import { getFromLocalStorage, setToLocalStorage } from "@/libs/local-storage";
+import { deleteFromCookie, setToCookie } from "@/lib/cookies";
+import { getFromLocalStorage, setToLocalStorage } from "@/lib/local-storage";
 
 const VerifySchema = z.object({
-  email: z.email("Email is required").min(10, "Enter a valid email"),
-  otp: z.string().min(6, "Otp is required"),
+  // email: z.email("Email is required").min(10, "Enter a valid email"),
+  otp: z.string().min(6, "OTP is required"),
 });
 
 type VerifyOTPFormData = z.infer<typeof VerifySchema>;
@@ -58,7 +58,7 @@ export default function Verify() {
   const onSubmit = async (data: VerifyOTPFormData) => {
     setLoading(true);
     try {
-      const res = await api.post<ApiResponse>("/auth/register", data);
+      const res = await api.post<ApiResponse>("/auth/register", { ...data, email });
       if (res?.data && !res.data.error) {
         toast.success("Account created successfully");
         deleteFromCookie("token");
@@ -66,7 +66,7 @@ export default function Verify() {
         if (res.data.data.user) {
           setToLocalStorage("user", JSON.stringify(res.data.data.user));
         }
-        router.push("/app");
+        router.push("/app/set-pin");
       } else {
         const errorMessage = res?.data?.message || "Account verification failed";
         toast.error(errorMessage);
@@ -94,7 +94,7 @@ export default function Verify() {
           className="space-y-3 mt-5 w-full max-w-sm"
         >
           <div className="w-full grid grid-cols-1 gap-2.5 items-start">
-            <div className="col-span-full w-full">
+            {/* <div className="col-span-full w-full">
               <TextInput
                 value={String(email)}
                 type={"email"}
@@ -102,19 +102,17 @@ export default function Verify() {
                 onChange={() => { }}
                 disabled={true}
               />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-0">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+            </div> */}
 
             <div className="col-span-full w-full">
               <div className="relative">
                 <TextInput
+                  className="placeholder:font-normal placeholder:text-sm placeholder:tracking-normal text-center font-black text-3xl tracking-[1rem]"
                   value={formValues.otp || ""}
                   onChange={handleInputChange("otp")}
                   placeholder="Enter O.T.P"
+                  minLength={"6"}
+                  maxLength={"6"}
                 />
               </div>
             </div>
@@ -124,7 +122,7 @@ export default function Verify() {
             type="secondary"
             varient="submit"
             disabled={loading}
-            text={loading ? "Signing in..." : "Verify"}
+            text={loading ? "Verifying..." : "Verify"}
             width="w-full"
           />
         </form>

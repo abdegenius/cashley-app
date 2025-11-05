@@ -66,7 +66,7 @@ export default function KYCVerification() {
               type="primary"
               width="w-full max-w-2xl py-4"
               text="Start Tier 1 Verification"
-              href="/app/profile/kyc-verification/nin-verification"
+              href="/app/profile/kyc-verification/nin"
             />
           )}
         </div>
@@ -131,7 +131,7 @@ export default function KYCVerification() {
               type="primary"
               width="w-full max-w-2xl py-4"
               text="Start Tier 3 Verification"
-              href="/app/profile/kyc-verification/bvn-verification"
+              href="/app/profile/kyc-verification/bvn"
             />
           )}
         </div>

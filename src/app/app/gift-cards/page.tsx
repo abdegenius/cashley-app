@@ -1,6 +1,6 @@
 "use client";
 
-import { Keypad } from "@/components/models/Keypad";
+import { Keypad } from "@/components/modals/Keypad";
 import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
 import { motion, AnimatePresence } from "framer-motion";
@@ -342,7 +342,7 @@ export default function GiftCard() {
       case 2:
         return selectedCountry !== "" && formData.variation !== null;
       case 3:
-        return true; // Summary step is always valid
+        return true;
       case 4:
         return otp.every((d) => d);
       default:

@@ -8,12 +8,12 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import api from "@/libs/axios";
+import api from "@/lib/axios";
 import { useForm } from "react-hook-form";
 import { ApiResponse } from "@/types/api";
 import toast from "react-hot-toast";
-import { deleteFromCookie, setToCookie } from "@/libs/cookies";
-import { setToLocalStorage } from "@/libs/local-storage";
+import { deleteFromCookie, setToCookie } from "@/lib/cookies";
+import { setToLocalStorage } from "@/lib/local-storage";
 
 const loginSchema = z.object({
   entity: z.string().min(1, "Email address or username is required"),

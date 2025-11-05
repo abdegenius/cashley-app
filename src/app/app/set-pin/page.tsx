@@ -1,10 +1,9 @@
 "use client";
 
-import { Keypad } from "@/components/models/Keypad";
+import { Keypad } from "@/components/modals/Keypad";
 import Button from "@/components/ui/Button";
-import api from "@/libs/axios";
+import api from "@/lib/axios";
 import { ApiResponse } from "@/types/api";
-import { toDigitArray } from "@/utils/string";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
@@ -13,6 +12,7 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import z from "zod";
 import { useRouter } from "next/navigation";
+import { LoadingOverlay } from "@/components/Loading";
 
 const setPinSchema = z
   .object({
@@ -20,7 +20,7 @@ const setPinSchema = z
     confirm_pin: z.string().length(4, "PIN must be exactly 4 digits"),
   })
   .refine((data) => data.pin === data.confirm_pin, {
-    message: "PINs don't match",
+    message: "PINs doesn't match",
     path: ["confirm_pin"],
   });
 
@@ -102,7 +102,7 @@ export default function SetPin() {
 
       if (res?.data && !res.data.error) {
         toast.success("PIN set successfully");
-        router.push("/auth/login");
+        router.push("/app");
       } else {
         const err = res.data.message || "Error setting PIN";
         toast.error(err);
@@ -131,15 +131,15 @@ export default function SetPin() {
         setError("Confirm PIN must be 4 digits");
         return;
       }
-      
+
       const isValid = await trigger();
       if (!isValid) {
         setError("Please fix the validation errors");
         return;
       }
-      
+
       setError(null);
-      
+
       // Call onSubmit directly instead of using handleSubmit
       const formData: setPinFormData = {
         pin,
@@ -157,7 +157,7 @@ export default function SetPin() {
 
   const renderInput = (val: string, showValue: boolean) => (
     <div className="w-full flex justify-center mb-6">
-      <div 
+      <div
         className="relative flex items-center justify-center"
         onClick={handleInputClick}
       >
@@ -171,7 +171,7 @@ export default function SetPin() {
           className="absolute opacity-0 w-1 h-1"
           readOnly
         />
-        
+
         {/* Visual input display */}
         <div className="flex gap-3 items-center">
           {[...Array(4)].map((_, i) => (
@@ -182,9 +182,9 @@ export default function SetPin() {
               className={`
                 w-14 h-14 rounded-xl border-2 flex items-center justify-center
                 text-xl font-bold font-mono transition-all duration-200
-                ${val[i] 
-                  ? "border-purple-500 bg-purple-50 text-purple-700 shadow-sm" 
-                  : "border-stone-300 bg-stone-50 text-stone-400"
+                ${val[i]
+                  ? "border-purple-500 bg-stone-800/50 text-purple-700 shadow-sm"
+                  : "border-stone-600 bg-stone-600/50 text-stone-200"
                 }
                 ${i === val.length ? 'ring-2 ring-purple-400' : ''}
               `}
@@ -235,14 +235,14 @@ export default function SetPin() {
   // Alternative: Character-by-character input
   const renderCharInput = (val: string, showValue: boolean) => (
     <div className="w-full flex justify-center mb-6">
-      <div 
+      <div
         className="flex gap-2 items-center"
         onClick={handleInputClick}
       >
         {[...Array(4)].map((_, i) => (
           <motion.div
             key={i}
-            animate={{ 
+            animate={{
               scale: val[i] ? 1.05 : 1,
               borderColor: val[i] ? '#8b5cf6' : '#d6d3d1'
             }}
@@ -392,11 +392,13 @@ export default function SetPin() {
         {renderStep()}
       </div>
 
-      <div className="w-full max-w-sm space-y-3">
+      {loading && <LoadingOverlay />}
+
+      <div className="w-full max-w-[200px] flex items-center justify-center space-y-3">
         {step === 2 && (
           <Button
             onclick={handleBack}
-            type="secondary"
+            type="dark"
             text="Back"
             width="w-full"
           />

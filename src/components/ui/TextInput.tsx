@@ -8,8 +8,10 @@ interface TextInputProps {
     placeholder?: string;
     type?: string;
     className?: string;
-    currency? : string;
-    disabled?:boolean;
+    currency?: string;
+    disabled?: boolean;
+    minLength?: string;
+    maxLength?: string;
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -19,12 +21,14 @@ const TextInput: React.FC<TextInputProps> = ({
     placeholder = "",
     type = "text",
     className = "",
-    currency
+    currency,
+    minLength,
+    maxLength
 }) => {
     return (
         <div
             className={`w-full flex bg-card rounded-3xl p-4 text-md`}>
-                {currency && <span>{currency}</span>}
+            {currency && <span>{currency}</span>}
             <input
                 type={type}
                 value={value}
@@ -32,6 +36,8 @@ const TextInput: React.FC<TextInputProps> = ({
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
                 className={`placeholder:placeholder-text bg-card rounded-3xl text-md font-medium px-2 select-none appearance-none outline-none border-none w-full ${className}`}
+                min={minLength}
+                max={maxLength}
             />
         </div>
     );

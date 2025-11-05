@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 
-export const useBack = (fallbackUrl: string = "/") => {
+export const useBack = (fallbackUrl: string = "/app") => {
   const router = useRouter();
 
   const goBack = () => {

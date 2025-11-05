@@ -15,7 +15,7 @@ import {
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useTheme } from "@/providers/ThemeProvider";
-import api from "@/libs/axios";
+import api from "@/lib/axios";
 import { ApiResponse } from "@/types/api";
 import toast from "react-hot-toast";
 
@@ -93,7 +93,7 @@ useEffect(() => {
   console.log(bank);
   const fetchBanks = async () => {
     try {
-      const res = await api.get<ApiResponse>("/general/banks");
+      const res = await api.get<ApiResponse>("/transfers/banks");
       // if(res.data.message && !res.data.data){
       //   const errmessage = res.data.message
       //   toast.error("failed to fetch banks", errmessage)
@@ -131,7 +131,7 @@ useEffect(() => {
         account_number: formData.bankAccount,
         bank_code: formData.bankCode
       }
-        const res = await api.post<ApiResponse>("/general/verify/bank", payload)
+        const res = await api.post<ApiResponse>("/transfers/verify-bank", payload)
         if(res.data.data || !res.data.error){
           setFormData(prev=> (
             {

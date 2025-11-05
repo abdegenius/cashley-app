@@ -9,6 +9,8 @@ interface ButtonProps {
     | "orange"
     | "purple"
     | "card"
+    | "dark"
+    | "light"
     | undefined;
   width?: string;
   text?: string;
@@ -45,6 +47,10 @@ export default function Button({
       ? "bg-purple"
       : type === "card"
       ? "bg-card"
+      : type === "dark"
+      ? "bg-zinc-800 border border-zinc-600"
+      : type === "light"
+      ? "bg-zinc-200"
       : "bg-transparent"
     } 
     cursor-pointer

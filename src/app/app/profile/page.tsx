@@ -18,20 +18,18 @@ import {
   LockKeyhole,
   LogOut,
   Ticket,
-  User,
+  UserIcon,
   UserCircle,
 } from "lucide-react";
 import Image from "next/image";
 import React from "react";
-import { useAuth } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
-import api from "@/libs/axios";
+import api from "@/lib/axios";
 import { ApiResponse } from "@/types/api";
+import { useAuthContext } from "@/context/AuthContext";
 
-export default function Profile() {
-  const { user } = useAuth();
-  console.log("User", user);
-
+export default function ProfilePage() {
+  const { user } = useAuthContext();
   const router = useRouter();
   const logOut = async () => {
     try {
@@ -163,7 +161,7 @@ export default function Profile() {
         <Section title="App Settings" description="" delay={0.12}>
           <MenuItem
             showBorder={true}
-            icon={<User size={18} />}
+            icon={<UserIcon size={18} />}
             label="Appearance"
             label2="Choose your preferred theme"
             type="link"
@@ -188,7 +186,7 @@ export default function Profile() {
 
           <div className="w-full p-0.5 rounded-2xl primary-orange-to-purple">
             <button onClick={logOut} className="w-full cursor-pointer py-5 px-4 rounded-2xl bg-card flex items-center justify-between">
-              <span  className="">
+              <span className="">
                 Log out
               </span>
               <LogOut />

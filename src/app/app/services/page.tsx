@@ -1,84 +1,27 @@
-import {
-  Bandage,
-  Banknote,
-  Bitcoin,
-  Gift,
-  Phone,
-  PiggyBank,
-  Tv,
-  Wifi,
-} from "lucide-react";
+import { services } from "@/utils/string";
 import Link from "next/link";
 import React from "react";
+import { useAuthContext } from "@/context/AuthContext";
 
-export default function Services() {
-  const services = [
-    {
-      name: "Airtime",
-      description: "Buy airtime for all networks",
-      icon: <Phone size={24} className="purple-text" />,
-      link: "/app/airtime",
-    },
-    {
-      name: "Data",
-      description: "Purchase data bundles",
-      icon: <Wifi size={24} className="purple-text" />,
-      link: "/app/data",
-    },
-    {
-      name: "TV",
-      description: "Pay for cable subscriptions",
-      icon: <Tv size={24} className="purple-text" />,
-      link: "/app/tv",
-    },
-    {
-      name: "Transfer",
-      description: "Send money to friends & family",
-      icon: <Banknote size={24} className="purple-text" />,
-      link: "/app/send",
-    },
-    {
-      name: "Crypto",
-      description: "Receive cryptocurrency",
-      icon: <Bitcoin size={24} className="purple-text" />,
-      link: "/app/deposit",
-    },
-    {
-      name: "Gift cards",
-      description: "Save and Invest with interest",
-      icon: <Gift size={24} className="purple-text" />,
-      link: "/app/gift-cards",
-    },
-    {
-      name: "Savings",
-      description: "Save funds with interest",
-      icon: <PiggyBank size={24} className="purple-text" />,
-      link: "/app/savings",
-    },
-    {
-      name: "Investment",
-      description: "Invest with interest",
-      icon: <Bandage size={24} className="purple-text" />,
-      link: "/app/investment",
-    },
-  ];
+export default function ServicesPage() {
+  const { user } = useAuthContext();
   return (
-    <div className="w-full h-full flex flex-col gap-10 py-10">
+    <div className="w-full h-full flex flex-col space-y-6 p-4">
       <div className="space-y-2">
-        <h1 className="text-3xl font-black">Services</h1>
-        <h1 className="text-xl font-black">Choose a service to get started</h1>
+        <h1 className="text-2xl font-semibold">Services</h1>
+        <h4 className="text-md font-normal">Choose a service to get started</h4>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-6  w-full">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 w-full">
         {services?.map((service, id) => (
           <Link
             key={id}
             href={service.link}
-            className="w-full p-7 rounded-2xl bg-card flex flex-col hover:bg-hover transition-all duration-300 items-center justify-center gap-3"
+            className="w-full p-4 rounded-2xl bg-card flex flex-col border-2 border-transparent hover:border-purple-600 transition-all duration-300 items-center justify-center gap-0"
           >
-            {service.icon}
-            <span className="text-lg font-semibold">{service.name}</span>
-            <span className="text-sm text-center">{service.description}</span>
+            <div className="mb-2"><service.icon size={24} className="purple-text" /></div>
+            <span className="text-lg text-center font-semibold">{service.name}</span>
+            <span className="text-xs font-normal text-center">{service.title}</span>
           </Link>
         ))}
       </div>

@@ -1,6 +1,9 @@
 import React from "react";
 import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { Transaction } from "@/types/api";
+import { formatToNGN } from "@/utils/amount";
+import { timeAgo } from "@/utils/date";
+import { statusLabel } from "@/utils/string";
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
@@ -22,18 +25,6 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
     };
     return date.toLocaleDateString("en-US", options).replace(",", " -");
   };
-
-  // Format amount with currency symbol
-  const formatAmount = (amount: string, type: string) => {
-    const numericAmount = parseFloat(amount);
-    const formattedAmount = new Intl.NumberFormat("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(numericAmount);
-
-    return `₦${formattedAmount}`;
-  };
-
   // Get transaction type display name
   const getTransactionType = (action: string, type: string) => {
     const actionMap: { [key: string]: string } = {
@@ -53,7 +44,6 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
     if (type === "credit") {
       return <ArrowDownLeft size={20} className="text-green-500" />;
     }
-
     // For debits, show different icons based on action
     switch (action) {
       case "transfer":
@@ -98,7 +88,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
             {dayTransactions.map((transaction) => (
               <div
                 key={transaction.id}
-                className="flex items-center justify-between p-4 bg-card rounded-2xl hover:bg-hover transition-colors"
+                className="flex items-center justify-between py-2 px-4 bg-card rounded-2xl transition-colors"
               >
                 <div className="flex items-center w-full space-x-3">
                   {/* Transaction Icon */}
@@ -109,19 +99,19 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                   {/* Transaction Details */}
                   <div className="flex flex-col w-full min-w-0">
                     <div className="flex items-center justify-between w-full space-x-2">
-                      <p className="text-lg font-semibold ">
-                        {formatAmount(transaction.amount, transaction.type)}
+                      <p className="text-sm">
+                        {getTransactionType(transaction.action, transaction.type)}
                       </p>
-                      {transaction.status === "failed" && (
-                        <span className="px-2 py-1 text-xs bg-red-100 text-red-600 rounded-full">
-                          Failed
-                        </span>
+                      {transaction.status && (
+                        <div
+                          dangerouslySetInnerHTML={{ __html: statusLabel(transaction.status) }}
+                        />
                       )}
                     </div>
-                    <p className="text-sm  mt-1">
-                      {getTransactionType(transaction.action, transaction.type)}
+                    <p className={`text-md font-semibold ${transaction.type == 'credit' ? 'text-lime-600' : 'text-rose-600'}`}>
+                      {formatToNGN(Number(transaction.amount))}
                     </p>
-                    <p className="text-xs text-zinc-400 mt-1">
+                    <p className="text-xs text-zinc-400">
                       {transaction.description}
                     </p>
                   </div>

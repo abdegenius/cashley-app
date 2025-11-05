@@ -1,14 +1,14 @@
 "use client";
 import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
-import React, { useEffect, useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import React, { useEffect } from "react";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import api from "@/libs/axios";
+import api from "@/lib/axios";
 import toast from "react-hot-toast";
-import { setToLocalStorage } from "@/libs/local-storage";
+import { setToLocalStorage } from "@/lib/local-storage";
+import { useAuthContext } from "@/context/AuthContext";
 
 const UpdateUserSchema = z.object({
   firstname: z.string().min(1, "First name must be valid"),
@@ -33,8 +33,7 @@ const UpdateUserSchema = z.object({
 type updateUserForm = z.infer<typeof UpdateUserSchema>;
 
 export default function EditProfilePage() {
-  const { user } = useAuth();
-  console.log("USER", user);
+  const { user } = useAuthContext();
 
   const {
     register,

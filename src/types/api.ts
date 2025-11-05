@@ -48,7 +48,6 @@ export interface User {
   email_verification_status: string;
 }
 
-
 export interface Notification {
   id: string;
   title: string;
@@ -58,7 +57,6 @@ export interface Notification {
   type?: string;
   createdAt?: string;
 }
-
 
 export interface Transaction {
   id: number;
@@ -70,3 +68,31 @@ export interface Transaction {
   description: string;
   created_at: string;
 }
+
+export interface Wallet {
+  id: number;
+  ngn_balance: string;
+  eth_balance: string;
+  btc_balance: string;
+  usdt_balance: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export type PurchaseAction =
+  | "airtime"
+  | "data"
+  | "tv"
+  | "electricity"
+  | "betting";
+export type TransactionStatus = "pending" | "completed" | "failed" | "reversed";
+export type TransactionAction =
+  | "airtime"
+  | "data"
+  | "tv"
+  | "electricity"
+  | "betting"
+  | "fund_transfer"
+  | "fund_received"
+  | "topup"
+  | "bank_transfer";

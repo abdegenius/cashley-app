@@ -1,31 +1,28 @@
 "use client";
 
-import api from "@/libs/axios";
+import api from "@/lib/axios";
 import React, { useEffect, useState } from "react";
 import { Notification } from "@/types/api";
-import { useAuth } from "@/hooks/useAuth";
-import { setToCookie, deleteFromCookie } from "@/libs/cookies";
-import { setToLocalStorage } from "@/libs/local-storage";
+import { setToLocalStorage } from "@/lib/local-storage";
+import { useAuthContext } from "@/context/AuthContext";
 
-export default function Notifications() {
+export default function NotificationPage() {
+  const { user } = useAuthContext();
   const [activeTab, setActiveTab] = useState<number>(1);
-  const [notifications, setNotifications] = useState<Notification[]>([]); 
-  const { user } = useAuth();
-  
-  console.log("User", user);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const fetchNotifications = async () => {
     try {
       const res = await api.get("/notifications/all");
       console.log("API Response:", res.data);
-      
+
       const notificationsData = res.data.data?.data || [];
       setNotifications(notificationsData);
-       
-              if (res.data.data) {
-                setToLocalStorage("notifications", JSON.stringify(res.data.data));
-              }
-      
+
+      if (res.data.data) {
+        setToLocalStorage("notifications", JSON.stringify(res.data.data));
+      }
+
     } catch (err) {
       console.log("Failed to fetch notifications", err);
       setNotifications([]);
@@ -51,11 +48,10 @@ export default function Notifications() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-1/2 truncate flex-1 text-sm font-black p-3 rounded-3xl transition-all duration-300 ${
-                activeTab === tab.id
-                  ? "primary-purple-to-blue shadow-md"
-                  : "hover:primary-orange-to-purple"
-              }`}
+              className={`w-1/2 truncate flex-1 text-sm font-black p-3 rounded-3xl transition-all duration-300 ${activeTab === tab.id
+                ? "primary-purple-to-blue shadow-md"
+                : "hover:primary-orange-to-purple"
+                }`}
             >
               {tab.title}
             </button>

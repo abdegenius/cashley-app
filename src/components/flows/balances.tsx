@@ -3,23 +3,22 @@
 import { Copy, Eye, EyeOff, EllipsisVertical, ArrowLeft } from "lucide-react";
 import React, { MouseEventHandler, useState, useEffect } from "react";
 import Button from "../ui/Button";
-import api from "@/libs/axios";
-import { ApiResponse } from "@/types/api";
-import { useAuth } from "@/hooks/useAuth";
- import {Transaction} from '@/types/api'
- 
+import api from "@/lib/axios";
+import { ApiResponse, User, Transaction } from "@/types/api";
+
 export default function Balances({
   type = "ngn",
   close,
+  user
 }: {
   type: string;
   close: MouseEventHandler<HTMLButtonElement>;
+  user: User
 }) {
   const [showbal, setShowbal] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const { user } = useAuth();
   const handleShowbal = (id: string) => {
     setShowbal((prev) => (prev === id ? null : id));
   };
@@ -173,11 +172,10 @@ export default function Balances({
                 <div className="flex items-start gap-2">
                   <div className="text-right">
                     <div
-                      className={`text-lg font-semibold ${
-                        trx.type === "credit"
-                          ? "text-green-600"
-                          : "text-red-600"
-                      }`}
+                      className={`text-lg font-semibold ${trx.type === "credit"
+                        ? "text-green-600"
+                        : "text-red-600"
+                        }`}
                     >
                       {trx.type === "credit" ? "+" : "-"}
                       {formatAmount(trx.amount, balance.currency)}

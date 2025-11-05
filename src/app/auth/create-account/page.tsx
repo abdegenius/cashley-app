@@ -10,9 +10,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import api from "@/libs/axios";
+import api from "@/lib/axios";
 import { ApiResponse } from "@/types/api";
-import { setToLocalStorage } from "@/libs/local-storage";
+import { setToLocalStorage } from "@/lib/local-storage";
 
 const registerSchema = z
   .object({
