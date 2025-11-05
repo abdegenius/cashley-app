@@ -10,20 +10,29 @@ import { ApiResponse, BankAccount, Transaction } from "@/types/api";
 import { formatToNGN, formatToUSD } from "@/utils/amount";
 import { services } from "@/utils/string";
 import { useAuthContext } from "@/context/AuthContext";
+import TransactionDetails from "@/components/modals/transaction-details";
 
 export default function DashboardPage() {
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [visibleBalances, setVisibleBalances] = useState<Record<string, boolean>>({
+  const [viewDateils, setViewDetails] = useState<string[] | null | number>([]);
+  const [visibleBalances, setVisibleBalances] = useState<
+    Record<string, boolean>
+  >({
     ngn: false,
     usd: false,
   });
-  const [bankAccount, setBankAccount] = useState<BankAccount | null>(null);
-  const [showBankAccount, setShowBankAccount] = useState<boolean>(false);
+
+
+  const singleTransaction = transactions.filter(
+    (trx) => trx.id === viewDateils
+  );
+
+  console.log("single transaction", singleTransaction)
 
   const handleToggleBalance = useCallback((id: string) => {
-    setVisibleBalances(prev => ({
+    setVisibleBalances((prev) => ({
       ...prev,
       [id]: !prev[id],
     }));
@@ -31,8 +40,18 @@ export default function DashboardPage() {
 
   const balances = useMemo(
     () => [
-      { id: "ngn", currency: "NGN", value: Number(user?.ngn_balance ?? 0), symbol: "₦" },
-      { id: "usd", currency: "USD", value: Number(user?.usdt_balance ?? 0), symbol: "$" },
+      {
+        id: "ngn",
+        currency: "NGN",
+        value: Number(user?.ngn_balance ?? 0),
+        symbol: "₦",
+      },
+      {
+        id: "usd",
+        currency: "USD",
+        value: Number(user?.usdt_balance ?? 0),
+        symbol: "$",
+      },
     ],
     [user]
   );
@@ -72,7 +91,9 @@ export default function DashboardPage() {
             className="rounded-full object-cover"
           />
           <h1 className="text-sm sm:text-md sm:flex">Welcome back!</h1>
-          <span className="text-sm sm:text-lg font-normal">{user?.username}</span>
+          <span className="text-sm sm:text-lg font-normal">
+            {user?.username}
+          </span>
         </div>
 
         <Link
@@ -86,9 +107,12 @@ export default function DashboardPage() {
       {/* Wallet Balances */}
       <div className="space-y-6 relative">
         <div className="grid grid-cols-2 gap-4">
-          {balances.map(balance => {
+          {balances.map((balance) => {
             const isVisible = visibleBalances[balance.id];
-            const amount = balance.id == "ngn" ? formatToNGN(Number(balance.value)) : formatToUSD(Number(balance.value));
+            const amount =
+              balance.id == "ngn"
+                ? formatToNGN(Number(balance.value))
+                : formatToUSD(Number(balance.value));
 
             return (
               <div
@@ -158,8 +182,8 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {services
-              .filter(service => service.featured)
-              .map(service => (
+              .filter((service) => service.featured)
+              .map((service) => (
                 <Link
                   key={service.id}
                   href={service.link}
@@ -175,15 +199,26 @@ export default function DashboardPage() {
               ))}
           </div>
         </div>
+        {viewDateils !== null && (
+          <TransactionDetails
+            transaction={singleTransaction}
+            setTxr={setViewDetails}
+          />
+        )}
 
         {/* Recent Transactions */}
         <div className="flex flex-col gap-6">
           <h1 className="text-xl font-black">Recent transactions</h1>
           <div className="flex flex-col gap-4">
             {loading ? (
-              <p className="text-gray-400 text-center">Loading transactions...</p>
+              <p className="text-gray-400 text-center">
+                Loading transactions...
+              </p>
             ) : (
-              <TransactionHistory transactions={transactions} />
+              <TransactionHistory
+                setTxr={setViewDetails}
+                transactions={transactions}
+              />
             )}
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Dispatch, SetStateAction } from "react";
 import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { Transaction } from "@/types/api";
 import { formatToNGN } from "@/utils/amount";
@@ -7,9 +7,11 @@ import { statusLabel } from "@/utils/string";
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
+  setTxr: Dispatch<SetStateAction<string[] | number>> 
 }
 
 const TransactionHistory: React.FC<TransactionHistoryProps> = ({
+  setTxr,
   transactions,
 }) => {
   const formatDate = (dateString: string) => {
@@ -87,6 +89,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
           <div className="space-y-3">
             {dayTransactions.map((transaction) => (
               <div
+              onClick={() => setTxr(transaction.id)}
                 key={transaction.id}
                 className="flex items-center justify-between py-2 px-4 bg-card rounded-2xl transition-colors"
               >
