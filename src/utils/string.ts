@@ -180,7 +180,7 @@ export const statusLabel = (_status: string) => {
 export const cleanServiceName = (name: string) => {
   return name
     .replace(
-      /\b(vtu|Vtu|VTU|Payment|payment|PAYMENT|Data|data|DATA|airtime|Airtime|AIRTIME|internet|Internet|INTERNET|Subscription|subscription|SUBSCRIPTION)\b/gi,
+      /\b(Distribution|distribution|DISTRIBUTION|Company|company|COMPANY|Electric|electric|ELECTRIC|Electricity|electricity|ELECTRICITY|vtu|Vtu|VTU|Payment|payment|PAYMENT|Data|data|DATA|airtime|Airtime|AIRTIME|internet|Internet|INTERNET|Subscription|subscription|SUBSCRIPTION)\b/gi,
       ""
     )
     .trim();

@@ -1,165 +1,114 @@
 "use client";
 
-import { CornerLeftDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Faq() {
-  const [toggle, setToggle] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
-  const handleDropdown = (id: number) => {
-    setToggle(toggle === id ? null : id);
+  const toggleFaq = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
   };
 
   const faqs = [
     {
       title: "How do I deposit money into my wallet?",
       description:
-        "Cashley uses bank-level security with 256-bit SSL encryption, two-factor authentication, and complies with all financial regulations. Your funds and personal information are protected with the highest security standards.",
+        "You can deposit money by linking your bank account, using a debit card, or via Cashley's supported agents. Deposits reflect instantly in most cases.",
     },
     {
       title: "Is my money safe with Cashley?",
       description:
-        "Cashley uses bank-level security with 256-bit SSL encryption, two-factor authentication, and complies with all financial regulations. Your funds and personal information are protected with the highest security standards.",
+        "Absolutely. Cashley uses bank-level security with 256-bit SSL encryption, two-factor authentication, and complies with all financial regulations.",
     },
     {
       title: "How long do transfers take?",
       description:
-        "Cashley uses bank-level security with 256-bit SSL encryption, two-factor authentication, and complies with all financial regulations. Your funds and personal information are protected with the highest security standards.",
+        "Transfers are processed instantly to supported banks and wallets. Some transactions may take a few minutes depending on the network.",
     },
     {
       title: "What are the fees for using Cashley?",
       description:
-        "Cashley uses bank-level security with 256-bit SSL encryption, two-factor authentication, and complies with all financial regulations. Your funds and personal information are protected with the highest security standards.",
+        "Most services are free. However, a small convenience fee may apply to certain transactions, which is always displayed upfront before you confirm.",
     },
     {
       title: "Can I use Cashley internationally?",
       description:
-        "Cashley uses bank-level security with 256-bit SSL encryption, two-factor authentication, and complies with all financial regulations. Your funds and personal information are protected with the highest security standards.",
+        "Currently, Cashley operates within select countries. You can still receive international crypto transfers from supported wallets globally.",
     },
     {
       title: "How do I reset my password?",
       description:
-        "Cashley uses bank-level security with 256-bit SSL encryption, two-factor authentication, and complies with all financial regulations. Your funds and personal information are protected with the highest security standards.",
+        "Click 'Forgot Password' on the login page, follow the secure reset link sent to your email, and set a new password in seconds.",
     },
   ];
 
-  // Correct animation variants with proper TypeScript types
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
+    hidden: { opacity: 0, y: 10 },
+    visible: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.3,
-        ease: "easeOut" as const
-      }
-    }
-  };
-
-  const contentVariants = {
-    closed: {
-      opacity: 0,
-      height: 0,
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut" as const
-      }
-    },
-    open: {
-      opacity: 1,
-      height: "auto",
-      transition: {
-        duration: 0.3,
-        ease: "easeInOut" as const
-      }
-    }
-  };
-
-  const iconVariants = {
-    closed: { rotate: 0 },
-    open: { rotate: 180 }
+      transition: { delay: i * 0.05, duration: 0.3 },
+    }),
   };
 
   return (
-    <div className="space-y-10">
-      <motion.div 
-        className="space-y-2"
+    <div className="min-h-screen w-full max-w-3xl mx-auto py-10 px-4 space-y-10">
+      {/* Header */}
+      <motion.div
+        className="text-center space-y-3"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <h1 className="text-3xl font-black">FAQ</h1>
-        <h4 className="">
-          Get answers to common questions about our services and platform.
-        </h4>
+        <h1 className="text-4xl font-extrabold">Frequently Asked Questions</h1>
+        <p className="text-muted-foreground text-sm md:text-base">
+          Find answers to the most common questions about using Cashley.
+        </p>
       </motion.div>
 
-      <motion.div 
-        className="space-y-6"
-        variants={containerVariants}
+      {/* FAQ List */}
+      <motion.div
         initial="hidden"
         animate="visible"
+        className="space-y-4"
       >
-        {faqs?.map((faq, id) => (
+        {faqs.map((faq, i) => (
           <motion.div
-            key={id}
-            className=" rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+            key={i}
+            custom={i}
             variants={itemVariants}
-            layout
+            className="border border-border/50 rounded-2xl overflow-hidden bg-card/40 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow"
           >
-            <motion.div 
-              className="p-6 cursor-pointer "
-              onClick={() => handleDropdown(id)}
-              whileHover={{ backgroundColor: "bg-card" }}
-              whileTap={{ scale: 0.995 }}
+            {/* Header */}
+            <button
+              onClick={() => toggleFaq(i)}
+              className="w-full flex items-center justify-between p-5 text-left focus:outline-none"
+              aria-expanded={openIndex === i}
             >
-              <div className="flex justify-between items-center w-full">
-                <motion.h1 
-                  className="text-xl w-full max-w-lg font-semibold"
-                  layout
-                >
-                  {faq.title}
-                </motion.h1>
-                <motion.button
-                  className="p-2 rounded-full hover:bg-card cursor-pointer transition-colors"
-                  variants={iconVariants}
-                  animate={toggle === id ? "open" : "closed"}
-                  transition={{ duration: 0.2 }}
-                >
-                  <CornerLeftDown size={16} />
-                </motion.button>
-              </div>
-            </motion.div>
+              <span className="text-lg font-medium">{faq.title}</span>
+              <motion.div
+                animate={{ rotate: openIndex === i ? 180 : 0 }}
+                transition={{ duration: 0.25 }}
+              >
+                <ChevronDown size={20} className="text-muted-foreground" />
+              </motion.div>
+            </button>
 
-            <AnimatePresence>
-              {toggle === id && (
+            {/* Content */}
+            <AnimatePresence initial={false}>
+              {openIndex === i && (
                 <motion.div
-                  className="overflow-hidden"
-                  variants={contentVariants}
-                  initial="closed"
-                  animate="open"
-                  exit="closed"
-                  layout
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="overflow-hidden border-t border-border/30"
                 >
-                  <motion.div 
-                    className="px-6 pb-6 leading-relaxed"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.1 }}
-                  >
+                  <div className="p-5 text-sm md:text-base text-muted-foreground leading-relaxed">
                     {faq.description}
-                  </motion.div>
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

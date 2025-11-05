@@ -44,7 +44,7 @@ export default function TransactionHistoryPage() {
             {loading ? (
               <p className="text-gray-400 text-center">Loading transactions...</p>
             ) : (
-              <TransactionHistory transactions={transactions} />
+              <TransactionHistory transactions={transactions} compact={false} />
             )}
           </div>
         </div>

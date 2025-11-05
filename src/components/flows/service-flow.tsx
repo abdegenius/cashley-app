@@ -175,10 +175,11 @@ export default function Purchase({ type, user }: PurchaseProps) {
       let payload = {
         service_id: formData.service_id, pin: pinExtractor(otp), amount: formData.amount,
         ...(formData.customer_id) && { phone: ["airtime", "data"].includes(type) ? formData.customer_id : (user?.phone ?? null) },
-        ...(["betting", "tv", "data"].includes(type) && formData.variation) && { variation_code: formData.variation.variation_code.toString() },
-        ...(["betting", "tv", "electricity"].includes(type) && formData.customer_id) && { customer_id: formData.customer_id },
+        ...(["betting", "tv", "data", "electricity"].includes(type) && formData.variation) && { variation_code: formData.variation.variation_code.toString() },
+        ...(["betting"].includes(type) && formData.customer_id) && { customer_id: formData.customer_id },
+        ...(["tv"].includes(type) && formData.customer_id) && { smartcard_number: formData.customer_id },
+        ...(["electricity"].includes(type) && formData.customer_id) && { meter_number: formData.customer_id },
         ...(["tv"].includes(type) && formData.type) && { type: formData.type },
-        ...(["electricity"].includes(type) && formData.type) && { variation_code: formData.type },
         ...(verifyData) && { verify_data: verifyData }
       }
       const url = `/transactions/buy-${type}`;
@@ -204,16 +205,16 @@ export default function Purchase({ type, user }: PurchaseProps) {
       let payload = {
         service_id: formData.service_id,
         number: formData.customer_id,
-        type: type === "electricity" ? formData.type : formData.variation?.variation_code,
+        type: formData.variation?.variation_code,
       }
       const url = "/bill/verify";
       const res = await api.post<ApiResponse>(url, payload);
-      if (res.data.error) {
+      if (res.data.error || !res.data.data.customer_name) {
         toast.error("Verification failed")
       } else {
+        setVerifyData(res.data.data);
         toast.success("Verification successful");
       }
-      setVerifyData(res.data.data ?? null);
     } catch (err) {
     } finally {
       setVerifying(false)
@@ -236,23 +237,19 @@ export default function Purchase({ type, user }: PurchaseProps) {
           baseCheck &&
           !!formData.customer_id &&
           !!formData.variation &&
-          !!formData.type &&
-          verifyData &&
           amount > 0
         );
       case "electricity":
         return (
           baseCheck &&
           !!formData.customer_id &&
-          !!formData.type &&
-          verifyData &&
-          amount > 1000
+          !!formData.variation &&
+          amount >= 500
         );
       default:
         return false;
     }
   };
-
 
   useEffect(() => {
     if (!formData.service_id) return;
@@ -312,7 +309,8 @@ export default function Purchase({ type, user }: PurchaseProps) {
                     </label>
 
                     <div className="w-full flex gap-3 items-center">
-                      <div className="p-4 my-3 rounded-full bg-card">+234</div>
+
+                      {["airtime", "data"].includes(type) && <div className="p-4 my-3 rounded-full bg-card">+234</div>}
                       <TextInput
                         value={formData.customer_id}
                         onChange={(customer_id) =>
@@ -323,7 +321,14 @@ export default function Purchase({ type, user }: PurchaseProps) {
                         minLength="10"
                         maxLength="10"
                       />
+                      {["tv", "electricity"].includes(type) &&
+                        <button type="button" onClick={() => handleVerifyCustomer()} className="py-4 px-12 my-3 rounded-full primary-purple-to-blue">Verify</button>
+                      }
                     </div>
+                    {verifyData &&
+                      <div className="purple-text text-sm font-normal">
+                        {verifyData.customer_name}{verifyData.customer_address ? ` / ${verifyData.customer_address}` : ''}
+                      </div>}
                   </div>
                 )}
 
@@ -355,7 +360,16 @@ export default function Purchase({ type, user }: PurchaseProps) {
                   maxAmount={providers.find(p => p.service_id === formData.service_id)?.maximum_amount}
                 />
               )}
-
+              {type === "electricity" && verifyData && formData.service_id && (
+                <Amount
+                  value={formData.amount}
+                  onChange={(amount) =>
+                    setFormData((prev) => ({ ...prev, amount }))
+                  }
+                  minAmount={providers.find(p => p.service_id === formData.service_id)?.minimum_amount}
+                  maxAmount={providers.find(p => p.service_id === formData.service_id)?.maximum_amount}
+                />
+              )}
             </div>
 
             <Button
@@ -586,7 +600,7 @@ function ProviderSelect({ providers, value, onChange, loading }: ProviderSelectP
       'glo-sme-data': '/img/glo.png',
     };
 
-    return imageMap[provider.service_id] || '/img/placeholder.png';
+    return imageMap[provider.service_id] ?? "/img/default.png";
   };
 
 
@@ -664,14 +678,19 @@ function VariationSelect({
     return (
       <div className="space-y-4">
         <label className="text-sm font-semibold">
-          Select {type === "tv" ? "Package" : "Data Plan"}
+          Select {type !== "data" ? "Package" : "Data Plan"}
         </label>
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="rounded-2xl p-0.5 bg-card animate-pulse">
-              <div className="w-full p-4 rounded-2xl bg-card h-24"></div>
-            </div>
-          ))}
+          {type == "data" ?
+            [...Array(6)].map((_, i) => (
+              <div key={i} className="rounded-2xl p-0.5 bg-card animate-pulse">
+                <div className="w-full p-4 rounded-2xl bg-card h-24"></div>
+              </div>
+            )) : [...Array(3)].map((_, i) => (
+              <div key={i} className="rounded-xl p-0.5 bg-card animate-pulse">
+                <div className="w-full p-4 rounded-2xl bg-card h-12"></div>
+              </div>
+            ))}
         </div>
       </div>
     );
@@ -680,7 +699,7 @@ function VariationSelect({
   return (
     <div className="space-y-4 h-full ">
       <label className="text-sm font-semibold">
-        Select {type === "tv" ? "Package" : "Data Plan"}
+        Select {type !== "data" ? "Package" : "Data Plan"}
       </label>
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 max-h-100 overflow-y-scroll">
         {variations.map((variation, i) => (
@@ -752,6 +771,40 @@ function AmountGrid({ value, onChange, presetAmounts, minAmount, maxAmount }: Am
         value={value}
         onChange={onChange}
         placeholder="Custom amount"
+        type="number"
+        currency="₦"
+      // min={minAmount}
+      // max={maxAmount}
+      />
+
+      {(minAmount || maxAmount) && (
+        <p className="text-xs text-zinc-500">
+          Amount range:
+          {formatToNGN(Number(minAmount))}
+          {" - "}
+          {formatToNGN(Number(maxAmount))}
+        </p>
+      )}
+    </div>
+  );
+}
+
+interface AmountProps {
+  value: string;
+  onChange: (value: string) => void;
+  minAmount?: string;
+  maxAmount?: string;
+}
+
+function Amount({ value, onChange, minAmount, maxAmount }: AmountProps) {
+  return (
+    <div className="space-y-1">
+      <label className="text-sm font-semibold">Amount</label>
+
+      <TextInput
+        value={value}
+        onChange={onChange}
+        placeholder="Enter amount"
         type="number"
         currency="₦"
       // min={minAmount}
