@@ -4,33 +4,24 @@ import Image from "next/image";
 import Link from "next/link";
 import { Bell, Eye, EyeOff } from "lucide-react";
 import Button from "@/components/ui/Button";
-import TransactionHistory from "@/components/modals/transactionHistory";
+import TransactionHistory from "@/components/modals/TransactionHistory";
 import api from "@/lib/axios";
-import { ApiResponse, BankAccount, Transaction } from "@/types/api";
+import { ApiResponse, Transaction } from "@/types/api";
 import { formatToNGN, formatToUSD } from "@/utils/amount";
 import { services } from "@/utils/string";
 import { useAuthContext } from "@/context/AuthContext";
-import TransactionDetails from "@/components/modals/transaction-details";
+import { topupModal } from "@/controllers/topup-modal";
 
 export default function DashboardPage() {
   const { user } = useAuthContext();
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [viewDateils, setViewDetails] = useState<string[] | null | number>([]);
   const [visibleBalances, setVisibleBalances] = useState<
     Record<string, boolean>
   >({
     ngn: false,
     usd: false,
   });
-
-
-  const singleTransaction = transactions.filter(
-    (trx) => trx.id === viewDateils
-  );
-
-  console.log("single transaction", singleTransaction)
-
   const handleToggleBalance = useCallback((id: string) => {
     setVisibleBalances((prev) => ({
       ...prev,
@@ -150,6 +141,7 @@ export default function DashboardPage() {
         <div className="w-full flex flex-col gap-6">
           <div className="flex justify-between items-center gap-4">
             <Button
+              onclick={() => topupModal.open()}
               type="primary"
               text="Receive"
               width="text-sm sm:text-lg w-full font-normal"
@@ -199,12 +191,7 @@ export default function DashboardPage() {
               ))}
           </div>
         </div>
-        {viewDateils !== null && (
-          <TransactionDetails
-            transaction={singleTransaction}
-            setTxr={setViewDetails}
-          />
-        )}
+      
 
         {/* Recent Transactions */}
         <div className="flex flex-col gap-6">
@@ -216,7 +203,6 @@ export default function DashboardPage() {
               </p>
             ) : (
               <TransactionHistory
-                setTxr={setViewDetails}
                 transactions={transactions}
               />
             )}

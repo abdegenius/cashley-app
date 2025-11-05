@@ -1,19 +1,19 @@
-import React, { Dispatch, SetStateAction } from "react";
+"use client";
+import React, { useState } from "react";
 import { ArrowUpRight, ArrowDownLeft } from "lucide-react";
 import { Transaction } from "@/types/api";
 import { formatToNGN } from "@/utils/amount";
-import { timeAgo } from "@/utils/date";
 import { statusLabel } from "@/utils/string";
+import ViewTransactionDetails from "./ViewTransactionModal";
 
 interface TransactionHistoryProps {
   transactions: Transaction[];
-  setTxr: Dispatch<SetStateAction<string[] | number>> 
 }
 
 const TransactionHistory: React.FC<TransactionHistoryProps> = ({
-  setTxr,
   transactions,
 }) => {
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const options: Intl.DateTimeFormatOptions = {
@@ -40,7 +40,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 
     return actionMap[action] || "Transaction";
   };
-
+  const handleCloseSingleTransaction = () => setTransaction(null)
   // Get icon based on transaction type
   const getTransactionIcon = (type: string, action: string) => {
     if (type === "credit") {
@@ -89,7 +89,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
           <div className="space-y-3">
             {dayTransactions.map((transaction) => (
               <div
-              onClick={() => setTxr(transaction.id)}
+                onClick={() => setTransaction(transaction)}
                 key={transaction.id}
                 className="flex items-center justify-between py-2 px-4 bg-card rounded-2xl transition-colors"
               >
@@ -103,15 +103,26 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                   <div className="flex flex-col w-full min-w-0">
                     <div className="flex items-center justify-between w-full space-x-2">
                       <p className="text-sm">
-                        {getTransactionType(transaction.action, transaction.type)}
+                        {getTransactionType(
+                          transaction.action,
+                          transaction.type
+                        )}
                       </p>
                       {transaction.status && (
                         <div
-                          dangerouslySetInnerHTML={{ __html: statusLabel(transaction.status) }}
+                          dangerouslySetInnerHTML={{
+                            __html: statusLabel(transaction.status),
+                          }}
                         />
                       )}
                     </div>
-                    <p className={`text-md font-semibold ${transaction.type == 'credit' ? 'text-lime-600' : 'text-rose-600'}`}>
+                    <p
+                      className={`text-md font-semibold ${
+                        transaction.type == "credit"
+                          ? "text-lime-600"
+                          : "text-rose-600"
+                      }`}
+                    >
                       {formatToNGN(Number(transaction.amount))}
                     </p>
                     <p className="text-xs text-zinc-400">
@@ -124,6 +135,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
           </div>
         </div>
       ))}
+      {transaction && <ViewTransactionDetails transaction={transaction} onClose={handleCloseSingleTransaction} />}
     </div>
   );
 };

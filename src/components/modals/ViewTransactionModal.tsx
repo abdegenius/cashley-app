@@ -1,30 +1,14 @@
+import { Transaction } from "@/types/api";
 import { formatToNGN } from "@/utils/amount";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
-import React, { Dispatch, SetStateAction } from "react";
-import { success } from "zod";
+import React from "react";
 
-interface Transaction {
-  id: number;
-  status: "Completed" | "pending" | "Failed ";
-  amount: number | string;
-  type: string;
-  action: string;
-  created_at: string;
-  reference: string;
-  description: string;
-}
-interface SingleTransactionDetails {
+interface TransactionProps {
   transaction: Transaction;
-  setTxr: Dispatch<SetStateAction<string[] | number | null>>;
+  onClose: () => void
 }
-export default function TransactionDetails({
-  transaction,
-  setTxr,
-}: SingleTransactionDetails) {
-  const success = transaction.status;
-
-  console.log("transaction", transaction);
+export default function ViewTransactionDetails({ transaction, onClose }: TransactionProps) {
   return (
     <div>
       <div className="fixed z-5 inset-0 w-full h-full bg-black/50 backdrop-blur-sm flex flex-col items-center justify-center max-w-xl mx-auto p-4">
@@ -35,7 +19,7 @@ export default function TransactionDetails({
         >
           <div className="w-full flex p-2 items-end justify-end">
             <button
-              onClick={() => setTxr(null)}
+              onClick={onClose}
               className="text-lg font-medium text-red-400"
             >
               Close
@@ -46,7 +30,7 @@ export default function TransactionDetails({
             animate={{ scale: 1 }}
             className="w-20 h-20 primary-purple-to-blue rounded-full flex items-center justify-center mx-auto"
           >
-            {success ? (
+            {transaction.status === "completed" ? (
               <Check size={40} className="" />
             ) : (
               <X size={40} className="" />
@@ -55,18 +39,18 @@ export default function TransactionDetails({
 
           <div className="space-y-0">
             <h2 className="text-xl text-stone-400 font-black">
-              {transaction.status === "Completed"
+              {transaction.status === "completed"
                 ? "Transaction Successful"
                 : "Transaction Failed"}
             </h2>
             <p className="text-sm text-stone-200">
-              {transaction.status === "Completed"
+              {transaction.status === "completed"
                 ? "Your transaction has been processed successfully"
                 : "Something went wrong. Please try again."}
             </p>
             <div className="flex flex-col gap-0 pt-2">
               <span className="font-black purple-text text-4xl">
-                {transaction.amount}
+                {formatToNGN(Number(transaction.amount))}
               </span>
               <span className="text-stone-400 text-sm">Amount</span>
             </div>
@@ -109,12 +93,7 @@ export default function TransactionDetails({
                 {transaction.reference}
               </span>
             </div>
-            {/* <div className="flex justify-between items-start space-x-4">
-                  <span className="text-stone-400 text-sm">Session ID</span>
-                  <span className="font-mono text-sm text-right text-stone-200">
-                    {transaction.session_id ?? "--"}
-                  </span>
-                </div> */}
+
             <div className="flex justify-between items-start space-x-4">
               <span className="text-stone-400 text-sm">Description</span>
               <span className="font-mono text-sm text-right text-stone-200">
