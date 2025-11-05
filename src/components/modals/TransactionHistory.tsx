@@ -15,7 +15,6 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   transactions,
   compact
 }) => {
-  console.log(compact, transactions)
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -105,12 +104,14 @@ function RowTransaction({ transaction, onSelect }: RowTransactionProps) {
   // Get transaction type display name
   const getTransactionType = (action: string, type: string) => {
     const actionMap: { [key: string]: string } = {
-      airtime: "Airtime",
-      data: "Data",
+      airtime: "Airtime Purchase",
+      data: "Data Subscription",
+      electricity: "Electricity Bill",
       tv: "TV Subscription",
       transfer: "Transfer",
-      deposit: "Deposit",
-      withdrawal: "Withdrawal",
+      topup: "Wallet Topup",
+      intra_transfer: "Wallet Transfer",
+      inter_transfer: "Bank Transfer",
     };
 
     return actionMap[action] || "Transaction";

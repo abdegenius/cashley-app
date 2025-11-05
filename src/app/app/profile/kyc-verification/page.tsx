@@ -88,20 +88,19 @@ export default function KYCVerification() {
           height={50}
         />
         <div className="text-lg font-semibold">
-          Current Status: Not verified
+          Current Level: {user?.level ?? "--"}
         </div>
-        <div className="py-2">Verify to use Cashley</div>
-        <div className="w-full h-1 bg-white rounded-full" />
-        <div className="flex  py-2 gap-3 text-sm items-center">
-          <span></span>
+        <div className="py-2">Keep your account upto date on cashley</div>
+        <div className="w-full h-[1.25px] bg-stone-600 rounded-full" />
+        <div className="flex py-2 text-stone-400 text-sm items-center">
           {user?.level ?? 0} out of 4 tiers completed
         </div>
       </div>
 
       <Section title="Verification Tiers" description="" delay={0.12}>
         {limits?.map((limit) => (
-          <div key={limit.level} className=" flex w-full flex-col gap-3 pb-5">
-            <div className="flex w-full justify-between items-center  p-2">
+          <div key={limit.level} className={`${!isStepIncomplete(limit.level) ? 'bg-white/50 opacity-50' : 'opacity-100'} flex w-full flex-col gap-2 border border-stone-600/25 mb-4 rounded-xl p-4`}>
+            <div className="flex w-full justify-between items-center">
               <div className="flex gap-3 items-center">
                 <Image
                   src={"/svg/vector1.svg"}
@@ -120,12 +119,11 @@ export default function KYCVerification() {
               </div>
               <div className="flex flex-col placeholder-text gap-2 items-center">
                 <span className="flex">
-                  {" "}
-                  <Check size={20} /> Requires
+                  Requires
                 </span>
                 <div className="w-full max-w-40 justify-end flex flex-wrap gap-2">
                   {limit.requires.map((rec, idx) => (
-                    <span key={idx}>{rec.toUpperCase()}</span>
+                    <span className="text-xs" key={idx}>{rec.toUpperCase()}</span>
                   ))}
                 </div>
               </div>
@@ -149,7 +147,7 @@ export default function KYCVerification() {
               <Button
                 type="primary"
                 width="w-full max-w-2xl py-4"
-                text={`Start level ${limit.level} verification`}
+                text={`Verify Now`}
                 href={`/app/profile/kyc-verification/${links(limit.level)} `}
               />
             )}
@@ -157,7 +155,7 @@ export default function KYCVerification() {
         ))}
       </Section>
 
-      <Section title="Tier 3 Benefits" description="" delay={0.12}>
+      {/* <Section title="Tier 3 Benefits" description="" delay={0.12}>
         <div className=" flex w-full flex-col gap-3 pb-5    ">
           <div className="flex w-full justify-between items-center  p-2">
             <div className="flex gap-3 items-center">
@@ -225,9 +223,9 @@ export default function KYCVerification() {
             </div>
           </div>
         </div>
-      </Section>
+      </Section> */}
 
-      <div className="w-full p-0.5 rounded-full  primary-orange-to-purple">
+      <div className="w-full p-0.5 -mt-4 rounded-full  primary-orange-to-purple">
         <button className="text-lg  font-black w-full bg-card gradient-border  py-2 rounded-full">
           Contact Support
         </button>

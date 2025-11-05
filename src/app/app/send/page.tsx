@@ -18,6 +18,8 @@ import { useTheme } from "@/providers/ThemeProvider";
 import api from "@/lib/axios";
 import { ApiResponse } from "@/types/api";
 import toast from "react-hot-toast";
+import { formatToNGN } from "@/utils/amount";
+import { useAuthContext } from "@/context/AuthContext";
 
 type SendMethod = "nickname" | "email" | "phone" | "bank";
 
@@ -25,12 +27,14 @@ interface FormData {
   nickname: string;
   email: string;
   phone: string;
-  bankAccount: string;
-  bankName: string;
-  accountName: string;
+  entity: string;
+  account_number: string;
+  account_name: string;
+  bank_code: string;
+  bank_name: string;
   amount: string;
   description: string;
-  bankCode:string;
+  remarks: string;
 }
 
 interface QuickSendContact {
@@ -40,15 +44,23 @@ interface QuickSendContact {
   tag: string;
 }
 
-interface Banks {
-  name: string;
-  code: string;
+interface Bank {
+  bank_name: string;
+  bank_code: string;
+  bank_type: string;
+  ussd_code: string | null;
+  ussd_transfer_code: string | null;
+  bank_logo: string;
+  country_code: string;
+  currency_code: string;
 }
 
 export default function Send() {
+  const { user } = useAuthContext();
   const [step, setStep] = useState(1);
   const [sendMethod, setSendMethod] = useState<SendMethod | null>(null);
-  const [bank, setbank] = useState<Banks[]>([]);
+  const [bank, setBank] = useState<Bank | null>(null);
+  const [banks, setBanks] = useState<Bank[]>([]);
   const [loading, setLoading] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false)
   const [search, setSearch] = useState("");
@@ -57,22 +69,24 @@ export default function Send() {
     nickname: "",
     email: "",
     phone: "",
-    bankAccount: "",
-    bankName: "",
-    accountName: "",
-    bankCode: "",
+    entity: "",
+    account_number: "",
+    bank_name: "",
+    account_name: "",
+    bank_code: "",
     amount: "",
+    remarks: "",
     description: "",
   });
   const { resolvedTheme } = useTheme();
   const [imageSrc, setImageSrc] = useState("");
-  
-useEffect(() => {
-  if (formData.bankName && formData.bankName.trim() !== "" && 
-      formData.bankAccount && formData.bankAccount.length >= 10) {
-    verifyBanks();
-  }
-}, [formData.bankName, formData.bankAccount]); 
+
+  useEffect(() => {
+    if (formData.bank_name && formData.bank_name.trim() !== "" &&
+      formData.account_number && formData.account_number.length >= 10) {
+      verifyBanks();
+    }
+  }, [formData.bank_name, formData.account_number]);
 
   useEffect(() => {
     setImageSrc(
@@ -90,63 +104,55 @@ useEffect(() => {
     { img: "/globe.svg", lastname: "Tali", firstName: "Moses", tag: "@sani" },
     { img: "/globe.svg", lastname: "Tali", firstName: "Moses", tag: "@barny" },
   ];
-  console.log(bank);
   const fetchBanks = async () => {
     try {
-      const res = await api.get<ApiResponse>("/transfers/banks");
-      // if(res.data.message && !res.data.data){
-      //   const errmessage = res.data.message
-      //   toast.error("failed to fetch banks", errmessage)
-      // }
-      setbank(res.data.data);
+      const res = await api.get<ApiResponse>("/banks");
+      if (!res.data.error && res.data.data) {
+        setBanks(res.data.data);
+      }
     } catch (err) {
       toast.error("failed to fetch banks");
     }
   };
 
-  const filteredBanks = bank.filter(
-    (banks) =>
-      banks.name.toLowerCase().includes(search.toLowerCase()) ||
-      banks.code.toLowerCase().includes(search.toLowerCase())
-  );
-
   useEffect(() => {
     fetchBanks();
   }, []);
 
-  const handleSelectedBank = (name: string, code: string) => {
+  const handleSelectedBank = (bank: Bank) => {
+    setBank(bank);
     setFormData((prev) => ({
       ...prev,
-      bankName: name,
-      bankCode: code
+      bank_name: bank.bank_name,
+      bank_code: bank.bank_code
     }));
 
     setToggleBanks(false);
   };
 
-  const verifyBanks = async() =>{
+  const verifyBanks = async () => {
     setVerifyLoading(true)
-    try{
+    try {
       const payload = {
-        account_number: formData.bankAccount,
-        bank_code: formData.bankCode
+        account_number: formData.account_number,
+        bank_code: formData.bank_code
       }
-        const res = await api.post<ApiResponse>("/transfers/verify-bank", payload)
-        if(res.data.data || !res.data.error){
-          setFormData(prev=> (
-            {
-              ...prev,
-              accountName: res?.data?.data?.account_name
-            }
-            
-          ))
-        }else{
-          const errmessage =  res?.data?.message || "Login failed";
-          toast.error( errmessage)
-        }
+      const res = await api.post<ApiResponse>("/verify-bank", payload)
+      if (res.data.data || !res.data.error) {
+        setFormData(prev => (
+          {
+            ...prev,
+            account_name: res?.data?.data?.account_name
+          }
+
+        ))
+      } else {
+        const errmessage = res?.data?.message || "Login failed";
+        toast.error(errmessage)
+      }
     }
-    catch(err){
-        console.log("Failed to fetch", err)
+    catch (err) {
+      console.log("Failed to fetch", err)
     }
   }
 
@@ -186,8 +192,8 @@ useEffect(() => {
             return formData.phone.trim().length >= 10;
           case "bank":
             return (
-              formData.bankAccount.trim().length >= 10 &&
-              formData.bankName.trim().length > 0
+              formData.account_number.trim().length >= 10 &&
+              formData.bank_name.trim().length > 0
             );
           default:
             return false;
@@ -248,7 +254,7 @@ useEffect(() => {
       case "phone":
         return formData.phone;
       case "bank":
-        return formData.bankAccount;
+        return formData.account_number;
       default:
         return "";
     }
@@ -258,8 +264,8 @@ useEffect(() => {
     <div className="w-full h-full space-y-10 overflow-scroll">
       <div className="w-full flex items-center flex-col justify-center py-5 space-y-3 bg-card rounded-xl">
         <h2 className="text-lg">Available Balance</h2>
-        <h2 className="text-3xl font-black">₦125,000.00</h2>
-        <h2 className="text-sm sm:text-md">Tap to view other wallet</h2>
+        <h2 className="text-3xl font-black">{formatToNGN(Number(user?.ngn_balance ?? 0))}</h2>
+        <h2 className="text-sm sm:text-md">Spendable</h2>
       </div>
 
       <div className="space-y-6 w-full">
@@ -432,10 +438,10 @@ useEffect(() => {
                   sendMethod === "nickname"
                     ? "nickname"
                     : sendMethod === "email"
-                    ? "email"
-                    : sendMethod === "phone"
-                    ? "phone"
-                    : "bankAccount",
+                      ? "email"
+                      : sendMethod === "phone"
+                        ? "phone"
+                        : "account_number",
                   value
                 );
               }
@@ -455,8 +461,8 @@ useEffect(() => {
                 className="flex w-full h-auto items-center bg-card rounded-full pr-5"
               >
                 <TextInput
-                  value={formData.bankName}
-                  onChange={(value) => handleInputChange("bankName", value)}
+                  value={formData.bank_name}
+                  onChange={(value) => handleInputChange("bank_name", value)}
                   placeholder="Select Bank"
                   disabled
                   type="text"
@@ -473,15 +479,15 @@ useEffect(() => {
                     className="py-5 px-5 outline-none bg-background w-full rounded-2xl"
                   />
                   <div className="overflow-auto w-full h-full flex flex-col">
-                    {filteredBanks?.map((banks) => (
+                    {banks?.map((bank) => (
                       <button
                         onClick={() =>
-                          handleSelectedBank(banks.name, banks.code)
+                          handleSelectedBank(bank)
                         }
-                        key={banks.code}
+                        key={bank.bank_code}
                         className="px-5 py-5 hover:bg-hover rounded-2xl text-start"
                       >
-                        {banks.name}
+                        {bank.bank_name}
                       </button>
                     ))}
                   </div>
@@ -489,8 +495,8 @@ useEffect(() => {
               )}
 
               <TextInput
-                value={formData.accountName}
-                onChange={(value) => handleInputChange("accountName", value)}
+                value={formData.account_name}
+                onChange={(value) => handleInputChange("account_name", value)}
                 placeholder="Account Name"
                 type="text"
               />
@@ -510,13 +516,13 @@ useEffect(() => {
             {sendMethod === "email" && formData.email}
             {sendMethod === "phone" && formData.phone}
             {sendMethod === "bank" &&
-              `${formData.bankName} - ${formData.bankAccount}`}
+              `${formData.bank_name} - ${formData.account_number}`}
           </h1>
           <h4 className="text-zinc-600">
             {sendMethod === "nickname" && "Cashley User"}
             {sendMethod === "email" && "Cashley User"}
             {sendMethod === "phone" && "Cashley User"}
-            {(sendMethod === "bank" && formData.accountName) || "Account Name"}
+            {(sendMethod === "bank" && formData.account_name) || "Account Name"}
           </h4>
         </div>
 
@@ -569,7 +575,7 @@ useEffect(() => {
               <h2 className="text-sm sm:text-md">Tap to view other wallet</h2>
             </div>
 
-            <div className="space-y-6 w-full">
+            {/* <div className="space-y-6 w-full">
               <div className="flex justify-between items-center">
                 <h1 className="text-lg">Quick Send</h1>
                 <button className="cursor-pointer">See All</button>
@@ -598,7 +604,7 @@ useEffect(() => {
                   </button>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             <div className="space-y-6">
               <h1 className="text-xl">Choose method</h1>
@@ -655,7 +661,7 @@ useEffect(() => {
                   {sendMethod === "nickname" && formData.nickname}
                   {sendMethod === "email" && formData.email}
                   {sendMethod === "phone" && formData.phone}
-                  {sendMethod === "bank" && formData.bankName}
+                  {sendMethod === "bank" && formData.bank_name}
                 </div>
               </div>
 
@@ -664,7 +670,7 @@ useEffect(() => {
                   <div>Name:</div>
                   <div>
                     {sendMethod === "bank"
-                      ? formData.accountName
+                      ? formData.account_name
                       : "Cashley User"}
                   </div>
                 </div>
@@ -674,7 +680,7 @@ useEffect(() => {
                     {sendMethod === "nickname" && "Cashley Account"}
                     {sendMethod === "email" && formData.email}
                     {sendMethod === "phone" && formData.phone}
-                    {sendMethod === "bank" && formData.bankAccount}
+                    {sendMethod === "bank" && formData.account_number}
                   </div>
                 </div>
                 <div className="flex justify-between w-full items-center">
@@ -686,7 +692,7 @@ useEffect(() => {
                 {sendMethod === "bank" && (
                   <div className="flex justify-between w-full items-center">
                     <div>Bank:</div>
-                    <div>{formData.bankName}</div>
+                    <div>{formData.bank_name}</div>
                   </div>
                 )}
                 {formData.description && (
@@ -747,14 +753,14 @@ useEffect(() => {
                   <div className="space-y-1">
                     <h4 className="text-lg">
                       {sendMethod === "bank"
-                        ? formData.accountName
+                        ? formData.account_name
                         : "Cashley User"}
                     </h4>
                     <h4 className="">
                       {sendMethod === "nickname" && formData.nickname}
                       {sendMethod === "email" && formData.email}
                       {sendMethod === "phone" && formData.phone}
-                      {sendMethod === "bank" && formData.bankAccount}
+                      {sendMethod === "bank" && formData.account_number}
                     </h4>
                   </div>
                 </div>
@@ -765,7 +771,7 @@ useEffect(() => {
                 <div className="flex justify-between w-full items-center">
                   <div>Receivers Bank:</div>
                   <div>
-                    {sendMethod === "bank" ? formData.bankName : "Cashley"}
+                    {sendMethod === "bank" ? formData.bank_name : "Cashley"}
                   </div>
                 </div>
                 <div className="flex justify-between w-full items-center">
