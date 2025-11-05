@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LogoutModal from "@/components/Logout";
+import TopupModal from "@/components/Topup";
 
 export default function CenteredLayout({
   children,
@@ -28,7 +29,7 @@ export default function CenteredLayout({
         pathname === "/app" ||
         pathname === "/app/" ||
         (!pathname.startsWith("/app/services") &&
-          !pathname.startsWith("/app/card") &&
+          !pathname.startsWith("/app/history") &&
           !pathname.startsWith("/app/profile"))
       );
     }
@@ -38,7 +39,7 @@ export default function CenteredLayout({
   const navItems = [
     { icon: Home, name: "Home", link: "/app" },
     { icon: LayoutGrid, name: "Services", link: "/app/services" },
-    { icon: CoinsIcon, name: "History", link: "/app/card" },
+    { icon: CoinsIcon, name: "History", link: "/app/history" },
     { icon: UserCircle, name: "Settings", link: "/app/profile" },
   ];
 
@@ -101,6 +102,7 @@ export default function CenteredLayout({
         </div>
       </div>
       <LogoutModal />
+      <TopupModal />
     </ProtectedRoute>
   )
 }

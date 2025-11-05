@@ -10,6 +10,7 @@ import { ApiResponse, BankAccount, Transaction } from "@/types/api";
 import { formatToNGN, formatToUSD } from "@/utils/amount";
 import { services } from "@/utils/string";
 import { useAuthContext } from "@/context/AuthContext";
+import { topupModal } from "@/controllers/topup-modal";
 
 export default function DashboardPage() {
   const { user } = useAuthContext();
@@ -19,8 +20,6 @@ export default function DashboardPage() {
     ngn: false,
     usd: false,
   });
-  const [bankAccount, setBankAccount] = useState<BankAccount | null>(null);
-  const [showBankAccount, setShowBankAccount] = useState<boolean>(false);
 
   const handleToggleBalance = useCallback((id: string) => {
     setVisibleBalances(prev => ({
@@ -126,6 +125,7 @@ export default function DashboardPage() {
         <div className="w-full flex flex-col gap-6">
           <div className="flex justify-between items-center gap-4">
             <Button
+              onclick={() => topupModal.open()}
               type="primary"
               text="Receive"
               width="text-sm sm:text-lg w-full font-normal"
