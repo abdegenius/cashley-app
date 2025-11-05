@@ -17,7 +17,7 @@ export default function ReferralProgram() {
   };
 
   return (
-    <div className="space-y-6  overflow-scroll">
+    <div className="space-y-6  overflow-scroll px-4">
       <h1 className="text-3xl font-black">Break Investment</h1>
 
       <div className="w-full bg-card rounded-xl flex-col flex items-center justify-center p-4 gap-2">

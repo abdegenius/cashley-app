@@ -17,7 +17,7 @@ export default function About() {
   }, [resolvedTheme]);
 
   return (
-    <div className="w-full  h-full flex flex-col justify-end bg-card">
+    <div className="w-full  h-full flex flex-col justify-end bg-card px-4">
       <div className="text-center bg-background flex flex-col items-center  space-y-10 py-6 px-4">
         <Image
           src={imageSrc || "/svg/cashley.svg"}

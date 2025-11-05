@@ -9,7 +9,7 @@ export default function Appearance() {
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   return (
-    <div className="w-full space-y-8">
+    <div className="w-full space-y-8 px-4">
       <div className="space-y-1">
         <h1 className="text-3xl font-black">Appearance</h1>
         <h1 className="text-lg">Choose your preferred theme</h1>

@@ -22,9 +22,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import React from "react";
-import toast from "react-hot-toast";
-import api from "@/lib/axios";
-import { ApiResponse } from "@/types/api";
 import { useAuthContext } from "@/context/AuthContext";
 import { logoutModal } from "@/controllers/logout-modal";
 
@@ -32,7 +29,7 @@ export default function ProfilePage() {
   const { user } = useAuthContext();
   const router = useRouter();
   return (
-    <div className="w-full h-full flex items-start justify-center">
+    <div className="w-full h-full flex items-start justify-center px-4">
       <div className="w-full flex flex-col gap-10 max-w-lg">
         <div className="w-full bg-card rounded-xl gap-1 py-4 flex flex-col items-center justify-center">
           <div className="w-20 h-20 rounded-full bg-white relative ">
@@ -172,7 +169,7 @@ export default function ProfilePage() {
             link="/app/profile/about"
           />
 
-          <div className="w-full p-0.5 rounded-2xl primary-orange-to-purple">
+          <div className="w-full mt-4 p-0.5 rounded-2xl primary-orange-to-purple">
             <button
               onClick={() => logoutModal.open()} className="w-full cursor-pointer py-5 px-4 rounded-2xl bg-card flex items-center justify-between">
               <span className="">

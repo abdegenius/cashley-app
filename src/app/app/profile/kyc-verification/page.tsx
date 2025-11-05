@@ -14,7 +14,7 @@ export default function KYCVerification() {
 
   // const ren
   return (
-    <div className="flex flex-col gap-10 h-full max-w-lg mx-auto overflow-y-scroll w-full">
+    <div className="flex flex-col gap-10 h-full max-w-lg mx-auto overflow-y-scroll w-full px-4">
       <div>
         <h1 className="text-3xl font-bold">KYC Verification</h1>
         <h2 className="text-lg">

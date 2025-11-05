@@ -9,7 +9,7 @@ export default function ChangePasswordPage() {
   const [passwordConfirm, setPasswordConfirm] = useState<string>("");
 
   return (
-    <div className="max-w-lg mx-auto w-full flex flex-col min-h-full h-full justify-between space-y-2">
+    <div className="max-w-lg mx-auto w-full flex flex-col min-h-full h-full justify-between space-y-2 px-4">
       <h1 className="text-xl font-black">Change Password</h1>
       <div className="pb-4 text-sm placeholder-text">
         Update your account password
