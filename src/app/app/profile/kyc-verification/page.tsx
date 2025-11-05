@@ -5,9 +5,12 @@ import { Section } from "@/components/ui/Section";
 import { Check } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function KYCVerification() {
   const [step, setStep] = useState(1);
+  const { user } = useAuth()
+  console.log("user", user)
 
   // const ren
   return (
