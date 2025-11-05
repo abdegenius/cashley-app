@@ -35,7 +35,7 @@ const TextInput: React.FC<TextInputProps> = ({
                 disabled={disabled}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className={`placeholder:placeholder-text bg-card rounded-3xl text-md font-medium px-2 select-none appearance-none outline-none border-none w-full ${className}`}
+                className={`placeholder:placeholder-text placeholder:text-[12px] bg-card rounded-3xl text-md font-medium px-2 select-none appearance-none outline-none border-none w-full ${className}`}
                 min={minLength}
                 max={maxLength}
             />

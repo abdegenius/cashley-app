@@ -103,6 +103,10 @@ export default function EditProfilePage() {
           <div className="w-full grid grid-cols-2 items-center gap-4">
             <div className="col-span-1 w-full">
               <div className="col-span-full w-full">
+                <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
+                  First Name
+                </p>
+
                 <TextInput
                   value={formValues.firstname || ""}
                   onChange={handleInputChange("firstname")}
@@ -112,6 +116,10 @@ export default function EditProfilePage() {
               </div>
             </div>
             <div className="col-span-1 w-full">
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
+                Last Name
+              </p>
+
               <TextInput
                 value={formValues.lastname || ""}
                 onChange={handleInputChange("lastname")}
@@ -121,6 +129,10 @@ export default function EditProfilePage() {
             </div>
 
             <div className="col-span-full w-full">
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
+                Username
+              </p>
+
               <TextInput
                 value={formValues.username || ""}
                 onChange={handleInputChange("username")}
@@ -130,6 +142,10 @@ export default function EditProfilePage() {
             </div>
 
             <div className="col-span-full w-full">
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
+                Email address
+              </p>
+
               <TextInput
                 value={formValues.email || ""}
                 onChange={handleInputChange("email")}
@@ -138,7 +154,11 @@ export default function EditProfilePage() {
               />
             </div>
 
-            <div className="col-span-full w-full">
+            <div className="col-span-full  w-full">
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
+                Phone Number
+              </p>
+
               <TextInput
                 value={formValues.phone || ""}
                 onChange={handleInputChange("phone")}
