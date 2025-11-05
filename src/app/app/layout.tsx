@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import LogoutModal from "@/components/Logout";
 
 export default function CenteredLayout({
   children,
@@ -99,6 +100,7 @@ export default function CenteredLayout({
           </div>
         </div>
       </div>
+      <LogoutModal />
     </ProtectedRoute>
   )
 }

@@ -55,7 +55,7 @@ export interface Notification {
   description: string;
   isRead?: boolean;
   type?: string;
-  createdAt?: string;
+  created_at?: string;
 }
 
 export interface Transaction {
@@ -75,6 +75,17 @@ export interface Wallet {
   eth_balance: string;
   btc_balance: string;
   usdt_balance: string;
+  created_at?: string;
+  updated_at?: string;
+}
+export interface BankAccount {
+  id: number;
+  account_id: string;
+  account_referencee: string;
+  account_name: string;
+  account_number: string;
+  bank_name: string;
+  bank_code: string;
   created_at?: string;
   updated_at?: string;
 }
