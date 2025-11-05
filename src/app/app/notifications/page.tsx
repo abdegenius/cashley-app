@@ -34,7 +34,7 @@ export default function NotificationPage() {
   }, []);
 
   return (
-    <div className="w-full h-full flex flex-col my-auto items-center justify-between space-y-6">
+    <div className="w-full h-full flex flex-col my-auto items-center justify-between space-y-6 px-4">
       <div className="w-full flex flex-col space-y-12 items-center">
         <div className="space-y-2 w-full">
           <h1 className="text-3xl font-black">Notifications</h1>
