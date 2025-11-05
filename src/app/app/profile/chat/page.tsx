@@ -7,7 +7,7 @@ import React from "react";
 
 export default function Chat() {
   return (
-    <div className="w-full h-full flex flex-col justify-between">
+    <div className="w-full h-full flex flex-col justify-between px-4">
       <div>
         <h1 className="text-2xl font-black">Chat with us</h1>
         <h4>Get answers to your questions</h4>

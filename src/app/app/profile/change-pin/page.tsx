@@ -9,7 +9,7 @@ export default function ChangePinPage() {
   const [pinConfirm, setPinConfirm] = useState<string>("");
 
   return (
-    <div className="max-w-lg mx-auto w-full flex flex-col min-h-full h-full justify-between space-y-2">
+    <div className="max-w-lg mx-auto w-full flex flex-col min-h-full h-full justify-between space-y-2 px-4">
       <h1 className="text-xl font-black">Change Pin</h1>
       <div className="pb-4 text-sm placeholder-text">
         Update your account pin
