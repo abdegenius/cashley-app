@@ -197,6 +197,7 @@ export const purchaseable_services = {
     show_amount_grid: true,
     show_variations: false,
     id: "airtime",
+    api_key: "airtime",
   },
   data: {
     title: "Purchase Data",
@@ -208,6 +209,7 @@ export const purchaseable_services = {
     show_amount_grid: false,
     show_variations: true,
     id: "data",
+    api_key: "data",
   },
   tv: {
     title: "Cable/TV Subscription",
@@ -219,6 +221,7 @@ export const purchaseable_services = {
     show_amount_grid: false,
     show_variations: true,
     id: "tv",
+    api_key: "tv-subscription",
   },
   electricity: {
     title: "Purchase Electricity Token",
@@ -230,5 +233,6 @@ export const purchaseable_services = {
     show_amount_grid: false,
     show_variations: true,
     id: "electricity",
+    api_key: "electricity-bill",
   },
 };

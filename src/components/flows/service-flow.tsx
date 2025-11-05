@@ -68,7 +68,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
     setLoading(true);
     try {
       const response = await api.get<ApiResponse>(
-        `/bill/service?service=${config.id}`
+        `/bill/service?service=${config.api_key}`
       );
       if (!response.data.error) {
         const providersData: Provider[] = response.data.data.map((provider: any) => ({
@@ -203,10 +203,10 @@ export default function Purchase({ type, user }: PurchaseProps) {
     try {
       let payload = {
         service_id: formData.service_id,
-        customer_id: formData.customer_id,
-        variation_code: type === "electricity" ? formData.type : formData.variation?.variation_code,
+        number: formData.customer_id,
+        type: type === "electricity" ? formData.type : formData.variation?.variation_code,
       }
-      const url = "/bill/verify-customer";
+      const url = "/bill/verify";
       const res = await api.post<ApiResponse>(url, payload);
       if (res.data.error) {
         toast.error("Verification failed")
@@ -237,6 +237,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
           !!formData.customer_id &&
           !!formData.variation &&
           !!formData.type &&
+          verifyData &&
           amount > 0
         );
       case "electricity":
@@ -244,6 +245,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
           baseCheck &&
           !!formData.customer_id &&
           !!formData.type &&
+          verifyData &&
           amount > 1000
         );
       default:
