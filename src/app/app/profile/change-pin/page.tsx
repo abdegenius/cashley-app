@@ -1,13 +1,49 @@
 "use client";
 import Button from "@/components/ui/Button";
 import PasswordInput from "@/components/ui/PasswordInput";
+import api from "@/lib/axios";
+import { ApiResponse } from "@/types/api";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function ChangePinPage() {
   const [currentPin, setCurrentPin] = useState<string>("");
   const [pin, setPin] = useState<string>("");
   const [pinConfirm, setPinConfirm] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
+  const handleSubmit = async () => {
+    if (!currentPin || !pin || !pinConfirm) {
+      toast.error("All fields are required")
+      return;
+    }
+
+    if (pin !== pinConfirm) {
+      toast.error("Pin confirmation failed")
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await api.post<ApiResponse>("/user/pin", {
+        current_pin: currentPin,
+        new_pin: pin,
+        confirm_new_pin: pinConfirm
+      })
+      if (!res.data.error) {
+        toast.success("Pin changed successfully");
+      } else {
+        toast.error(res.data.message ?? "Unable to change pin")
+      }
+    } catch (err) {
+      toast.error("Failed to change pin")
+    } finally {
+      setCurrentPin("")
+      setPin("")
+      setPinConfirm("")
+      setLoading(false);
+    }
+  };
   return (
     <div className="max-w-lg mx-auto w-full flex flex-col min-h-full h-full justify-between space-y-2 px-4">
       <h1 className="text-xl font-black">Change Pin</h1>
@@ -51,7 +87,10 @@ export default function ChangePinPage() {
           </div>
         </div>
         <div className="mt-8">
-          <Button type="secondary" text="Submit" />
+          <Button disabled={loading}
+            onclick={handleSubmit}
+            type="secondary"
+            text={loading ? "Updating..." : "Update Pin"} />
         </div>
       </div>
     </div>
