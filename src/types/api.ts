@@ -110,3 +110,27 @@ export type TransactionAction =
   | "fund_received"
   | "topup"
   | "bank_transfer";
+
+export type PurchaseType =
+  | "airtime"
+  | "data"
+  | "tv"
+  | "electricity"
+  | "betting";
+
+export type Provider = {
+  service_id: string;
+  name: string;
+  logo: string;
+  minimum_amount: string;
+  maximum_amount: string;
+  type: string;
+};
+
+export type Variation = {
+  variation_code: string;
+  name: string;
+  variation_amount: string;
+  fixed_price: string;
+  service_id?: string;
+};

@@ -10,8 +10,8 @@ interface TextInputProps {
     className?: string;
     currency?: string;
     disabled?: boolean;
-    minLength?: string;
-    maxLength?: string;
+    minLength?: string | number;
+    maxLength?: string | number;
 }
 
 const TextInput: React.FC<TextInputProps> = ({

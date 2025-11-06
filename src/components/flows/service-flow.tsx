@@ -4,53 +4,32 @@ import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import api from "@/lib/axios";
-import { ApiResponse, Transaction, User } from "@/types/api";
+import { ApiResponse, Transaction, User, PurchaseType, Variation, Provider } from "@/types/api";
 import toast from "react-hot-toast";
 import { formatToNGN } from "@/utils/amount";
 import { EnterPin } from "../EnterPin";
-import { cleanServiceName, pinExtractor, purchaseable_services } from "@/utils/string";
+import { cleanServiceName, pinExtractor, getPurchaseableService } from "@/utils/string";
 import { useRouter } from "next/navigation";
 import { LoadingOverlay } from "../Loading";
 import { Check, X } from "lucide-react";
 import ViewTransactionDetails from "../modals/ViewTransactionModal";
-
-type PurchaseType = "airtime" | "data" | "tv" | "electricity";
 
 interface PurchaseProps {
   type: PurchaseType;
   user?: User | null;
 }
 
-type Provider = {
-  service_id: string;
-  name: string;
-  logo: string;
-  minimum_amount: string;
-  maximum_amount: string;
-  type: string;
-};
-
-type Variation = {
-  variation_code: string;
-  name: string;
-  variation_amount: string;
-  fixed_price: string;
-  service_id?: string;
-};
-
-
 export default function Purchase({ type, user }: PurchaseProps) {
   const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [otp, setOtp] = useState(["", "", "", ""]);
-  const [loading, setLoading] = useState(false);
+
+  const [step, setStep] = useState<number>(1);
+  const [otp, setOtp] = useState<string[]>(["", "", "", ""]);
   const [success, setSuccess] = useState<boolean | null>(null);
-  const [purchasing, setPurchasing] = useState<boolean>(false);
-  const [verifying, setVerifying] = useState<boolean>(false);
-  const [verifyData, setVerifyData] = useState<any>(null);
-  const [transaction, setTransaction] = useState<any>(null);
+  const [purchasing, setPurchasing] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+
   const [formData, setFormData] = useState({
     service_id: "",
     amount: "",
@@ -61,96 +40,151 @@ export default function Purchase({ type, user }: PurchaseProps) {
 
   const [providers, setProviders] = useState<Provider[]>([]);
   const [variations, setVariations] = useState<Variation[]>([]);
-  const presetAmounts = [100, 200, 500, 1000, 2000, 5000];
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [verifyData, setVerifyData] = useState<any>(null);
 
-  const config = purchaseable_services[type];
+  const [loadingProviders, setLoadingProviders] = useState(false);
+  const [loadingVariations, setLoadingVariations] = useState(false);
 
-  const fetchProviders = async () => {
-    setLoading(true);
+  const presetAmounts = useMemo(() => [100, 200, 500, 1000, 2000, 5000], []);
+
+  const config = getPurchaseableService(type);
+
+  const providersCache = useRef<Record<string, Provider[]>>({});
+  const variationsCache = useRef<Record<string, Variation[]>>({});
+
+  const providersAbort = useRef<AbortController | null>(null);
+  const variationsAbort = useRef<AbortController | null>(null);
+
+  const fetchProviders = useCallback(async () => {
+    const cacheKey = config?.api_key;
+    if (!cacheKey) return;
+
+    if (providersCache.current[cacheKey]) {
+      setProviders(providersCache.current[cacheKey]);
+      return;
+    }
+
+    providersAbort.current?.abort();
+    const controller = new AbortController();
+    providersAbort.current = controller;
+
+    setLoadingProviders(true);
     try {
       const response = await api.get<ApiResponse>(
-        `/bill/service?service=${config.api_key}`
+        `/bill/service?service=${cacheKey}`,
+        { signal: controller.signal }
       );
-      if (!response.data.error) {
+
+      if (response?.data && !response.data?.error && Array.isArray(response.data?.data)) {
         const providersData: Provider[] = response.data.data.map((provider: any) => ({
-          service_id: provider.serviceID,
-          name: cleanServiceName(provider.name),
-          logo: provider.image,
-          minimum_amount: provider.minimium_amount,
-          maximum_amount: provider.maximum_amount,
-          type: provider.product_type
+          service_id: String(provider.serviceID ?? provider.service_id ?? ""),
+          name: cleanServiceName(provider.name ?? provider.serviceName ?? ""),
+          logo: provider.image ?? provider.logo ?? "",
+          minimum_amount: String(provider.minimum_amount ?? provider.min_amount ?? ""),
+          maximum_amount: String(provider.maximum_amount ?? provider.max_amount ?? ""),
+          type: provider.product_type ?? provider.type ?? "",
         }));
+
+        providersCache.current[cacheKey] = providersData;
         setProviders(providersData);
-      } else {
-        console.error("API Error:", response.data.message);
-        toast.error(`Failed to load providers: ${response.data.message}`);
-        setProviders([]);
       }
     } catch (error: any) {
-      console.error("Network Error:", error);
-      toast.error(`Network error: ${error.message}`);
-      setProviders([]);
+      if (error?.code === "ERR_CANCELED" || error?.name === "AbortError") return;
+      console.error("Network Error (fetchProviders):", error);
+      toast.error(`Network error: ${error?.message ?? "Unknown error"}`);
     } finally {
-      setLoading(false);
+      setLoadingProviders(false);
     }
-  };
+  }, [config?.api_key]);
 
-  const fetchVariations = async (service_id: string) => {
-    setLoading(true);
+  const fetchVariations = useCallback(async (service_id: string) => {
+    if (!service_id) return;
+    if (variationsCache.current[service_id]) {
+      setVariations(variationsCache.current[service_id]);
+      return;
+    }
+
+    variationsAbort.current?.abort();
+    const controller = new AbortController();
+    variationsAbort.current = controller;
+
+    setLoadingVariations(true);
     try {
-      const response = await api.get<ApiResponse>(
-        `/bill/service-variations?service_id=${service_id}`
-      );
+      const response = await api.get<ApiResponse>(`/bill/service-variations?service_id=${service_id}`, {
+        signal: controller.signal as any,
+      });
 
-      if (!response.data.error && response.data.data.variations) {
-        const variationsData: Variation[] = response.data.data.variations.map((variation: any) => ({
-          variation_code: variation.variation_code,
-          name: variation.name,
-          variation_amount: variation.variation_amount,
-          fixed_price: variation.fixedPrice,
-          service_id: service_id
+      const raw = response?.data;
+      if (!raw.error && raw.data && Array.isArray(raw.data.variations)) {
+        const variationsData: Variation[] = raw.data.variations.map((v: any) => ({
+          variation_code: String(v.variation_code ?? v.code ?? ""),
+          name: v.name ?? v.plan ?? "",
+          variation_amount: String(v.variation_amount ?? v.amount ?? v.price ?? ""),
+          fixed_price: String(v.fixedPrice ?? v.fixed_price ?? ""),
+          service_id,
         }));
+        variationsCache.current[service_id] = variationsData;
         setVariations(variationsData);
-      } else {
-        console.error("API Error:", response.data.message);
-        toast.error(`Failed to load plans: ${response.data.message}`);
-        setVariations([]);
       }
     } catch (error: any) {
-      console.error("Network Error:", error);
-      toast.error(`Network error: ${error.message}`);
-      setVariations([]);
+      if (error?.name === "CanceledError" || error?.name === "AbortError") {
+        // Silently handle abort
+      } else {
+        console.error("Network Error (fetchVariations):", error);
+      }
     } finally {
-      setLoading(false);
+      setLoadingVariations(false);
     }
-  };
+  }, []);
 
-  const handlePrev = () => {
-    if (step === 1) window.history.back();
-    else setStep((prev) => prev - 1);
-  };
+  useEffect(() => {
+    fetchProviders();
+    return () => {
+      providersAbort.current?.abort();
+    };
+  }, [fetchProviders]);
 
+  useEffect(() => {
+    if (!formData.service_id) {
+      setVariations([]);
+      setVerifyData(null); // Clear verify data when provider changes
+      return;
+    }
+    if (typeof formData.service_id !== "string" || !formData.service_id.trim()) {
+      console.error("Invalid service_id:", formData.service_id);
+      return;
+    }
+    if (config?.show_variations) {
+      fetchVariations(formData.service_id);
+    } else {
+      setVariations([]);
+    }
+    return () => {
+      variationsAbort.current?.abort();
+    };
+  }, [formData.service_id, config?.show_variations, fetchVariations]);
 
-  const handlePartialReset = () => {
+  const handlePrev = useCallback(() => {
+    if (step === 1) {
+      router.back();
+    } else if (step === 2) {
+      setStep(1);
+    } else if (step === 3) {
+      setStep(2);
+    }
+  }, [router, step]);
+
+  const handlePartialReset = useCallback(() => {
     setStep(1);
     setOtp(["", "", "", ""]);
-    setFormData({
-      service_id: formData.service_id,
-      amount: formData.amount,
-      customer_id: formData.customer_id,
-      variation: null,
-      type: ""
-    });
-    setVariations([])
-    setVerifyData(null)
-    setVerifying(false)
-    setPurchasing(false)
-  };
+    setPurchasing(false);
+  }, []);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setStep(1);
     setOtp(["", "", "", ""]);
-    setSuccess(false);
+    setSuccess(null);
     setFormData({
       service_id: "",
       amount: "",
@@ -158,138 +192,176 @@ export default function Purchase({ type, user }: PurchaseProps) {
       variation: null,
       type: ""
     });
-    setVariations([])
-    setTransaction(null)
-    setVerifyData(null)
-    setVerifying(false)
-    setLoading(false)
-    setPurchasing(false)
-  };
+    setVariations([]);
+    setTransaction(null);
+    setVerifyData(null);
+    setVerifying(false);
+    setLoadingProviders(false);
+    setLoadingVariations(false);
+    setPurchasing(false);
+  }, []);
 
+  const handleNext = useCallback(() => setStep((s) => s + 1), []);
 
-  const handleNext = () => setStep((prev) => prev + 1);
+  const isStep1Valid = useCallback(() => {
+    const baseCheck = !!formData.service_id;
+    const amount = Number(formData.amount ?? 0);
+    const balance = Number(user?.ngn_balance ?? 0);
 
-  const handleSubmit = async () => {
-    setPurchasing(true);
-    setStep(1);
-    try {
-      let payload = {
-        service_id: formData.service_id, pin: pinExtractor(otp), amount: formData.amount,
-        ...(formData.customer_id) && { phone: ["airtime", "data"].includes(type) ? formData.customer_id : (user?.phone ?? null) },
-        ...(["betting", "tv", "data", "electricity"].includes(type) && formData.variation) && { variation_code: formData.variation.variation_code.toString() },
-        ...(["betting"].includes(type) && formData.customer_id) && { customer_id: formData.customer_id },
-        ...(["tv"].includes(type) && formData.customer_id) && { smartcard_number: formData.customer_id },
-        ...(["electricity"].includes(type) && formData.customer_id) && { meter_number: formData.customer_id },
-        ...(["tv"].includes(type) && formData.type) && { type: formData.type },
-        ...(verifyData) && { verify_data: verifyData }
-      }
-      const url = `/transactions/buy-${type}`;
-      const res = await api.post<ApiResponse<Transaction | null>>(url, payload);
-      if (res.data.error) {
-        setSuccess(false)
-        toast.error(res.data.message ?? "Transaction failed")
-      } else {
-        setSuccess(true)
-        setTransaction(res.data.data)
-        toast.success("Transaction successful");
-      }
-    } catch (err) {
-      toast.error("An error was encountered while processing your request, please try again.")
-    } finally {
-      handlePartialReset()
+    if (!baseCheck) return false;
+    if (!Number.isFinite(amount) || amount <= 0) return false;
+
+    // Check balance for non-fixed price items or after amount is set
+    if (amount > balance) return false;
+
+    switch (type) {
+      case "airtime":
+        return !!formData.customer_id && amount >= 10;
+      case "data":
+        return !!formData.customer_id && !!formData.variation && amount > 0;
+      case "tv":
+        return !!formData.customer_id && !!formData.variation && !!formData.type && amount > 0;
+      case "electricity":
+        return !!formData.customer_id && !!formData.variation && amount >= 500 && !!verifyData;
+      case "betting":
+        return !!formData.customer_id && !!formData.variation && amount > 0;
+      default:
+        return false;
     }
-  }
+  }, [formData, type, user?.ngn_balance, verifyData]);
 
-  const handleVerify = async () => {
+  const handleVerify = useCallback(async () => {
+    if (!formData.service_id || !formData.customer_id) {
+      toast.error("Please select a provider and enter customer details.");
+      return;
+    }
+
+    if (["tv", "electricity"].includes(type) && !formData.variation) {
+      toast.error("Please select a package first.");
+      return;
+    }
+
     setVerifying(true);
     try {
-      let payload = {
+      const payload = {
         service_id: formData.service_id,
         number: formData.customer_id,
         type: formData.variation?.variation_code,
-      }
+      };
       const url = "/bill/verify";
       const res = await api.post<ApiResponse>(url, payload);
-      if (res.data.error || !res.data.data.customer_name) {
-        toast.error("Verification failed")
+      if (res.data.error || !res.data.data?.customer_name) {
+        toast.error(res.data.message ?? "Verification failed");
+        setVerifyData(null);
       } else {
         setVerifyData(res.data.data);
         toast.success("Verification successful");
       }
-    } catch (err) {
+    } catch (err: any) {
+      console.error("Verification error:", err);
+      toast.error("Verification error. Try again.");
+      setVerifyData(null);
     } finally {
-      setVerifying(false)
+      setVerifying(false);
     }
-  }
+  }, [formData.service_id, formData.customer_id, formData.variation, type]);
 
-  const isStep1Valid = () => {
-    const baseCheck = !!formData.service_id;
-    const amount = Number(formData.amount);
-    if (amount <= 0 || amount > Number(user?.ngn_balance)) {
-      return false;
+  const handleSubmit = useCallback(async () => {
+    setPurchasing(true);
+    try {
+      const basePayload: Record<string, any> = {
+        service_id: formData.service_id,
+        pin: pinExtractor(otp),
+        amount: formData.amount,
+      };
+
+      if (["airtime", "data"].includes(type)) {
+        if (formData.customer_id) basePayload.phone = formData.customer_id;
+      } else {
+        basePayload.phone = formData.customer_id ?? user?.phone ?? null;
+      }
+
+      if (["betting", "tv", "data", "electricity"].includes(type) && formData.variation) {
+        basePayload.variation_code = String(formData.variation.variation_code);
+      }
+
+      if (["betting"].includes(type) && formData.customer_id) {
+        basePayload.customer_id = formData.customer_id;
+      }
+      if (["tv"].includes(type) && formData.customer_id) {
+        basePayload.smartcard_number = formData.customer_id;
+      }
+      if (["electricity"].includes(type) && formData.customer_id) {
+        basePayload.meter_number = formData.customer_id;
+      }
+      if (["tv", "electricity"].includes(type) && formData.type) {
+        basePayload.type = formData.type;
+      }
+      if (verifyData) {
+        basePayload.verify_data = verifyData;
+      }
+
+      const url = `/transactions/buy-${type}`;
+      const res = await api.post<ApiResponse<Transaction | null>>(url, basePayload);
+
+      if (res.data.error || !res.data.data) {
+        setSuccess(false);
+        toast.error(res.data.message ?? "Transaction failed");
+      } else {
+        setSuccess(true);
+        setTransaction(res.data.data);
+        toast.success("Transaction successful");
+      }
+    } catch (err: any) {
+      console.error("Purchase error:", err);
+      toast.error("An error occurred while processing your request. Please try again.");
+      setSuccess(false);
+    } finally {
+      handlePartialReset();
     }
-    switch (type) {
-      case "airtime":
-        return baseCheck && !!formData.customer_id && amount >= 10;
-      case "data":
-        return baseCheck && !!formData.customer_id && !!formData.variation && amount > 0;
-      case "tv":
-        return (
-          baseCheck &&
-          !!formData.customer_id &&
-          !!formData.variation &&
-          amount > 0
-        );
-      case "electricity":
-        return (
-          baseCheck &&
-          !!formData.customer_id &&
-          !!formData.variation &&
-          amount >= 500
-        );
-      default:
-        return false;
-    }
-  };
+  }, [formData, otp, type, user?.phone, verifyData, handlePartialReset]);
 
-  useEffect(() => {
-    if (!formData.service_id) return;
+  const selectedProvider = useMemo(
+    () => providers.find((p) => p.service_id === formData.service_id) ?? null,
+    [providers, formData.service_id]
+  );
 
-    if (typeof formData.service_id !== 'string' || formData.service_id.trim() === '') {
-      console.error('Invalid service_id format:', formData.service_id);
-      return;
-    }
-
-    if (config.show_variations) {
-      fetchVariations(formData.service_id);
-    }
-  }, [formData.service_id, type, config.show_variations]);
-
-  // Fetch providers on mount
-  useEffect(() => {
-    fetchProviders();
-  }, [type]);
-
-  useEffect(() => {
-    if (!formData.service_id) return;
-
-    if (config.show_variations) {
-      fetchVariations(formData.service_id);
-    }
-  }, [formData.service_id, type, config.show_variations]);
+  const getProviderImage = useCallback((provider: Provider) => {
+    const mapKey = (provider.service_id || "").toLowerCase();
+    const imageMap: Record<string, string> = {
+      mtn: "/img/mtn.png",
+      airtel: "/img/airtel.png",
+      glo: "/img/glo.png",
+      etisalat: "/img/9mobile.png",
+      "9mobile": "/img/9mobile.png",
+      "foreign-airtime": "/img/international.png",
+      dstv: "/img/dstv.png",
+      gotv: "/img/gotv.png",
+      startimes: "/img/startimes.png",
+      showmax: "/img/showmax.png",
+      "airtel-data": "/img/airtel.png",
+      "mtn-data": "/img/mtn.png",
+      "glo-data": "/img/glo.png",
+      "etisalat-data": "/img/9mobile.png",
+      "smile-direct": "/img/smile.png",
+      spectranet: "/img/spectranet.png",
+      "glo-sme-data": "/img/glo.png",
+    };
+    return imageMap[mapKey] ?? "/img/default.png";
+  }, []);
 
   return (
     <div className="w-full h-full mx-auto max-w-xl flex flex-col px-4">
-      {/* Content */}
       <div className="flex-1 w-full overflow-y-auto">
         <AnimatePresence mode="wait">
           <motion.div
+            key="purchase-main"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8 p-2 z-0"
           >
             <div className="space-y-1">
-              <h2 className="text-2xl font-black">{config.step_1_title}</h2>
+              <h2 className="text-2xl font-black">{config?.step_1_title}</h2>
             </div>
 
             <div className="space-y-6">
@@ -297,44 +369,19 @@ export default function Purchase({ type, user }: PurchaseProps) {
                 providers={providers}
                 value={formData.service_id}
                 onChange={(service_id) =>
-                  setFormData((prev) => ({ ...prev, service_id: formData.service_id === service_id ? "" : service_id }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    service_id: prev.service_id === service_id ? "" : service_id,
+                    variation: prev.service_id === service_id ? prev.variation : null,
+                    amount: prev.service_id === service_id ? prev.amount : "",
+                    type: prev.service_id === service_id ? prev.type : "",
+                  }))
                 }
-                loading={loading}
+                loading={loadingProviders}
+                getProviderImage={getProviderImage}
               />
 
-              {formData.service_id &&
-                (config.show_amount_grid || formData.variation) && (
-                  <div className="space-y-1">
-                    <label className="text-sm font-semibold pb-0">
-                      {config.recipient}
-                    </label>
-
-                    <div className="w-full flex gap-3 items-center">
-
-                      {["airtime", "data"].includes(type) && <div className="p-4 my-3 rounded-full bg-card">+234</div>}
-                      <TextInput
-                        value={formData.customer_id}
-                        onChange={(customer_id) =>
-                          setFormData((prev) => ({ ...prev, customer_id }))
-                        }
-                        placeholder={config.placeholder}
-                        type="text"
-                        minLength="10"
-                        maxLength="10"
-                      />
-                      {["tv", "electricity"].includes(type) &&
-                        <button type="button" onClick={() => handleVerify()} className="py-4 px-12 my-3 rounded-full primary-purple-to-blue">Verify</button>
-                      }
-                    </div>
-                    {verifyData &&
-                      <div className="purple-text text-sm font-normal">
-                        {verifyData.customer_name}{verifyData.customer_address ? ` / ${verifyData.customer_address}` : ''}
-                      </div>}
-                  </div>
-                )}
-
-
-              {config.show_variations && formData.service_id && (
+              {config?.show_variations && formData.service_id && (
                 <VariationSelect
                   variations={variations}
                   value={formData.variation}
@@ -342,33 +389,131 @@ export default function Purchase({ type, user }: PurchaseProps) {
                     setFormData((prev) => ({
                       ...prev,
                       variation,
-                      amount: variation.variation_amount,
+                      amount: String(variation.variation_amount ?? variation.fixed_price ?? prev.amount),
                     }))
                   }
                   type={type}
-                  loading={loading}
+                  loading={loadingVariations}
                 />
               )}
 
-              {config.show_amount_grid && formData.service_id && (
+              {type === "tv" && formData.service_id && formData.variation && (
+                <div className="space-y-1">
+                  <label className="text-sm font-semibold">Subscription Type</label>
+                  <div className="flex gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setFormData((prev) => ({ ...prev, type: "renew" }))}
+                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${formData.type === "renew"
+                        ? "border-purple-600 bg-purple-600/10"
+                        : "border-transparent bg-card"
+                        }`}
+                    >
+                      Renew
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setFormData((prev) => ({ ...prev, type: "change" }))}
+                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${formData.type === "change"
+                        ? "border-purple-600 bg-purple-600/10"
+                        : "border-transparent bg-card"
+                        }`}
+                    >
+                      Change Package
+                    </motion.button>
+                  </div>
+                </div>
+              )}
+
+              {formData.service_id && (config?.show_amount_grid || formData.variation) && (
+                <div className="space-y-1">
+                  <label className="text-sm font-semibold pb-0">{config?.recipient}</label>
+
+                  <div className="w-full flex gap-3 items-center">
+                    {["airtime", "data"].includes(type) && <div className="p-4 my-3 rounded-full bg-card">+234</div>}
+                    <TextInput
+                      value={formData.customer_id}
+                      onChange={(customer_id) => {
+                        setFormData((prev) => ({ ...prev, customer_id }));
+                        // Clear verification when customer ID changes
+                        if (["tv", "electricity"].includes(type)) {
+                          setVerifyData(null);
+                        }
+                      }}
+                      placeholder={config?.placeholder}
+                      type="text"
+                      minLength={10}
+                      maxLength={10}
+                    />
+                    {["tv", "electricity"].includes(type) && formData.variation && (
+                      <button
+                        type="button"
+                        onClick={handleVerify}
+                        className="py-4 px-12 my-3 rounded-full primary-purple-to-blue disabled:opacity-50"
+                        disabled={verifying || !formData.customer_id || !formData.variation}
+                      >
+                        {verifying ? "Verifying..." : "Verify"}
+                      </button>
+                    )}
+                  </div>
+
+                  {verifyData && (
+                    <div className="purple-text text-sm font-normal">
+                      {verifyData.customer_name}
+                      {verifyData.customer_address ? ` / ${verifyData.customer_address}` : ""}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {type === "electricity" && formData.service_id && formData.variation && (
+                <div className="space-y-1">
+                  <label className="text-sm font-semibold">Meter Type</label>
+                  <div className="flex gap-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setFormData((prev) => ({ ...prev, type: "prepaid" }))}
+                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${formData.type === "prepaid"
+                        ? "border-purple-600 bg-purple-600/10"
+                        : "border-transparent bg-card"
+                        }`}
+                    >
+                      Prepaid
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setFormData((prev) => ({ ...prev, type: "postpaid" }))}
+                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${formData.type === "postpaid"
+                        ? "border-purple-600 bg-purple-600/10"
+                        : "border-transparent bg-card"
+                        }`}
+                    >
+                      Postpaid
+                    </motion.button>
+                  </div>
+                </div>
+              )}
+
+              {config?.show_amount_grid && formData.service_id && !formData.variation && (
                 <AmountGrid
                   value={formData.amount}
-                  onChange={(amount) =>
-                    setFormData((prev) => ({ ...prev, amount }))
-                  }
+                  onChange={(amount) => setFormData((prev) => ({ ...prev, amount }))}
                   presetAmounts={presetAmounts}
-                  minAmount={providers.find(p => p.service_id === formData.service_id)?.minimum_amount}
-                  maxAmount={providers.find(p => p.service_id === formData.service_id)?.maximum_amount}
+                  minAmount={selectedProvider?.minimum_amount}
+                  maxAmount={selectedProvider?.maximum_amount}
                 />
               )}
-              {type === "electricity" && verifyData && formData.service_id && (
+
+              {type === "electricity" && formData.service_id && formData.variation && (
                 <Amount
                   value={formData.amount}
-                  onChange={(amount) =>
-                    setFormData((prev) => ({ ...prev, amount }))
-                  }
-                  minAmount={providers.find(p => p.service_id === formData.service_id)?.minimum_amount}
-                  maxAmount={providers.find(p => p.service_id === formData.service_id)?.maximum_amount}
+                  onChange={(amount) => setFormData((prev) => ({ ...prev, amount }))}
+                  minAmount={selectedProvider?.minimum_amount}
+                  maxAmount={selectedProvider?.maximum_amount}
                 />
               )}
             </div>
@@ -379,12 +524,15 @@ export default function Purchase({ type, user }: PurchaseProps) {
               text="Continue"
               width="w-full py-4"
               disabled={!isStep1Valid()}
-              loading={loading}
+              loading={loadingProviders || loadingVariations}
             />
           </motion.div>
         </AnimatePresence>
-        {step == 2 &&
+
+        {/* Step 2: Summary Modal */}
+        {step === 2 && (
           <motion.div
+            key="summary"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="z-1 fixed max-w-xl inset-0 mx-auto space-y-8 w-full h-full"
@@ -393,63 +541,36 @@ export default function Purchase({ type, user }: PurchaseProps) {
             <div className="bottom-0 absolute z-2 w-full h-auto flex flex-col justify-end items-end">
               <div className="w-full bg-card py-5 rounded-t-3xl">
                 <div className="space-y-1">
-                  <h2 className="text-2xl font-black w-full text-center">
-                    Summary
-                  </h2>
+                  <h2 className="text-2xl font-black w-full text-center">Summary</h2>
                 </div>
 
                 <div className="w-full rounded-2xl p-6 space-y-4">
                   <div className="flex justify-between items-center w-full">
-                    <div className="text-xl font-black w-full justify-start flex">
-                      Amount
-                    </div>
-                    <Image
-                      src={"/svg/leftRight.svg"}
-                      alt="swap arrow"
-                      width={60}
-                      height={60}
-                      className="justify-center flex"
-                    />
-                    <div className="text-xl font-black w-full justify-end flex">
-                      {formatToNGN(Number(formData.amount))}
-                    </div>
+                    <div className="text-xl font-black w-full justify-start flex">Amount</div>
+                    <Image src={"/svg/leftRight.svg"} alt="swap arrow" width={60} height={60} className="justify-center flex" />
+                    <div className="text-xl font-black w-full justify-end flex">{formatToNGN(Number(formData.amount))}</div>
                   </div>
 
                   <div className="space-y-3">
                     <ReviewItem label="Product" value={type.toUpperCase()} />
-                    <ReviewItem
-                      label={type === "tv" ? "Provider" : "Network"}
-                      value={
-                        providers.find(
-                          (p) => p.service_id === formData.service_id
-                        )?.name || ""
-                      }
-                    />
-                    <ReviewItem
-                      label={config.recipient}
-                      value={formData.customer_id}
-                    />
+                    <ReviewItem label={type === "tv" ? "Provider" : "Network"} value={selectedProvider?.name ?? ""} />
+                    {formData.variation && <ReviewItem label="Package" value={formData.variation.name} />}
+                    {config?.recipient && <ReviewItem label={config.recipient} value={formData.customer_id} />}
+                    {verifyData?.customer_name && <ReviewItem label="Customer Name" value={verifyData.customer_name} />}
                   </div>
                 </div>
 
                 <div className="flex gap-x-4 px-5">
-                  <Button
-                    onclick={handlePrev}
-                    type="dark"
-                    text="Cancel"
-                    width="flex-1 py-4"
-                  />
-                  <Button
-                    onclick={handleNext}
-                    type="secondary"
-                    text="Confirm & Pay"
-                    width="flex-1 py-4"
-                  />
+                  <Button onclick={handlePrev} type="dark" text="Cancel" width="flex-1 py-4" />
+                  <Button onclick={handleNext} type="secondary" text="Confirm & Pay" width="flex-1 py-4" />
                 </div>
               </div>
             </div>
-          </motion.div>}
-        {step == 3 &&
+          </motion.div>
+        )}
+
+        {/* Step 3: PIN */}
+        {step === 3 && (
           <EnterPin
             otp={otp}
             show={true}
@@ -458,53 +579,64 @@ export default function Purchase({ type, user }: PurchaseProps) {
             buttonText={"Pay"}
             onConfirm={handleSubmit}
             onBack={handlePrev}
-          />}
-        {success && transaction && (
+          />
+        )}
+
+        {/* Success Modal */}
+        {success === true && transaction && (
           <ViewTransactionDetails onClose={handleReset} transaction={transaction} />
         )}
+
+        {/* Error Modal */}
+        {success === false && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          >
+            <div className="bg-card rounded-3xl p-8 max-w-md mx-4 space-y-6">
+              <div className="flex flex-col items-center space-y-4">
+                <div className="w-20 h-20 rounded-full bg-red-500/20 flex items-center justify-center">
+                  <X className="w-10 h-10 text-red-500" />
+                </div>
+                <h3 className="text-2xl font-black text-center">Transaction Failed</h3>
+                <p className="text-center text-zinc-400">
+                  Your transaction could not be completed. Please try again.
+                </p>
+              </div>
+              <Button
+                onclick={handleReset}
+                type="secondary"
+                text="Try Again"
+                width="w-full py-4"
+              />
+            </div>
+          </motion.div>
+        )}
+
         {(purchasing || verifying) && <LoadingOverlay />}
       </div>
-
     </div>
   );
 }
 
-// Sub-components
+/* Subcomponents */
 
 interface ProviderSelectProps {
   providers: Provider[];
   value: string;
   onChange: (service_id: string) => void;
   loading?: boolean;
+  getProviderImage: (p: Provider) => string;
 }
 
-function ProviderSelect({ providers, value, onChange, loading }: ProviderSelectProps) {
-
-  const getProviderImage = (provider: Provider) => {
-    const imageMap: { [key: string]: string } = {
-      'mtn': '/img/mtn.png',
-      'airtel': '/img/airtel.png',
-      'glo': '/img/glo.png',
-      'etisalat': '/img/9mobile.png',
-      '9mobile': '/img/9mobile.png',
-      'foreign-airtime': '/img/international.png',
-      'dstv': '/img/dstv.png',
-      'gotv': '/img/gotv.png',
-      'startimes': '/img/startimes.png',
-      'showmax': '/img/showmax.png',
-      'airtel-data': '/img/airtel.png',
-      'mtn-data': '/img/mtn.png',
-      'glo-data': '/img/glo.png',
-      'etisalat-data': '/img/9mobile.png',
-      'smile-direct': '/img/smile.png',
-      'spectranet': '/img/spectranet.png',
-      'glo-sme-data': '/img/glo.png',
-    };
-
-    return imageMap[provider.service_id] ?? "/img/default.png";
-  };
-
-
+const ProviderSelect = React.memo(function ProviderSelect({
+  providers,
+  value,
+  onChange,
+  loading,
+  getProviderImage,
+}: ProviderSelectProps) {
   if (loading) {
     return (
       <div className="space-y-4">
@@ -522,43 +654,43 @@ function ProviderSelect({ providers, value, onChange, loading }: ProviderSelectP
   return (
     <div className="w-full space-y-4">
       <div className="w-full overflow-x-auto flex flex-row items-stretch justify-start space-x-2">
-        {providers.map((provider, i) => (
-          <div
-            key={i}
-            className={`w-full max-w-[100px] min-w-[100px] rounded-2xl p-0.5 ${value === provider.service_id
-              ? "primary-purple-to-blue"
-              : "bg-card"
-              } ${value && value !== provider.service_id ? 'opacity-50' : 'opacity-100'}`}
-          >
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => onChange(provider.service_id)}
-              className={`flex flex-col items-center w-full rounded-2xl overflow-hidden transition-all bg-card`}
+        {providers.map((provider, i) => {
+          const active = value === provider.service_id;
+          return (
+            <div
+              key={i}
+              className={`w-full max-w-[100px] min-w-[100px] rounded-2xl p-0.5 ${active ? "primary-purple-to-blue" : "bg-card"} ${value && !active ? "opacity-50" : "opacity-100"}`}
             >
-              <div className="w-full h-auto  mb-2 flex items-center justify-center">
-                <div className="w-full h-20 relative">
-                  <Image
-                    src={getProviderImage(provider)}
-                    alt={provider.name}
-                    fill
-                    className="object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/img/placeholder.png";
-                    }}
-                  />
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => onChange(provider.service_id)}
+                className={`flex flex-col items-center w-full rounded-2xl overflow-hidden transition-all bg-card`}
+              >
+                <div className="w-full h-auto mb-2 flex items-center justify-center">
+                  <div className="w-full h-20 relative">
+                    <Image
+                      src={getProviderImage(provider)}
+                      alt={provider.name}
+                      fill
+                      className="object-cover"
+                      onError={(e) => {
+                        try {
+                          (e.target as HTMLImageElement).src = "/img/placeholder.png";
+                        } catch { }
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-              <span className="text-sm font-medium py-1 text-center">
-                {provider.name}
-              </span>
-            </motion.button>
-          </div>
-        ))}
+                <span className="text-sm font-medium py-1 text-center">{provider.name}</span>
+              </motion.button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
-}
+});
 
 interface VariationSelectProps {
   variations: Variation[];
@@ -568,76 +700,45 @@ interface VariationSelectProps {
   loading?: boolean;
 }
 
-function VariationSelect({
-  variations,
-  value,
-  onSelect,
-  type,
-  loading
-}: VariationSelectProps) {
+const VariationSelect = React.memo(function VariationSelect({ variations, value, onSelect, type, loading }: VariationSelectProps) {
   if (loading) {
     return (
       <div className="space-y-4">
-        <label className="text-sm font-semibold">
-          Select {type !== "data" ? "Package" : "Data Plan"}
-        </label>
+        <label className="text-sm font-semibold">Select {type !== "data" ? "Package" : "Data Plan"}</label>
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
-          {type == "data" ?
-            [...Array(6)].map((_, i) => (
-              <div key={i} className="rounded-2xl p-0.5 bg-card animate-pulse">
-                <div className="w-full p-4 rounded-2xl bg-card h-24"></div>
-              </div>
-            )) : [...Array(3)].map((_, i) => (
-              <div key={i} className="rounded-xl p-0.5 bg-card animate-pulse">
-                <div className="w-full p-4 rounded-2xl bg-card h-12"></div>
-              </div>
-            ))}
+          {type === "data" ? [...Array(6)].map((_, i) => <div key={i} className="rounded-2xl p-0.5 bg-card animate-pulse"><div className="w-full p-4 rounded-2xl bg-card h-24" /></div>) : [...Array(3)].map((_, i) => <div key={i} className="rounded-xl p-0.5 bg-card animate-pulse"><div className="w-full p-4 rounded-2xl bg-card h-12" /></div>)}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 h-full ">
-      <label className="text-sm font-semibold">
-        Select {type !== "data" ? "Package" : "Data Plan"}
-      </label>
-      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 max-h-100 overflow-y-scroll">
-        {variations.map((variation, i) => (
-          <div
-            key={i}
-            className={` rounded-2xl p-0.5 ${value?.variation_code === variation.variation_code
-              ? "primary-purple-to-blue"
-              : "bg-card"
-              }`}
-          >
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => onSelect(variation)}
-              className={`w-full text-sm p-4 rounded-2xl text-left transition-all bg-card
-            `}
-            >
-              <div className="flex flex-col  justify-between items-center">
-                <div>
-                  <h4 className="font-black text-center">
-                    {variation.name}
-                  </h4>
-                  {/* <p className="text-sm text-center">
-                    {type === "tv" ? "Package" : "Data Plan"}
-                  </p> */}
+    <div className="space-y-4 h-full">
+      <label className="text-sm font-semibold">Select {type !== "data" ? "Package" : "Data Plan"}</label>
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 max-h-100 overflow-y-auto">
+        {variations.map((variation, i) => {
+          const active = value?.variation_code === variation.variation_code;
+          return (
+            <div key={i} className={`rounded-2xl p-0.5 border-2 bg-card ${active ? "border-purple-600/80" : "border-transparent"}`}>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => onSelect(variation)}
+                className={`w-full text-sm p-4 rounded-2xl text-left transition-all bg-card`}
+              >
+                <div className="flex flex-col justify-between items-center">
+                  <div>
+                    <h4 className="font-black text-center">{variation.name}</h4>
+                  </div>
                 </div>
-                {/* <span className="text-center text-sm">
-                  ₦{parseFloat(variation.variation_amount).toLocaleString()}
-                </span> */}
-              </div>
-            </motion.button>
-          </div>
-        ))}
+              </motion.button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
-}
+});
 
 interface AmountGridProps {
   value: string;
@@ -658,10 +759,7 @@ function AmountGrid({ value, onChange, presetAmounts, minAmount, maxAmount }: Am
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => onChange(amount.toString())}
-            className={`w-[90px] sm:w-[120px] p-2.5 text-sm rounded-2xl transition-all bg-card border-2 ${value === amount.toString()
-              ? "border-purple-600"
-              : "border-transparent"
-              }`}
+            className={`w-[90px] sm:w-[120px] p-2.5 text-sm rounded-2xl transition-all bg-card border-2 ${value === amount.toString() ? "border-purple-600" : "border-transparent"}`}
           >
             {formatToNGN(Number(amount), false)}
           </motion.button>
@@ -674,16 +772,11 @@ function AmountGrid({ value, onChange, presetAmounts, minAmount, maxAmount }: Am
         placeholder="Custom amount"
         type="number"
         currency="₦"
-      // min={minAmount}
-      // max={maxAmount}
       />
 
       {(minAmount || maxAmount) && (
         <p className="text-xs text-zinc-500">
-          Amount range:
-          {formatToNGN(Number(minAmount))}
-          {" - "}
-          {formatToNGN(Number(maxAmount))}
+          Amount range: {formatToNGN(Number(minAmount))} {" - "} {formatToNGN(Number(maxAmount))}
         </p>
       )}
     </div>
@@ -701,23 +794,10 @@ function Amount({ value, onChange, minAmount, maxAmount }: AmountProps) {
   return (
     <div className="space-y-1">
       <label className="text-sm font-semibold">Amount</label>
-
-      <TextInput
-        value={value}
-        onChange={onChange}
-        placeholder="Enter amount"
-        type="number"
-        currency="₦"
-      // min={minAmount}
-      // max={maxAmount}
-      />
-
+      <TextInput value={value} onChange={onChange} placeholder="Enter amount" type="number" currency="₦" />
       {(minAmount || maxAmount) && (
         <p className="text-xs text-zinc-500">
-          Amount range:
-          {formatToNGN(Number(minAmount))}
-          {" - "}
-          {formatToNGN(Number(maxAmount))}
+          Amount range: {formatToNGN(Number(minAmount))} {" - "} {formatToNGN(Number(maxAmount))}
         </p>
       )}
     </div>

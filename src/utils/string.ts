@@ -1,4 +1,4 @@
-import { PurchaseAction } from "@/types/api";
+import { PurchaseAction, PurchaseType } from "@/types/api";
 import {
   Bitcoin,
   ChartBar,
@@ -186,8 +186,8 @@ export const cleanServiceName = (name: string) => {
     .trim();
 };
 
-export const purchaseable_services = {
-  airtime: {
+const purchaseable_services = [
+  {
     title: "Buy Airtime",
     icon: PhoneCall,
     step_1_title: "Select network",
@@ -199,7 +199,7 @@ export const purchaseable_services = {
     id: "airtime",
     api_key: "airtime",
   },
-  data: {
+  {
     title: "Purchase Data",
     icon: Wifi,
     step_1_title: "Select network",
@@ -211,7 +211,7 @@ export const purchaseable_services = {
     id: "data",
     api_key: "data",
   },
-  tv: {
+  {
     title: "Cable/TV Subscription",
     icon: Tv,
     step_1_title: "Select provider",
@@ -223,7 +223,7 @@ export const purchaseable_services = {
     id: "tv",
     api_key: "tv-subscription",
   },
-  electricity: {
+  {
     title: "Purchase Electricity Token",
     icon: Tv,
     step_1_title: "Select provider",
@@ -235,4 +235,8 @@ export const purchaseable_services = {
     id: "electricity",
     api_key: "electricity-bill",
   },
+];
+
+export const getPurchaseableService = (type: PurchaseType) => {
+  return purchaseable_services.find((service) => service.id == type);
 };
