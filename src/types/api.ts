@@ -61,11 +61,14 @@ export interface Notification {
 export interface Transaction {
   id: number;
   reference: string;
+  session_id: string;
   type: "debit" | "credit";
   action: string;
   amount: string;
+  fee: string;
   status: "completed" | "failed" | "pending";
   description: string;
+  extra: any;
   created_at: string;
 }
 

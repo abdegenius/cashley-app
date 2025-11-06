@@ -93,6 +93,12 @@ export default function ViewTransactionDetails({ transaction, onClose }: Transac
                 {transaction.reference}
               </span>
             </div>
+            {transaction.session_id && <div className="flex justify-between items-start space-x-4">
+              <span className="text-stone-400 text-sm">Session ID</span>
+              <span className="font-mono text-sm text-right text-stone-200">
+                {transaction.session_id}
+              </span>
+            </div>}
 
             <div className="flex justify-between items-start space-x-4">
               <span className="text-stone-400 text-sm">Description</span>

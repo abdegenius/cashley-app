@@ -113,7 +113,6 @@ export default function SendMoney() {
   const backStep = () => setStep((s) => s - 1);
 
   const handlePartialReset = () => {
-    setStep(1);
     setOtp(["", "", "", ""]);
     setBank(null)
     setFormData({
@@ -128,6 +127,8 @@ export default function SendMoney() {
     setVerifyData(null)
     setVerifying(false)
     setSending(false)
+    setStep(1);
+    setShowPin(false)
   };
 
   const handleSubmit = async () => {
@@ -147,6 +148,7 @@ export default function SendMoney() {
       const res = await api.post<ApiResponse<Transaction | null>>(url, payload);
       if (res.data.error) {
         setSuccess(false)
+        setTransaction(null)
         toast.error(res.data.message ?? "Transfer failed")
       } else {
         setSuccess(true)
@@ -427,28 +429,13 @@ export default function SendMoney() {
       <div className="flex gap-4">
         <Button text="Back" type="secondary" onclick={backStep} />
         <Button
-          text="Transfer"
+          text="Next"
           type="primary"
           loading={loading}
           onclick={() => handleShowPin(true)}
         />
       </div>
 
-      {showPin &&
-        <EnterPin
-          otp={otp}
-          show={true}
-          setOtp={setOtp}
-          headerText={"Enter your 4-digit transaction pin"}
-          buttonText={"Pay"}
-          onConfirm={handleSubmit}
-          onBack={() => handleShowPin(false)}
-        />}
-
-      {success && transaction && (
-        <ViewTransactionDetails onClose={handlePartialReset} transaction={transaction} />
-      )}
-      {(sending) && <LoadingOverlay />}
     </div>
   );
 
@@ -458,6 +445,25 @@ export default function SendMoney() {
       {step === 2 && renderStep2()}
       {step === 3 && renderStep3()}
       {step === 4 && renderStep4()}
+      {showPin &&
+        <EnterPin
+          otp={otp}
+          show={true}
+          setOtp={setOtp}
+          headerText={"Enter your 4-digit transaction pin"}
+          buttonText={"Transfer"}
+          onConfirm={handleSubmit}
+          onBack={() => handleShowPin(false)}
+        />}
+
+      {sending && <LoadingOverlay />}
+      {success && transaction && (
+        <ViewTransactionDetails onClose={() => {
+          handlePartialReset();
+          setSuccess(false);
+          setTransaction(null)
+        }} transaction={transaction} />
+      )}
     </div>
   );
 }

@@ -110,8 +110,8 @@ function RowTransaction({ transaction, onSelect }: RowTransactionProps) {
       tv: "TV Subscription",
       transfer: "Transfer",
       topup: "Wallet Topup",
-      intra_transfer: "Wallet Transfer",
-      inter_transfer: "Bank Transfer",
+      intra: "Wallet Transfer",
+      inter: "Bank Transfer",
     };
 
     return actionMap[action] || "Transaction";
