@@ -6,18 +6,20 @@ import {
   Check,
   ChevronDown,
   Building,
-  Tag,
   User,
 } from "lucide-react";
-import Image from "next/image";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
 import { useTheme } from "@/providers/ThemeProvider";
 import { useAuthContext } from "@/context/AuthContext";
 import api from "@/lib/axios";
-import { ApiResponse } from "@/types/api";
+import { ApiResponse, Transaction } from "@/types/api";
 import { formatToNGN } from "@/utils/amount";
+import { pinExtractor } from "@/utils/string";
+import { EnterPin } from "@/components/EnterPin";
+import ViewTransactionDetails from "@/components/modals/ViewTransactionModal";
+import { LoadingOverlay } from "@/components/Loading";
 
 type SendMethod = "entity" | "bank";
 
@@ -42,13 +44,15 @@ export default function SendMoney() {
   const { resolvedTheme } = useTheme();
 
   const [step, setStep] = useState(1);
+  const [otp, setOtp] = useState(["", "", "", ""]);
   const [sendMethod, setSendMethod] = useState<SendMethod | null>(null);
   const [banks, setBanks] = useState<Bank[]>([]);
   const [bank, setBank] = useState<Bank | null>(null);
   const [toggleBanks, setToggleBanks] = useState(false);
+  const [showPin, setShowPin] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
-  const [purchasing, setPurchasing] = useState<boolean>(false);
+  const [sending, setSending] = useState<boolean>(false);
   const [verifying, setVerifying] = useState<boolean>(false);
   const [verifyData, setVerifyData] = useState<any>(null);
   const [transaction, setTransaction] = useState<any>(null);
@@ -99,25 +103,6 @@ export default function SendMoney() {
     }
   }
 
-  const verifyBank = async () => {
-    setVerifying(true);
-    try {
-      const res = await api.post<ApiResponse>("/verify-bank", {
-        account_number: formData.account_number,
-        bank_code: formData.bank_code,
-      });
-      if (!res.data.error && res.data.data?.account_name) {
-        setFormData((prev) => ({
-          ...prev,
-          account_name: res.data.data.account_name,
-        }));
-      } else toast.error(res.data.message || "Verification failed");
-    } catch {
-      toast.error("Could not verify bank account");
-    } finally {
-      setVerifying(false);
-    }
-  };
 
   const handleInputChange = (key: keyof FormData, value: string) =>
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -127,17 +112,58 @@ export default function SendMoney() {
   const nextStep = () => setStep((s) => s + 1);
   const backStep = () => setStep((s) => s - 1);
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      await new Promise((r) => setTimeout(r, 2000)); // simulate
-      setStep(5);
-    } catch {
-      toast.error("Transfer failed");
-    } finally {
-      setLoading(false);
-    }
+  const handlePartialReset = () => {
+    setStep(1);
+    setOtp(["", "", "", ""]);
+    setBank(null)
+    setFormData({
+      entity: "",
+      account_number: "",
+      account_name: "",
+      bank_code: "",
+      bank_name: "",
+      amount: "",
+      remarks: "",
+    });
+    setVerifyData(null)
+    setVerifying(false)
+    setSending(false)
   };
+
+  const handleSubmit = async () => {
+    setSending(true);
+    setStep(4);
+    try {
+      let payload = {
+        remarks: formData.remarks, pin: pinExtractor(otp), amount: formData.amount,
+        ...(formData.entity && sendMethod === "entity") && { entity: formData.entity },
+        ...(formData.account_name && sendMethod === "bank") && { account_name: formData.account_name },
+        ...(formData.account_number && sendMethod === "bank") && { account_number: formData.account_number },
+        ...(formData.bank_code && sendMethod === "bank") && { bank_code: formData.bank_code },
+        ...(formData.bank_name && sendMethod === "bank") && { bank_name: formData.bank_name },
+        ...(verifyData) && { verify_data: verifyData }
+      }
+      const url = sendMethod === "entity" ? "/transfers/intra" : "/transfers/inter";
+      const res = await api.post<ApiResponse<Transaction | null>>(url, payload);
+      if (res.data.error) {
+        setSuccess(false)
+        toast.error(res.data.message ?? "Transfer failed")
+      } else {
+        setSuccess(true)
+        setTransaction(res.data.data)
+        toast.success("Transfer successful");
+      }
+    } catch (err) {
+      toast.error("An error was encountered while processing your request, please try again.")
+    } finally {
+      handlePartialReset()
+    }
+  }
+
+  const handleShowPin = (value: boolean) => {
+    setShowPin(value)
+  }
+
   useEffect(() => {
     setImageSrc(
       resolvedTheme === "dark" ? "/svg/cashley.svg" : "/svg/cashley-dark.svg"
@@ -221,8 +247,8 @@ export default function SendMoney() {
   );
 
   const renderStep2 = () => (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
+    <div className="space-y-2">
+      <div className="flex items-center gap-4 mb-4">
         <button onClick={backStep} className="p-2 hover:bg-card rounded-full">
           <ArrowRight className="rotate-180" />
         </button>
@@ -234,7 +260,8 @@ export default function SendMoney() {
       </div>
 
       {sendMethod === "bank" && (
-        <div className="relative space-y-3">
+        <div className="relative">
+          <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Select Bank</p>
           <button
             onClick={() => setToggleBanks(!toggleBanks)}
             className="flex items-center justify-between w-full bg-card p-4 rounded-full"
@@ -250,38 +277,53 @@ export default function SendMoney() {
                 placeholder="Search bank..."
                 className="w-full px-4 py-3 rounded-xl bg-background outline-none"
               />
-              {banks
-                // .filter((b) =>
-                //   b.bank_name.toLowerCase().includes(search.toLowerCase())
-                // )
-                .map((b) => (
-                  <button
-                    key={b.bank_code}
-                    onClick={() => {
-                      setBank(b);
-                      setFormData({
-                        ...formData,
-                        bank_name: b.bank_name,
-                        bank_code: b.bank_code,
-                      });
-                      setToggleBanks(false);
-                    }}
-                    className="block w-full text-left p-3 rounded-xl hover:bg-hover"
-                  >
-                    {b.bank_name}
-                  </button>
-                ))}
+
+              {banks && banks.length > 0 ? (
+                banks
+                  .filter((b) =>
+                    !search
+                      ? true
+                      : b.bank_name?.toLowerCase().includes(search.toLowerCase())
+                  )
+                  .map((b, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setBank(b);
+                        setFormData({
+                          ...formData,
+                          bank_name: b.bank_name,
+                          bank_code: b.bank_code,
+                        });
+                        setToggleBanks(false);
+                        setSearch("");
+                      }}
+                      className="block w-full text-left p-3 rounded-xl hover:bg-background transition"
+                    >
+                      {b.bank_name}
+                    </button>
+                  ))
+              ) : (
+                <p className="text-sm text-muted-foreground">No banks found</p>
+              )}
             </div>
           )}
+
         </div>
       )}
 
+      <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium"></p>
+      <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">{
+        sendMethod === "bank"
+          ? "Enter account number"
+          : "Enter UID or username or phone number"
+      }</p>
       <TextInput
         type={sendMethod === "bank" ? "number" : "text"}
         placeholder={
           sendMethod === "bank"
             ? "Enter account number"
-            : "Enter username or UID"
+            : "Enter UID or username or phone number"
         }
         value={
           sendMethod === "bank"
@@ -295,18 +337,20 @@ export default function SendMoney() {
           )
         }
       />
-      {verifyData && formData.account_name && <p className="text-sm font-normal purple-text uppercase">{formData.account_name}</p>}
+      {verifyData && formData.account_name && <div className="text-sm w-full text-left px-2 font-normal purple-text uppercase">{formData.account_name}</div>}
 
-      {formData.account_name && (
+      {/* {formData.account_name && (
         <div className="text-center py-3 bg-card rounded-full">
           <span className="text-sm text-zinc-600">
             Account Name:{" "}
             <b className="font-medium">{formData.account_name}</b>
           </span>
         </div>
-      )}
+      )} */}
 
-      <Button text="Continue" loading={verifying} disabled={!formData.account_name} onclick={nextStep} type="secondary" />
+      <div className="py-8">
+        <Button text="Continue" loading={verifying} disabled={!formData.account_name} onclick={nextStep} type="secondary" />
+      </div>
     </div>
   );
 
@@ -332,7 +376,7 @@ export default function SendMoney() {
           <button
             key={a}
             onClick={() => handleInputChange("amount", a.toString())}
-            className="py-3 bg-card rounded-2xl hover:bg-hover"
+            className="py-3 bg-card rounded-2xl"
           >
             ₦{a.toLocaleString()}
           </button>
@@ -386,45 +430,25 @@ export default function SendMoney() {
           text="Transfer"
           type="primary"
           loading={loading}
-          onclick={handleSubmit}
+          onclick={() => handleShowPin(true)}
         />
       </div>
-    </div>
-  );
 
-  const renderStep5 = () => (
-    <div className="text-center space-y-6 py-10">
-      <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center primary-purple-to-blue">
-        <Check size={40} />
-      </div>
-      <h2 className="text-2xl font-bold">Transfer Successful</h2>
-      <p className="text-zinc-500">Your money has been sent</p>
+      {showPin &&
+        <EnterPin
+          otp={otp}
+          show={true}
+          setOtp={setOtp}
+          headerText={"Enter your 4-digit transaction pin"}
+          buttonText={"Pay"}
+          onConfirm={handleSubmit}
+          onBack={() => handleShowPin(false)}
+        />}
 
-      <h1 className="text-3xl font-black">
-        {formatToNGN(Number(formData.amount))}
-      </h1>
-
-      <div className="text-sm text-zinc-500 space-y-2">
-        <p>
-          To:{" "}
-          <b>
-            {sendMethod === "bank"
-              ? formData.account_name
-              : formData.entity}
-          </b>
-        </p>
-        {sendMethod === "bank" && <p>{formData.bank_name}</p>}
-        <p>{new Date().toLocaleString()}</p>
-      </div>
-
-      <div className="flex justify-center gap-3 pt-4">
-        <button className="px-5 py-3 bg-card rounded-full hover:bg-hover">
-          Save Receipt
-        </button>
-        <button className="px-5 py-3 bg-card rounded-full hover:bg-hover">
-          Share
-        </button>
-      </div>
+      {success && transaction && (
+        <ViewTransactionDetails onClose={handlePartialReset} transaction={transaction} />
+      )}
+      {(sending) && <LoadingOverlay />}
     </div>
   );
 
@@ -434,7 +458,6 @@ export default function SendMoney() {
       {step === 2 && renderStep2()}
       {step === 3 && renderStep3()}
       {step === 4 && renderStep4()}
-      {step === 5 && renderStep5()}
     </div>
   );
 }
