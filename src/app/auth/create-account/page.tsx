@@ -76,10 +76,8 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     setLoading(true);
     try {
-      const { ...payload } = data;
-
+      const { passwordConfirm, ...payload } = data;
       const res = await api.post<ApiResponse>("/auth/register/initiate", payload);
-
       if (res?.data && !res.data.error) {
         toast.success("Please verify your email address to complete verification");
         setToLocalStorage("email", payload.email);
