@@ -1,4 +1,4 @@
-import React, { Children, ReactNode } from "react";
+import React, { ReactNode } from "react";
 
 export default function ProfileLayout({ children }: { children: ReactNode }) {
   return <div className="w-full h-full">{children}</div>;

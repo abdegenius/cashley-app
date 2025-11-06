@@ -28,7 +28,7 @@ export default function KYCVerification() {
       const res = await api.get<ApiResponse>("/limits");
       if (!res.data.error) setLimits(res.data.data);
     } catch {
-      console.log("Failed to fetch limits");
+      console.warn("Failed to fetch limits");
     } finally {
       setLoading(false);
     }
@@ -41,12 +41,7 @@ export default function KYCVerification() {
   const step1 = user?.bvn;
   const step2 = step1 && user?.nin;
   const step3 =
-    step2 &&
-    user?.city &&
-    user?.country &&
-    user?.house_number &&
-    user?.street &&
-    user?.state;
+    step2 && user?.city && user?.country && user?.house_number && user?.street && user?.state;
 
   const isStepIncomplete = (count: number) => {
     switch (count) {
@@ -98,8 +93,7 @@ export default function KYCVerification() {
           className="mb-3 opacity-80"
         />
         <h2 className="text-lg font-semibold">
-          Current Level:{" "}
-          <span className="text-primary">{user?.level ?? "--"}</span>
+          Current Level: <span className="text-primary">{user?.level ?? "--"}</span>
         </h2>
         <p className="text-xs text-muted-foreground mt-1">
           Keep your account up to date on Cashley
@@ -114,9 +108,7 @@ export default function KYCVerification() {
           />
         </div>
 
-        <p className="text-xs text-gray-500 mt-2">
-          {user?.level ?? 0} of 4 tiers completed
-        </p>
+        <p className="text-xs text-gray-500 mt-2">{user?.level ?? 0} of 4 tiers completed</p>
       </div>
 
       {/* Levels */}
@@ -131,7 +123,7 @@ export default function KYCVerification() {
             {limits.map((limit) => {
               const isComplete =
                 limit.level <= Number(user?.level ?? 0) && !isStepIncomplete(limit.level);
-              const inProgress = !isComplete && !isStepIncomplete(limit.level);
+              const _inProgress = !isComplete && !isStepIncomplete(limit.level);
               const locked = isStepIncomplete(limit.level);
 
               return (
@@ -141,8 +133,8 @@ export default function KYCVerification() {
                     isComplete
                       ? "bg-gradient-to-r from-green-50 to-green-100 border-green-300"
                       : locked
-                      ? "bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300"
-                      : "bg-gradient-to-r from-orange-50 to-yellow-100 border-yellow-300"
+                        ? "bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300"
+                        : "bg-gradient-to-r from-orange-50 to-yellow-100 border-yellow-300"
                   }`}
                 >
                   <div className="flex justify-between items-center">
@@ -155,15 +147,13 @@ export default function KYCVerification() {
                         <ArrowRight className="text-yellow-600 w-6 h-6" />
                       )}
                       <div>
-                        <h1 className="font-semibold text-stone-600">
-                          Level {limit.level}
-                        </h1>
+                        <h1 className="font-semibold text-stone-600">Level {limit.level}</h1>
                         <p className="text-xs text-stone-400">
                           {isComplete
                             ? "Completed"
                             : locked
-                            ? "Pending Requirements"
-                            : "Not Started"}
+                              ? "Pending Requirements"
+                              : "Not Started"}
                         </p>
                       </div>
                     </div>
@@ -185,15 +175,11 @@ export default function KYCVerification() {
                   <div className="flex justify-between text-sm bg-card px-5 py-3 rounded-xl shadow-inner">
                     <div className="text-center">
                       <p className="text-xs text-gray-500">Daily Limit</p>
-                      <p className="font-semibold">
-                        {formatToNGN(limit.daily_transaction_limit)}
-                      </p>
+                      <p className="font-semibold">{formatToNGN(limit.daily_transaction_limit)}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-gray-500">Single Transfer</p>
-                      <p className="font-semibold">
-                        {formatToNGN(limit.per_single_transfer)}
-                      </p>
+                      <p className="font-semibold">{formatToNGN(limit.per_single_transfer)}</p>
                     </div>
                     <div className="text-center">
                       <p className="text-xs text-gray-500">Wallet Balance</p>

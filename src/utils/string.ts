@@ -24,12 +24,7 @@ export const stringArray = (value: string, splitter: string = "-") => {
   } else if (array.length == 3) {
     array = [array[0].trim(), array[1].trim(), array[2].trim()];
   } else if (array.length > 3) {
-    array = [
-      array[0].trim(),
-      array[1].trim(),
-      array[2].trim(),
-      array[3].trim(),
-    ];
+    array = [array[0].trim(), array[1].trim(), array[2].trim(), array[3].trim()];
   }
   return array;
 };

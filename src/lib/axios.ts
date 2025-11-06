@@ -1,8 +1,4 @@
-import axios, {
-  AxiosError,
-  InternalAxiosRequestConfig,
-  AxiosResponse,
-} from "axios";
+import axios, { AxiosError, InternalAxiosRequestConfig, AxiosResponse } from "axios";
 import { deleteFromCookie, getFromCookie } from "./cookies";
 import { ApiResponse } from "@/types/api";
 import { deleteFromLocalStorage } from "./local-storage";
@@ -41,7 +37,7 @@ api.interceptors.response.use(
       return response;
     } else if (status === 401) {
       deleteFromCookie("token");
-      deleteFromLocalStorage("user")
+      deleteFromLocalStorage("user");
       // return window.location.assign("/auth");
     } else if (status > 401 && status < 500) {
       return response;

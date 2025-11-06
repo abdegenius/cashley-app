@@ -3,7 +3,6 @@
 import React from "react";
 import { Theme, useTheme } from "@/providers/ThemeProvider";
 import { Moon, Settings, Sun } from "lucide-react";
-import Button from "@/components/ui/Button";
 
 export default function Appearance() {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -25,8 +24,9 @@ export default function Appearance() {
       id: "system",
       label: "System",
       icon: <Settings size={24} className="text-blue-500" />,
-      description: `Currently using ${resolvedTheme === "dark" ? "dark" : "light"
-        } theme based on system.`,
+      description: `Currently using ${
+        resolvedTheme === "dark" ? "dark" : "light"
+      } theme based on system.`,
     },
   ];
 
@@ -51,8 +51,8 @@ export default function Appearance() {
               <Sun size={32} className="text-yellow-500" />
             )}
             <h2 className="font-semibold">
-              Currently using{" "}
-              <span className="capitalize text-purple-600">{resolvedTheme}</span> mode
+              Currently using <span className="capitalize text-purple-600">{resolvedTheme}</span>{" "}
+              mode
             </h2>
             <p className="text-xs text-muted-foreground">
               Switch between light, dark, or automatic system theme.
@@ -68,31 +68,25 @@ export default function Appearance() {
               <div
                 key={t.id}
                 onClick={() => setTheme(t.id as unknown as Theme)}
-                className={`w-full cursor-pointer flex items-center justify-between p-5 rounded-2xl border transition-all duration-300 ${active
+                className={`w-full cursor-pointer flex items-center justify-between p-5 rounded-2xl border transition-all duration-300 ${
+                  active
                     ? "border-transparent bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md"
                     : "bg-card border-border hover:bg-muted/60"
-                  }`}
+                }`}
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className={`p-2 rounded-full ${active
-                        ? "bg-white/20 text-white"
-                        : "bg-muted text-muted-foreground"
-                      }`}
+                    className={`p-2 rounded-full ${
+                      active ? "bg-white/20 text-white" : "bg-muted text-muted-foreground"
+                    }`}
                   >
                     {t.icon}
                   </div>
                   <div>
-                    <p
-                      className={`font-semibold ${active ? "text-white" : "text-foreground"
-                        }`}
-                    >
+                    <p className={`font-semibold ${active ? "text-white" : "text-foreground"}`}>
                       {t.label}
                     </p>
-                    <p
-                      className={`text-xs ${active ? "text-white/80" : "text-muted-foreground"
-                        }`}
-                    >
+                    <p className={`text-xs ${active ? "text-white/80" : "text-muted-foreground"}`}>
                       {t.description}
                     </p>
                   </div>
@@ -100,14 +94,11 @@ export default function Appearance() {
 
                 <div className="flex items-center justify-center">
                   <div
-                    className={`w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-300 ${active
-                        ? "border-white bg-white/30"
-                        : "border-border bg-background"
-                      }`}
+                    className={`w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-300 ${
+                      active ? "border-white bg-white/30" : "border-border bg-background"
+                    }`}
                   >
-                    {active && (
-                      <div className="w-3 h-3 rounded-full bg-white" />
-                    )}
+                    {active && <div className="w-3 h-3 rounded-full bg-white" />}
                   </div>
                 </div>
               </div>

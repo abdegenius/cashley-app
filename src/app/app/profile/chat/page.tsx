@@ -13,12 +13,11 @@ export default function Chat() {
         <h4>Get answers to your questions</h4>
       </div>
       <div className="w-full h-full  justify-end flex flex-col">
-
         <div className="w-full my-2">
-            <div className="w-fit flex items-center gap-2 py-2 px-4 max-w-md blue-bg rounded-full">
-                <span>Lorem ipsum dolor sit amet.</span>
-                <Check size={16} />
-            </div>
+          <div className="w-fit flex items-center gap-2 py-2 px-4 max-w-md blue-bg rounded-full">
+            <span>Lorem ipsum dolor sit amet.</span>
+            <Check size={16} />
+          </div>
         </div>
         <div className="flex items-center w-full gap-8">
           <button className="cursor-pointer hover:bg-card p-2 rounded-full">
@@ -32,12 +31,7 @@ export default function Chat() {
             className="placeholder-text"
           />
           <button className="cursor-pointer">
-            <Image
-              src={"/svg/send.svg"}
-              alt="send icon"
-              width={40}
-              height={40}
-            />
+            <Image src={"/svg/send.svg"} alt="send icon" width={40} height={40} />
           </button>
         </div>
       </div>

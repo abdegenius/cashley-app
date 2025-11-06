@@ -1,7 +1,6 @@
 "use client";
 
 import Button from "@/components/ui/Button";
-import PasswordInput from "@/components/ui/PasswordInput";
 import z from "zod";
 import TextInput from "@/components/ui/TextInput";
 import Link from "next/link";
@@ -24,18 +23,11 @@ type VerifyOTPFormData = z.infer<typeof VerifySchema>;
 
 export default function Verify() {
   const router = useRouter();
-  const stored_email = getFromLocalStorage('email')
+  const stored_email = getFromLocalStorage("email");
   const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState(stored_email);
+  const [email, _setEmail] = useState(stored_email);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
-    trigger,
-  } = useForm<VerifyOTPFormData>({
+  const { handleSubmit, setValue, watch, trigger } = useForm<VerifyOTPFormData>({
     resolver: zodResolver(VerifySchema),
     mode: "onChange",
   });
@@ -49,10 +41,9 @@ export default function Verify() {
 
   useEffect(() => {
     if (!email) {
-      router.push('/auth/create-account');
+      router.push("/auth/create-account");
     }
-  }, [email])
-
+  }, [email, router]);
 
   // ✅ Email/otp Login
   const onSubmit = async (data: VerifyOTPFormData) => {
@@ -89,10 +80,7 @@ export default function Verify() {
     <div className="w-full h-full flex flex-col my-auto items-center justify-between space-y-6">
       <div className="w-full flex flex-col space-y-12 items-center">
         {/* ✅ Email/otp Login Section */}
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-3 mt-5 w-full max-w-sm"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 mt-5 w-full max-w-sm">
           <div className="w-full grid grid-cols-1 gap-2.5 items-start">
             {/* <div className="col-span-full w-full">
               <TextInput
@@ -129,13 +117,8 @@ export default function Verify() {
       </div>
 
       <div className="flex w-full items-center justify-center flex-row space-x-1">
-        <span className="text-sm font-normal text-zinc-600">
-          {"Already have an account?"}
-        </span>
-        <Link
-          href={"/auth/login"}
-          className="text-blue-600 text-sm hover:underline"
-        >
+        <span className="text-sm font-normal text-zinc-600">{"Already have an account?"}</span>
+        <Link href={"/auth/login"} className="text-blue-600 text-sm hover:underline">
           Back to login{" "}
         </Link>
       </div>

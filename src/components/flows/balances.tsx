@@ -9,11 +9,11 @@ import { ApiResponse, User, Transaction } from "@/types/api";
 export default function Balances({
   type = "ngn",
   close,
-  user
+  user,
 }: {
   type: string;
   close: MouseEventHandler<HTMLButtonElement>;
-  user: User
+  user: User;
 }) {
   const [showbal, setShowbal] = useState<string | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -46,9 +46,7 @@ export default function Balances({
     { currency: "USD", value: user?.usdt_balance, symbol: "$" },
   ];
 
-  const balance = balances?.find(
-    (bal) => bal.currency.toLowerCase() === type.toLowerCase()
-  );
+  const balance = balances?.find((bal) => bal.currency.toLowerCase() === type.toLowerCase());
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -72,9 +70,7 @@ export default function Balances({
       maximumFractionDigits: 2,
     }).format(numericAmount);
 
-    return currency.toLowerCase() === "usd"
-      ? `$${formattedAmount}`
-      : `₦${formattedAmount}`;
+    return currency.toLowerCase() === "usd" ? `$${formattedAmount}` : `₦${formattedAmount}`;
   };
 
   // Get display type for transaction
@@ -106,11 +102,7 @@ export default function Balances({
               </div>
 
               <button onClick={() => handleShowbal(balance.currency)}>
-                {showbal === balance.currency ? (
-                  <Eye size={16} />
-                ) : (
-                  <EyeOff size={16} />
-                )}
+                {showbal === balance.currency ? <Eye size={16} /> : <EyeOff size={16} />}
               </button>
             </div>
             <div className="flex items-center gap-2">
@@ -136,10 +128,7 @@ export default function Balances({
       </div>
 
       {/* Back Button */}
-      <button
-        onClick={close}
-        className="p-2 rounded-full hover:bg-card cursor-pointer"
-      >
+      <button onClick={close} className="p-2 rounded-full hover:bg-card cursor-pointer">
         <ArrowLeft size={16} />
       </button>
 
@@ -151,9 +140,7 @@ export default function Balances({
           {loading ? (
             <div className="text-center py-4">Loading transactions...</div>
           ) : transactions.length === 0 ? (
-            <div className="text-center min-h-150 py-4">
-              No transactions found
-            </div>
+            <div className="text-center min-h-150 py-4">No transactions found</div>
           ) : (
             transactions.map((trx) => (
               <div
@@ -161,21 +148,16 @@ export default function Balances({
                 className="w-full flex justify-between py-3 border-b border-stone-800 items-center"
               >
                 <div>
-                  <div className="text-lg font-semibold">
-                    {balance.currency}
-                  </div>
-                  <div className="text-sm text-zinc-500">
-                    {formatDate(trx.created_at)}
-                  </div>
+                  <div className="text-lg font-semibold">{balance.currency}</div>
+                  <div className="text-sm text-zinc-500">{formatDate(trx.created_at)}</div>
                 </div>
 
                 <div className="flex items-start gap-2">
                   <div className="text-right">
                     <div
-                      className={`text-lg font-semibold ${trx.type === "credit"
-                        ? "text-green-600"
-                        : "text-red-600"
-                        }`}
+                      className={`text-lg font-semibold ${
+                        trx.type === "credit" ? "text-green-600" : "text-red-600"
+                      }`}
                     >
                       {trx.type === "credit" ? "+" : "-"}
                       {formatAmount(trx.amount, balance.currency)}

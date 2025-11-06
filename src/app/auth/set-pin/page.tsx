@@ -37,7 +37,6 @@ export default function SetPin() {
 
   const router = useRouter();
   const {
-    handleSubmit,
     formState: { errors },
     setValue,
     trigger,
@@ -109,7 +108,7 @@ export default function SetPin() {
         setError(err);
       }
     } catch (err: any) {
-      console.log("Failed to set PIN", err);
+      console.warn("Failed to set PIN", err);
       const errorMessage = err.response?.data?.message || "Failed to set PIN";
       toast.error(errorMessage);
       setError(errorMessage);
@@ -143,7 +142,7 @@ export default function SetPin() {
       // Call onSubmit directly instead of using handleSubmit
       const formData: setPinFormData = {
         pin,
-        confirm_pin
+        confirm_pin,
       };
       await onSubmit(formData);
     }
@@ -157,10 +156,7 @@ export default function SetPin() {
 
   const renderInput = (val: string, showValue: boolean) => (
     <div className="w-full flex justify-center mb-6">
-      <div
-        className="relative flex items-center justify-center"
-        onClick={handleInputClick}
-      >
+      <div className="relative flex items-center justify-center" onClick={handleInputClick}>
         {/* Hidden input for focus management */}
         <input
           ref={inputRef}
@@ -182,11 +178,12 @@ export default function SetPin() {
               className={`
                 w-14 h-14 rounded-xl border-2 flex items-center justify-center
                 text-xl font-bold font-mono transition-all duration-200
-                ${val[i]
-                  ? "border-purple-500 bg-stone-800/50 text-purple-700 shadow-sm"
-                  : "border-stone-600 bg-stone-600/50 text-stone-200"
+                ${
+                  val[i]
+                    ? "border-purple-500 bg-stone-800/50 text-purple-700 shadow-sm"
+                    : "border-stone-600 bg-stone-600/50 text-stone-200"
                 }
-                ${i === val.length ? 'ring-2 ring-purple-400' : ''}
+                ${i === val.length ? "ring-2 ring-purple-400" : ""}
               `}
             >
               {showValue && val[i] ? (
@@ -215,9 +212,7 @@ export default function SetPin() {
                 Enter a 4-digit PIN to secure your account
               </p>
               {errors.pin && (
-                <span className="text-red-500 text-sm block mb-2">
-                  {errors.pin.message}
-                </span>
+                <span className="text-red-500 text-sm block mb-2">{errors.pin.message}</span>
               )}
               <button
                 onClick={handleShowPin}
@@ -229,9 +224,7 @@ export default function SetPin() {
                 ) : (
                   <EyeOff size={16} className="inline" />
                 )}
-                <span className="ml-2 text-xs">
-                  {showPin ? "Hide" : "Show"}
-                </span>
+                <span className="ml-2 text-xs">{showPin ? "Hide" : "Show"}</span>
               </button>
             </div>
 
@@ -253,9 +246,7 @@ export default function SetPin() {
 
             <div className="text-center mb-8">
               <h2 className="text-xl mb-2">Confirm PIN</h2>
-              <p className="text-sm text-zinc-600 mb-2">
-                Re-enter your 4-digit PIN to confirm
-              </p>
+              <p className="text-sm text-zinc-600 mb-2">Re-enter your 4-digit PIN to confirm</p>
               {(error || errors.confirm_pin) && (
                 <span className="text-red-500 text-sm block mb-2">
                   {error || errors.confirm_pin?.message}
@@ -271,9 +262,7 @@ export default function SetPin() {
                 ) : (
                   <EyeOff size={16} className="inline" />
                 )}
-                <span className="ml-2 text-xs">
-                  {showPin ? "Hide PIN" : "Show PIN"}
-                </span>
+                <span className="ml-2 text-xs">{showPin ? "Hide PIN" : "Show PIN"}</span>
               </button>
             </div>
 
@@ -291,20 +280,7 @@ export default function SetPin() {
     }
   };
 
-  const keypadNumbers = [
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "←",
-    "0",
-    "#",
-  ];
+  const keypadNumbers = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "←", "0", "#"];
 
   const handleBack = () => {
     if (step === 2) {
@@ -316,21 +292,12 @@ export default function SetPin() {
 
   return (
     <div className="w-full h-full flex flex-col my-auto items-center justify-between space-y-6">
-      <div className="w-full flex flex-col space-y-12 items-center">
-        {renderStep()}
-      </div>
+      <div className="w-full flex flex-col space-y-12 items-center">{renderStep()}</div>
 
       {loading && <LoadingOverlay />}
 
       <div className="w-full max-w-[200px] flex items-center justify-center space-y-3">
-        {step === 2 && (
-          <Button
-            onclick={handleBack}
-            type="dark"
-            text="Back"
-            width="w-full"
-          />
-        )}
+        {step === 2 && <Button onclick={handleBack} type="dark" text="Back" width="w-full" />}
       </div>
     </div>
   );

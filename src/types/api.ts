@@ -93,12 +93,7 @@ export interface BankAccount {
   updated_at?: string;
 }
 
-export type PurchaseAction =
-  | "airtime"
-  | "data"
-  | "tv"
-  | "electricity"
-  | "betting";
+export type PurchaseAction = "airtime" | "data" | "tv" | "electricity" | "betting";
 export type TransactionStatus = "pending" | "completed" | "failed" | "reversed";
 export type TransactionAction =
   | "airtime"
@@ -111,12 +106,7 @@ export type TransactionAction =
   | "topup"
   | "bank_transfer";
 
-export type PurchaseType =
-  | "airtime"
-  | "data"
-  | "tv"
-  | "electricity"
-  | "betting";
+export type PurchaseType = "airtime" | "data" | "tv" | "electricity" | "betting";
 
 export type Provider = {
   service_id: string;

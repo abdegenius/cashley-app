@@ -1,4 +1,4 @@
-import { Minus, Link } from "lucide-react";
+import { Minus } from "lucide-react";
 import React from "react";
 
 export default function CurrencyExchange() {
@@ -28,8 +28,6 @@ export default function CurrencyExchange() {
           </div>
           <div className="py-2 px-5 rounded-full bg-card">0.5% Fee</div>
         </div>
-
-        
       </div>
     </div>
   );

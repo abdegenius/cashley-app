@@ -21,12 +21,7 @@ export default function ReferralProgram() {
       <h1 className="text-3xl font-black">Break Investment</h1>
 
       <div className="w-full bg-card rounded-xl flex-col flex items-center justify-center p-4 gap-2">
-        <Image
-          src={"/svg/warning.svg"}
-          alt="piggy bank"
-          width={100}
-          height={100}
-        />
+        <Image src={"/svg/warning.svg"} alt="piggy bank" width={100} height={100} />
         <h1 className="text-lg font-semibold">Break Investment Early?</h1>
         <div className="text-center max-w-md">
           Breaking your investment before maturity will incur penalty charges
@@ -58,7 +53,7 @@ export default function ReferralProgram() {
             <div>Your Return Online</div>
             <div className="text-lg font-semibold">{referralCode}</div>
           </div>
-          <button 
+          <button
             onClick={handleCopyCode}
             className="cursor-pointer hover:bg-hover p-2 rounded-full "
           >
@@ -85,8 +80,7 @@ export default function ReferralProgram() {
             <div>
               <div className="font-black text-lg">Share your code</div>
               <div className="text-muted-foreground">
-                Send your referral code to friends via SMS, WhatsApp, or social
-                Media
+                Send your referral code to friends via SMS, WhatsApp, or social Media
               </div>
             </div>
           </div>
@@ -163,9 +157,7 @@ export default function ReferralProgram() {
             <div className="w-5 h-5 rounded-full border border-border flex items-center justify-center flex-shrink-0 mt-1">
               <div className="w-2 h-2 rounded-full bg-primary"></div>
             </div>
-            <div>
-              {"Referral bonus paid after friend's first ₦5,000+ transaction"}
-            </div>
+            <div>{"Referral bonus paid after friend's first ₦5,000+ transaction"}</div>
           </div>
 
           <div className="flex gap-4 items-start">

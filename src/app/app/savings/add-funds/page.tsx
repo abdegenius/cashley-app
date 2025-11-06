@@ -11,7 +11,7 @@ export default function AddFundsPage() {
   };
 
   const handleAddFunds = (amount: number, frequency: string, paymentMethod: string) => {
-    console.log("Adding funds:", { amount, frequency, paymentMethod });
+    console.warn("Adding funds:", { amount, frequency, paymentMethod });
   };
 
   return (

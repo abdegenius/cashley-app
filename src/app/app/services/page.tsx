@@ -7,8 +7,6 @@ import { services } from "@/utils/string";
 import { Sparkles } from "lucide-react";
 
 export default function ServicesPage() {
-  const { user } = useAuthContext();
-
   return (
     <div className="w-full h-full flex flex-col space-y-8 p-4 sm:p-8">
       {/* Header Section */}

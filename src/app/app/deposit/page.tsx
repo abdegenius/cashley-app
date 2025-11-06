@@ -104,9 +104,7 @@ export default function Deposit() {
                     </div>
                     <div>
                       <div className="font-black text-lg">{method.title}</div>
-                      <div className="text-sm text-zinc-500">
-                        {method.description}
-                      </div>
+                      <div className="text-sm text-zinc-500">{method.description}</div>
                     </div>
                   </div>
                   <ArrowRight size={20} className="text-zinc-400" />
@@ -134,13 +132,9 @@ export default function Deposit() {
                       </div>
                       <div>
                         <div className="font-black text-lg">{account.type}</div>
-                        <div className="text-sm text-zinc-500">
-                          {account.address}
-                        </div>
+                        <div className="text-sm text-zinc-500">{account.address}</div>
                         {account.bank && (
-                          <div className="text-xs text-zinc-400">
-                            {account.bank}
-                          </div>
+                          <div className="text-xs text-zinc-400">{account.bank}</div>
                         )}
                       </div>
                     </div>
@@ -148,11 +142,7 @@ export default function Deposit() {
                       onClick={() => copyToClipboard(account.address)}
                       className="p-2 rounded-lg hover:bg-background transition-colors"
                     >
-                      {copied ? (
-                        <Check size={16} className="text-green-500" />
-                      ) : (
-                        <Copy size={16} />
-                      )}
+                      {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                     </button>
                   </div>
                 ))}
@@ -166,9 +156,7 @@ export default function Deposit() {
         } else {
           return (
             <div className="w-full space-y-6">
-              <h3 className="text-3xl font-black">
-                Receive {selectedMethod.toUpperCase()}
-              </h3>
+              <h3 className="text-3xl font-black">Receive {selectedMethod.toUpperCase()}</h3>
               <h4 className="text-lg font-semibold">Select network</h4>
 
               <div className="space-y-3">
@@ -180,9 +168,7 @@ export default function Deposit() {
                   >
                     <div>
                       <div className="font-semibold">{network.name}</div>
-                      <div className="text-sm text-zinc-500">
-                        Fee: {network.fee}
-                      </div>
+                      <div className="text-sm text-zinc-500">Fee: {network.fee}</div>
                     </div>
                     <ArrowRight size={20} className="text-zinc-400" />
                   </div>
@@ -195,27 +181,24 @@ export default function Deposit() {
       case 3:
         return (
           <div className="w-full space-y-6">
-            <h3 className="text-3xl font-black">
-              Receive {selectedMethod.toUpperCase()}
-            </h3>
+            <h3 className="text-3xl font-black">Receive {selectedMethod.toUpperCase()}</h3>
 
             <div className="flex justify-between items-center">
-
               <div>
                 <h4 className="font-semibold">
                   {selectedMethod === "usdt"
                     ? "Binance Smart Chain (BEP-20)"
                     : selectedMethod === "btc"
-                    ? "Bitcoin Network"
-                    : "Ethereum (ERC-20)"}
+                      ? "Bitcoin Network"
+                      : "Ethereum (ERC-20)"}
                 </h4>
                 <p className="text-sm text-zinc-500">
                   Fee:{" "}
                   {selectedMethod === "usdt"
                     ? "~$0.5 - 2"
                     : selectedMethod === "btc"
-                    ? "~$1 - 3"
-                    : "~$10 - 30"}
+                      ? "~$1 - 3"
+                      : "~$10 - 30"}
                 </p>
               </div>
             </div>
@@ -224,27 +207,17 @@ export default function Deposit() {
               <label className="text-sm font-medium">Wallet Address</label>
               <div className="flex gap-2">
                 <div className="flex-1 bg-background p-3 rounded-lg  font-mono text-sm break-all">
-                  {
-                    walletAddresses[
-                      selectedMethod as Exclude<DepositMethod, "ngn">
-                    ]
-                  }
+                  {walletAddresses[selectedMethod as Exclude<DepositMethod, "ngn">]}
                 </div>
                 <button
                   onClick={() =>
                     copyToClipboard(
-                      walletAddresses[
-                        selectedMethod as Exclude<DepositMethod, "ngn">
-                      ]
+                      walletAddresses[selectedMethod as Exclude<DepositMethod, "ngn">]
                     )
                   }
                   className="p-3 rounded-lg border border-border hover:bg-background transition-colors"
                 >
-                  {copied ? (
-                    <Check size={16} className="text-green-500" />
-                  ) : (
-                    <Copy size={16} />
-                  )}
+                  {copied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
                 </button>
               </div>
             </div>
@@ -252,11 +225,7 @@ export default function Deposit() {
               <div className="flex flex-col items-center space-y-4">
                 <div className="bg-white p-4 rounded-lg">
                   <QRCode
-                    value={
-                      walletAddresses[
-                        selectedMethod as Exclude<DepositMethod, "ngn">
-                      ]
-                    }
+                    value={walletAddresses[selectedMethod as Exclude<DepositMethod, "ngn">]}
                     size={300}
                   />
                 </div>

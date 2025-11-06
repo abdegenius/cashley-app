@@ -1,5 +1,3 @@
-type Callback = () => void;
-
 class LogoutModalController {
   private showCallback: ((show: boolean) => void) | null = null;
 

@@ -1,24 +1,19 @@
 "use client";
 import SavingsAction from "@/components/flows/savings";
 import TextInput from "@/components/ui/TextInput";
-import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 export default function NewSavingsPage() {
-  const [goalName, setGoalName] = useState("");
-  const [targetAmount, setTargetAmount] = useState("");
+  // const [goalName, setGoalName] = useState("");
+  // const [targetAmount, setTargetAmount] = useState("");
 
-  const handleCreateGoal = (
-    amount: number,
-    frequency: string,
-    paymentMethod: string
-  ) => {
-    console.log("Creating goal:", {
-      goalName,
-      targetAmount: amount,
-      frequency,
-      paymentMethod,
-    });
+  const handleCreateGoal = (amount: number, frequency: string, paymentMethod: string) => {
+    // console.log("Creating goal:", {
+    //   goalName,
+    //   targetAmount: amount,
+    //   frequency,
+    //   paymentMethod,
+    // });
   };
 
   return (
@@ -36,20 +31,11 @@ export default function NewSavingsPage() {
                 <button className="bg-card rounded-full w-14 h-14 flex flex-none items-center justify-center text-2xl">
                   ₦
                 </button>
-                <TextInput
-                  value=""
-                  onChange={() => {}}
-                  placeholder="Target amount"
-                />
+                <TextInput value="" onChange={() => {}} placeholder="Target amount" />
               </div>
             </div>
 
-            <TextInput
-              value=""
-              type="date"
-              onChange={() => {}}
-              placeholder="Target amount"
-            />
+            <TextInput value="" type="date" onChange={() => {}} placeholder="Target amount" />
           </div>
         </div>
       </div>

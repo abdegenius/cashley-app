@@ -4,32 +4,28 @@ import api from "@/lib/axios";
 import React, { useEffect, useState } from "react";
 import { Notification } from "@/types/api";
 import { setToLocalStorage } from "@/lib/local-storage";
-import { useAuthContext } from "@/context/AuthContext";
 
 export default function NotificationPage() {
-  const { user } = useAuthContext();
   const [activeTab, setActiveTab] = useState<number>(1);
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const fetchNotifications = async () => {
-    try {
-      const res = await api.get("/notifications/all");
-      console.log("API Response:", res.data);
-
-      const notificationsData = res.data.data?.data || [];
-      setNotifications(notificationsData);
-
-      if (res.data.data) {
-        setToLocalStorage("notifications", JSON.stringify(res.data.data));
-      }
-
-    } catch (err) {
-      console.log("Failed to fetch notifications", err);
-      setNotifications([]);
-    }
-  };
-
   useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await api.get("/notifications/all");
+        console.log("API Response:", res.data);
+
+        const notificationsData = res.data.data?.data || [];
+        setNotifications(notificationsData);
+
+        if (res.data.data) {
+          setToLocalStorage("notifications", JSON.stringify(res.data.data));
+        }
+      } catch (err) {
+        console.warn("Failed to fetch notifications", err);
+        setNotifications([]);
+      }
+    };
     fetchNotifications();
   }, []);
 
@@ -49,8 +45,8 @@ export default function NotificationPage() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`w-1/2 truncate flex-1 text-sm font-black p-3 rounded-3xl transition-all duration-300 ${activeTab === tab.id
-                ? "primary-purple-to-blue shadow-md"
-                : "hover:primary-orange-to-purple"
+                  ? "primary-purple-to-blue shadow-md"
+                  : "hover:primary-orange-to-purple"
                 }`}
             >
               {tab.title}
@@ -75,16 +71,12 @@ export default function NotificationPage() {
                 </div>
               ))
             ) : (
-              <div className="text-center text-zinc-500 py-8">
-                No unread notifications
-              </div>
+              <div className="text-center text-zinc-500 py-8">No unread notifications</div>
             )}
           </div>
         ) : (
           <div className="space-y-3 mt-5 w-full max-w-sm">
-            <div className="text-center text-zinc-500 py-8">
-              No read notifications
-            </div>
+            <div className="text-center text-zinc-500 py-8">No read notifications</div>
           </div>
         )}
       </div>

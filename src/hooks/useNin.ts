@@ -7,8 +7,7 @@ export const useNIN = () => {
   const { user, loading } = useAuth();
   const [hasNIN, setHasNIN] = useState<boolean>(false);
   const router = useRouter();
-  const [ninConfirmationLoading, setNINConfirmationLoading] =
-    useState<boolean>(true);
+  const [ninConfirmationLoading, setNINConfirmationLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const checkNINStatus = async () => {
@@ -19,8 +18,9 @@ export const useNIN = () => {
       }
       setNINConfirmationLoading(false);
     };
+
     if (!loading) checkNINStatus();
-  }, [loading]);
+  }, [loading, router, user?.nin_status]);
 
   return { hasNIN, ninConfirmationLoading };
 };

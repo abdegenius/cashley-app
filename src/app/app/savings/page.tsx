@@ -2,7 +2,7 @@
 
 import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
-import { ChevronDown, PiggyBankIcon, Plus } from "lucide-react";
+import { ChevronDown, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -13,16 +13,10 @@ export default function Savings() {
       <h1 className="text-3xl font-black">Savings</h1>
 
       <div className="w-full bg-card rounded-xl flex-col flex items-center justify-center p-4 gap-2">
-        <Image
-          src={"/svg/piggybank.svg"}
-          alt="piggy bank "
-          width={100}
-          height={100}
-        />
+        <Image src={"/svg/piggybank.svg"} alt="piggy bank " width={100} height={100} />
         <h1 className="text-lg font-semibold">Grow Your Money</h1>
         <div className="text-center max-w-md">
-          Start investing today and watch your savings grow with competitive
-          returns
+          Start investing today and watch your savings grow with competitive returns
         </div>
       </div>
 
@@ -62,8 +56,8 @@ export default function Savings() {
           </div>
 
           <div className="w-full gap-6 flex items-center">
-            <Button type="secondary" text="Add Funds" href="/app/savings/add-funds"/>
-            <Button type="primary" text="Withdrawal" href="/app/savings/withdraw"/>
+            <Button type="secondary" text="Add Funds" href="/app/savings/add-funds" />
+            <Button type="primary" text="Withdrawal" href="/app/savings/withdraw" />
           </div>
         </div>
         <div className="w-full  border-border rounded-2xl p-6 space-y-4">
@@ -93,7 +87,7 @@ export default function Savings() {
           </div>
 
           <div className="w-full gap-6 flex items-center">
-            <Button type="secondary" text="Add Funds" href="/app/savings/add-funds"/>
+            <Button type="secondary" text="Add Funds" href="/app/savings/add-funds" />
             <Button type="primary" text="Withdrawal" href="/app/savings/withdraw" />
           </div>
         </div>
@@ -101,7 +95,10 @@ export default function Savings() {
         {/* new Savings */}
         <div className="space-y-4">
           <h1 className="text-xl font-black"> New Savings</h1>
-          <Link href={"/app/savings/new-savings"} className="w-full cursor-pointer border-border rounded-2xl p-6 space-y-4 flex flex-col items-center justify-center">
+          <Link
+            href={"/app/savings/new-savings"}
+            className="w-full cursor-pointer border-border rounded-2xl p-6 space-y-4 flex flex-col items-center justify-center"
+          >
             <Plus size={40} className="placeholder-text" />
 
             <span className="text-lg font-bold">New Goal</span>
@@ -118,11 +115,7 @@ export default function Savings() {
               <button className="bg-card rounded-full w-14 h-14 flex flex-none items-center justify-center text-2xl">
                 ₦
               </button>
-              <TextInput
-                value=""
-                onChange={() => {}}
-                placeholder="Enter savings amount"
-              />
+              <TextInput value="" onChange={() => {}} placeholder="Enter savings amount" />
             </div>
           </div>
           <div className="w-full rounded-full bg-card ">

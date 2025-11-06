@@ -91,9 +91,7 @@ export default function DashboardPage() {
           {balances.map((balance) => {
             const isVisible = visibleBalances[balance.id];
             const amount =
-              balance.id === "ngn"
-                ? formatToNGN(balance.value)
-                : formatToUSD(balance.value);
+              balance.id === "ngn" ? formatToNGN(balance.value) : formatToUSD(balance.value);
 
             return (
               <div
@@ -102,12 +100,7 @@ export default function DashboardPage() {
               >
                 <div className="w-full flex justify-between items-center">
                   <div className="flex items-center space-x-2">
-                    <Image
-                      src={`/img/${balance.id}.png`}
-                      alt={balance.id}
-                      width={24}
-                      height={24}
-                    />
+                    <Image src={`/img/${balance.id}.png`} alt={balance.id} width={24} height={24} />
                     <span className="font-normal uppercase">{balance.currency}</span>
                   </div>
                   <button

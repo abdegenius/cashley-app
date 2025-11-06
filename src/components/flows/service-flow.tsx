@@ -13,7 +13,7 @@ import { EnterPin } from "../EnterPin";
 import { cleanServiceName, pinExtractor, getPurchaseableService } from "@/utils/string";
 import { useRouter } from "next/navigation";
 import { LoadingOverlay } from "../Loading";
-import { Check, X } from "lucide-react";
+import { X } from "lucide-react";
 import ViewTransactionDetails from "../modals/ViewTransactionModal";
 
 interface PurchaseProps {
@@ -35,7 +35,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
     amount: "",
     customer_id: "",
     variation: null as Variation | null,
-    type: ""
+    type: "",
   });
 
   const [providers, setProviders] = useState<Provider[]>([]);
@@ -71,10 +71,9 @@ export default function Purchase({ type, user }: PurchaseProps) {
 
     setLoadingProviders(true);
     try {
-      const response = await api.get<ApiResponse>(
-        `/bill/service?service=${cacheKey}`,
-        { signal: controller.signal }
-      );
+      const response = await api.get<ApiResponse>(`/bill/service?service=${cacheKey}`, {
+        signal: controller.signal,
+      });
 
       if (response?.data && !response.data?.error && Array.isArray(response.data?.data)) {
         const providersData: Provider[] = response.data.data.map((provider: any) => ({
@@ -111,9 +110,12 @@ export default function Purchase({ type, user }: PurchaseProps) {
 
     setLoadingVariations(true);
     try {
-      const response = await api.get<ApiResponse>(`/bill/service-variations?service_id=${service_id}`, {
-        signal: controller.signal as any,
-      });
+      const response = await api.get<ApiResponse>(
+        `/bill/service-variations?service_id=${service_id}`,
+        {
+          signal: controller.signal as any,
+        }
+      );
 
       const raw = response?.data;
       if (!raw.error && raw.data && Array.isArray(raw.data.variations)) {
@@ -190,7 +192,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
       amount: "",
       customer_id: "",
       variation: null,
-      type: ""
+      type: "",
     });
     setVariations([]);
     setTransaction(null);
@@ -389,7 +391,9 @@ export default function Purchase({ type, user }: PurchaseProps) {
                     setFormData((prev) => ({
                       ...prev,
                       variation,
-                      amount: String(variation.variation_amount ?? variation.fixed_price ?? prev.amount),
+                      amount: String(
+                        variation.variation_amount ?? variation.fixed_price ?? prev.amount
+                      ),
                     }))
                   }
                   type={type}
@@ -405,10 +409,11 @@ export default function Purchase({ type, user }: PurchaseProps) {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setFormData((prev) => ({ ...prev, type: "renew" }))}
-                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${formData.type === "renew"
-                        ? "border-purple-600 bg-purple-600/10"
-                        : "border-transparent bg-card"
-                        }`}
+                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${
+                        formData.type === "renew"
+                          ? "border-purple-600 bg-purple-600/10"
+                          : "border-transparent bg-card"
+                      }`}
                     >
                       Renew
                     </motion.button>
@@ -416,10 +421,11 @@ export default function Purchase({ type, user }: PurchaseProps) {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setFormData((prev) => ({ ...prev, type: "change" }))}
-                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${formData.type === "change"
-                        ? "border-purple-600 bg-purple-600/10"
-                        : "border-transparent bg-card"
-                        }`}
+                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${
+                        formData.type === "change"
+                          ? "border-purple-600 bg-purple-600/10"
+                          : "border-transparent bg-card"
+                      }`}
                     >
                       Change Package
                     </motion.button>
@@ -432,7 +438,9 @@ export default function Purchase({ type, user }: PurchaseProps) {
                   <label className="text-sm font-semibold pb-0">{config?.recipient}</label>
 
                   <div className="w-full flex gap-3 items-center">
-                    {["airtime", "data"].includes(type) && <div className="p-4 my-3 rounded-full bg-card">+234</div>}
+                    {["airtime", "data"].includes(type) && (
+                      <div className="p-4 my-3 rounded-full bg-card">+234</div>
+                    )}
                     <TextInput
                       value={formData.customer_id}
                       onChange={(customer_id) => {
@@ -476,10 +484,11 @@ export default function Purchase({ type, user }: PurchaseProps) {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setFormData((prev) => ({ ...prev, type: "prepaid" }))}
-                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${formData.type === "prepaid"
-                        ? "border-purple-600 bg-purple-600/10"
-                        : "border-transparent bg-card"
-                        }`}
+                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${
+                        formData.type === "prepaid"
+                          ? "border-purple-600 bg-purple-600/10"
+                          : "border-transparent bg-card"
+                      }`}
                     >
                       Prepaid
                     </motion.button>
@@ -487,10 +496,11 @@ export default function Purchase({ type, user }: PurchaseProps) {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setFormData((prev) => ({ ...prev, type: "postpaid" }))}
-                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${formData.type === "postpaid"
-                        ? "border-purple-600 bg-purple-600/10"
-                        : "border-transparent bg-card"
-                        }`}
+                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${
+                        formData.type === "postpaid"
+                          ? "border-purple-600 bg-purple-600/10"
+                          : "border-transparent bg-card"
+                      }`}
                     >
                       Postpaid
                     </motion.button>
@@ -547,22 +557,44 @@ export default function Purchase({ type, user }: PurchaseProps) {
                 <div className="w-full rounded-2xl p-6 space-y-4">
                   <div className="flex justify-between items-center w-full">
                     <div className="text-xl font-black w-full justify-start flex">Amount</div>
-                    <Image src={"/svg/leftRight.svg"} alt="swap arrow" width={60} height={60} className="justify-center flex" />
-                    <div className="text-xl font-black w-full justify-end flex">{formatToNGN(Number(formData.amount))}</div>
+                    <Image
+                      src={"/svg/leftRight.svg"}
+                      alt="swap arrow"
+                      width={60}
+                      height={60}
+                      className="justify-center flex"
+                    />
+                    <div className="text-xl font-black w-full justify-end flex">
+                      {formatToNGN(Number(formData.amount))}
+                    </div>
                   </div>
 
                   <div className="space-y-3">
                     <ReviewItem label="Product" value={type.toUpperCase()} />
-                    <ReviewItem label={type === "tv" ? "Provider" : "Network"} value={selectedProvider?.name ?? ""} />
-                    {formData.variation && <ReviewItem label="Package" value={formData.variation.name} />}
-                    {config?.recipient && <ReviewItem label={config.recipient} value={formData.customer_id} />}
-                    {verifyData?.customer_name && <ReviewItem label="Customer Name" value={verifyData.customer_name} />}
+                    <ReviewItem
+                      label={type === "tv" ? "Provider" : "Network"}
+                      value={selectedProvider?.name ?? ""}
+                    />
+                    {formData.variation && (
+                      <ReviewItem label="Package" value={formData.variation.name} />
+                    )}
+                    {config?.recipient && (
+                      <ReviewItem label={config.recipient} value={formData.customer_id} />
+                    )}
+                    {verifyData?.customer_name && (
+                      <ReviewItem label="Customer Name" value={verifyData.customer_name} />
+                    )}
                   </div>
                 </div>
 
                 <div className="flex gap-x-4 px-5">
                   <Button onclick={handlePrev} type="dark" text="Cancel" width="flex-1 py-4" />
-                  <Button onclick={handleNext} type="secondary" text="Confirm & Pay" width="flex-1 py-4" />
+                  <Button
+                    onclick={handleNext}
+                    type="secondary"
+                    text="Confirm & Pay"
+                    width="flex-1 py-4"
+                  />
                 </div>
               </div>
             </div>
@@ -604,12 +636,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
                   Your transaction could not be completed. Please try again.
                 </p>
               </div>
-              <Button
-                onclick={handleReset}
-                type="secondary"
-                text="Try Again"
-                width="w-full py-4"
-              />
+              <Button onclick={handleReset} type="secondary" text="Try Again" width="w-full py-4" />
             </div>
           </motion.div>
         )}
@@ -642,7 +669,10 @@ const ProviderSelect = React.memo(function ProviderSelect({
       <div className="space-y-4">
         <div className="w-full overflow-x-auto flex flex-row items-stretch justify-start space-x-2">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="w-full max-w-[100px] min-w-[100px] rounded-2xl p-0.5 bg-card animate-pulse">
+            <div
+              key={i}
+              className="w-full max-w-[100px] min-w-[100px] rounded-2xl p-0.5 bg-card animate-pulse"
+            >
               <div className="flex flex-col items-center w-full rounded-2xl overflow-hidden bg-card h-24"></div>
             </div>
           ))}
@@ -677,7 +707,7 @@ const ProviderSelect = React.memo(function ProviderSelect({
                       onError={(e) => {
                         try {
                           (e.target as HTMLImageElement).src = "/img/placeholder.png";
-                        } catch { }
+                        } catch {}
                       }}
                     />
                   </div>
@@ -700,13 +730,31 @@ interface VariationSelectProps {
   loading?: boolean;
 }
 
-const VariationSelect = React.memo(function VariationSelect({ variations, value, onSelect, type, loading }: VariationSelectProps) {
+const VariationSelect = React.memo(function VariationSelect({
+  variations,
+  value,
+  onSelect,
+  type,
+  loading,
+}: VariationSelectProps) {
   if (loading) {
     return (
       <div className="space-y-4">
-        <label className="text-sm font-semibold">Select {type !== "data" ? "Package" : "Data Plan"}</label>
+        <label className="text-sm font-semibold">
+          Select {type !== "data" ? "Package" : "Data Plan"}
+        </label>
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
-          {type === "data" ? [...Array(6)].map((_, i) => <div key={i} className="rounded-2xl p-0.5 bg-card animate-pulse"><div className="w-full p-4 rounded-2xl bg-card h-24" /></div>) : [...Array(3)].map((_, i) => <div key={i} className="rounded-xl p-0.5 bg-card animate-pulse"><div className="w-full p-4 rounded-2xl bg-card h-12" /></div>)}
+          {type === "data"
+            ? [...Array(6)].map((_, i) => (
+                <div key={i} className="rounded-2xl p-0.5 bg-card animate-pulse">
+                  <div className="w-full p-4 rounded-2xl bg-card h-24" />
+                </div>
+              ))
+            : [...Array(3)].map((_, i) => (
+                <div key={i} className="rounded-xl p-0.5 bg-card animate-pulse">
+                  <div className="w-full p-4 rounded-2xl bg-card h-12" />
+                </div>
+              ))}
         </div>
       </div>
     );
@@ -714,12 +762,17 @@ const VariationSelect = React.memo(function VariationSelect({ variations, value,
 
   return (
     <div className="space-y-4 h-full">
-      <label className="text-sm font-semibold">Select {type !== "data" ? "Package" : "Data Plan"}</label>
+      <label className="text-sm font-semibold">
+        Select {type !== "data" ? "Package" : "Data Plan"}
+      </label>
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 max-h-100 overflow-y-auto">
         {variations.map((variation, i) => {
           const active = value?.variation_code === variation.variation_code;
           return (
-            <div key={i} className={`rounded-2xl p-0.5 border-2 bg-card ${active ? "border-purple-600/80" : "border-transparent"}`}>
+            <div
+              key={i}
+              className={`rounded-2xl p-0.5 border-2 bg-card ${active ? "border-purple-600/80" : "border-transparent"}`}
+            >
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -794,7 +847,13 @@ function Amount({ value, onChange, minAmount, maxAmount }: AmountProps) {
   return (
     <div className="space-y-1">
       <label className="text-sm font-semibold">Amount</label>
-      <TextInput value={value} onChange={onChange} placeholder="Enter amount" type="number" currency="₦" />
+      <TextInput
+        value={value}
+        onChange={onChange}
+        placeholder="Enter amount"
+        type="number"
+        currency="₦"
+      />
       {(minAmount || maxAmount) && (
         <p className="text-xs text-zinc-500">
           Amount range: {formatToNGN(Number(minAmount))} {" - "} {formatToNGN(Number(maxAmount))}

@@ -28,7 +28,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const {
-    register,
     handleSubmit,
     formState: { errors },
     setValue,
@@ -85,14 +84,12 @@ export default function LoginPage() {
       <div className="w-full flex flex-col space-y-12 items-center">
         <h1 className="font-black text-xl">Log in to Cashley</h1>
 
-
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-3 mt-5 w-full max-w-sm"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 mt-5 w-full max-w-sm">
           <div className="w-full grid grid-cols-1 gap-2.5 items-start">
             <div className="col-span-full w-full">
-              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Email address or Username</p>
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
+                Email address or Username
+              </p>
               <TextInput
                 value={formValues.entity || ""}
                 onChange={handleInputChange("entity")}
@@ -100,9 +97,7 @@ export default function LoginPage() {
                 placeholder="Email Address or Username"
               />
               {errors.entity && (
-                <p className="pl-2 text-red-500 text-xs mt-0">
-                  {errors.entity.message}
-                </p>
+                <p className="pl-2 text-red-500 text-xs mt-0">{errors.entity.message}</p>
               )}
             </div>
 
@@ -118,23 +113,16 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleShowPassword}
                   className="absolute inset-y-0 right-3 flex items-center text-zinc-500 hover:text-blue-600"
-                >
-
-                </button>
+                ></button>
               </div>
               {errors.password && (
-                <p className="pl-2 text-red-500 text-xs mt-0">
-                  {errors.password.message}
-                </p>
+                <p className="pl-2 text-red-500 text-xs mt-0">{errors.password.message}</p>
               )}
             </div>
           </div>
 
           <div className="flex justify-end py-3">
-            <Link
-              href={"/auth/forgot-password"}
-              className="text-zinc-300 text-sm hover:underline"
-            >
+            <Link href={"/auth/forgot-password"} className="text-zinc-300 text-sm hover:underline">
               Forgot password?
             </Link>
           </div>
@@ -147,17 +135,11 @@ export default function LoginPage() {
             width="w-full"
           />
         </form>
-
       </div>
 
       <div className="flex w-full items-center justify-center flex-row space-x-1">
-        <span className="text-sm font-normal text-zinc-600">
-          {"Don't have an account?"}
-        </span>
-        <Link
-          href={"/auth/create-account"}
-          className="text-zinc-300 text-sm hover:underline"
-        >
+        <span className="text-sm font-normal text-zinc-600">{"Don't have an account?"}</span>
+        <Link href={"/auth/create-account"} className="text-zinc-300 text-sm hover:underline">
           Create account now..
         </Link>
       </div>

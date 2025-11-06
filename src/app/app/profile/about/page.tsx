@@ -1,23 +1,16 @@
 "use client";
 
 import { useTheme } from "@/providers/ThemeProvider";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { useBack } from "@/hooks/useBack";
 import { motion } from "framer-motion";
 
 export default function About() {
   const { resolvedTheme } = useTheme();
-  const [imageSrc, setImageSrc] = useState("/svg/cashley.svg");
+  const [imageSrc, setImageSrc] = useState(resolvedTheme === "dark" ? "/svg/cashley.svg" : "/svg/cashley-dark.svg");
   const goBack = useBack();
 
-  useEffect(() => {
-    setImageSrc(
-      resolvedTheme === "dark"
-        ? "/svg/cashley.svg"
-        : "/svg/cashley-dark.svg"
-    );
-  }, [resolvedTheme]);
 
   return (
     <div className="flex flex-col h-full w-full justify-end items-center px-4">
@@ -39,9 +32,8 @@ export default function About() {
 
         {/* Description */}
         <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-          Your all-in-one wallet for everyday payments & crypto.
-          Top-up airtime, buy data, pay bills, transfer locally, deposit cash,
-          and even receive crypto — all in one seamless app.
+          Your all-in-one wallet for everyday payments & crypto. Top-up airtime, buy data, pay
+          bills, transfer locally, deposit cash, and even receive crypto — all in one seamless app.
         </p>
 
         {/* Close Button */}

@@ -14,12 +14,12 @@ export default function ChangePinPage() {
 
   const handleSubmit = async () => {
     if (!currentPin || !pin || !pinConfirm) {
-      toast.error("All fields are required")
+      toast.error("All fields are required");
       return;
     }
 
     if (pin !== pinConfirm) {
-      toast.error("Pin confirmation failed")
+      toast.error("Pin confirmation failed");
       return;
     }
 
@@ -28,57 +28,41 @@ export default function ChangePinPage() {
       const res = await api.post<ApiResponse>("/user/pin", {
         current_pin: currentPin,
         new_pin: pin,
-        confirm_new_pin: pinConfirm
-      })
+        confirm_new_pin: pinConfirm,
+      });
       if (!res.data.error) {
         toast.success("Pin changed successfully");
       } else {
-        toast.error(res.data.message ?? "Unable to change pin")
+        toast.error(res.data.message ?? "Unable to change pin");
       }
     } catch (err) {
-      toast.error("Failed to change pin")
+      toast.error("Failed to change pin");
     } finally {
-      setCurrentPin("")
-      setPin("")
-      setPinConfirm("")
+      setCurrentPin("");
+      setPin("");
+      setPinConfirm("");
       setLoading(false);
     }
   };
   return (
     <div className="max-w-lg mx-auto w-full flex flex-col min-h-full h-full justify-between space-y-2 px-4">
       <h1 className="text-xl font-black">Change Pin</h1>
-      <div className="pb-4 text-sm placeholder-text">
-        Update your account pin
-      </div>
+      <div className="pb-4 text-sm placeholder-text">Update your account pin</div>
       <div className="space-y-4 w-full mx-auto text-lg pt-4">
         <div className="w-full grid grid-cols-2 items-center gap-4">
           <div className="col-span-full w-full">
-            <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
-              Current Pin
-            </p>
+            <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Current Pin</p>
 
-            <PasswordInput
-              value={currentPin}
-              onChange={setCurrentPin}
-              placeholder="Current Pin"
-            />
+            <PasswordInput value={currentPin} onChange={setCurrentPin} placeholder="Current Pin" />
           </div>
 
           <div className="col-span-full  w-full">
-            <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
-              New Pin
-            </p>
-            <PasswordInput
-              value={pin}
-              onChange={setPin}
-              placeholder="New Pin"
-            />
+            <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">New Pin</p>
+            <PasswordInput value={pin} onChange={setPin} placeholder="New Pin" />
           </div>
 
           <div className="col-span-full w-full">
-            <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
-              Confirm New Pin
-            </p>
+            <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Confirm New Pin</p>
             <PasswordInput
               value={pinConfirm}
               onChange={setPinConfirm}
@@ -87,10 +71,12 @@ export default function ChangePinPage() {
           </div>
         </div>
         <div className="mt-8">
-          <Button disabled={loading}
+          <Button
+            disabled={loading}
             onclick={handleSubmit}
             type="secondary"
-            text={loading ? "Updating..." : "Update Pin"} />
+            text={loading ? "Updating..." : "Update Pin"}
+          />
         </div>
       </div>
     </div>

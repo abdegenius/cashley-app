@@ -11,10 +11,7 @@ interface TransactionHistoryProps {
   compact: boolean;
 }
 
-const TransactionHistory: React.FC<TransactionHistoryProps> = ({
-  transactions,
-  compact
-}) => {
+const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, compact }) => {
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -30,7 +27,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
     return date.toLocaleDateString("en-US", options).replace(",", " -");
   };
 
-  const handleCloseSingleTransaction = () => setTransaction(null)
+  const handleCloseSingleTransaction = () => setTransaction(null);
 
   // Group transactions by date
   const groupTransactionsByDate = (transactions: Transaction[]) => {
@@ -51,13 +48,18 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 
   return (
     <div className="w-full space-y-6 overflow-y-scroll">
-      {compact ?
+      {compact ? (
         <div className="space-y-3">
           {transactions.map((transaction, i) => (
-            <RowTransaction key={i} transaction={transaction} onSelect={() => setTransaction(transaction)} />
+            <RowTransaction
+              key={i}
+              transaction={transaction}
+              onSelect={() => setTransaction(transaction)}
+            />
           ))}
         </div>
-        : Object.entries(groupedTransactions).map(([date, dayTransactions]) => (
+      ) : (
+        Object.entries(groupedTransactions).map(([date, dayTransactions]) => (
           <div key={date} className="space-y-4">
             {/* Date header */}
             <div className="flex items-center space-x-3">
@@ -69,19 +71,26 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
             {/* Transactions for this date */}
             <div className="space-y-3">
               {dayTransactions.map((transaction, i) => (
-                <RowTransaction key={i} transaction={transaction} onSelect={() => setTransaction(transaction)} />
+                <RowTransaction
+                  key={i}
+                  transaction={transaction}
+                  onSelect={() => setTransaction(transaction)}
+                />
               ))}
             </div>
           </div>
-        ))}
-      {transaction && <ViewTransactionDetails transaction={transaction} onClose={handleCloseSingleTransaction} />}
+        ))
+      )}
+      {transaction && (
+        <ViewTransactionDetails transaction={transaction} onClose={handleCloseSingleTransaction} />
+      )}
     </div>
   );
 };
 
 interface RowTransactionProps {
   transaction: Transaction;
-  onSelect: (transaction: Transaction) => void
+  onSelect: (transaction: Transaction) => void;
 }
 
 function RowTransaction({ transaction, onSelect }: RowTransactionProps) {
@@ -131,12 +140,7 @@ function RowTransaction({ transaction, onSelect }: RowTransactionProps) {
         {/* Transaction Details */}
         <div className="flex flex-col w-full min-w-0">
           <div className="flex items-center justify-between w-full space-x-2">
-            <p className="text-sm">
-              {getTransactionType(
-                transaction.action,
-                transaction.type
-              )}
-            </p>
+            <p className="text-sm">{getTransactionType(transaction.action, transaction.type)}</p>
             {transaction.status && (
               <div
                 dangerouslySetInnerHTML={{
@@ -146,20 +150,17 @@ function RowTransaction({ transaction, onSelect }: RowTransactionProps) {
             )}
           </div>
           <p
-            className={`text-md font-semibold ${transaction.type == "credit"
-              ? "text-lime-600"
-              : "text-rose-600"
-              }`}
+            className={`text-md font-semibold ${
+              transaction.type == "credit" ? "text-lime-600" : "text-rose-600"
+            }`}
           >
             {formatToNGN(Number(transaction.amount))}
           </p>
-          <p className="text-xs text-zinc-400">
-            {transaction.description}
-          </p>
+          <p className="text-xs text-zinc-400">{transaction.description}</p>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default TransactionHistory;

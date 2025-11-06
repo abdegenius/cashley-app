@@ -1,5 +1,3 @@
-type Callback = () => void;
-
 class EnterPinModalController {
   private showCallback: ((show: boolean) => void) | null = null;
 

@@ -10,16 +10,11 @@ export default function Swap() {
       <h1 className="text-3xl font-black">Crypto Swap</h1>
 
       <div className="w-full bg-card rounded-xl flex-col flex items-center justify-center p-4 gap-2">
-        <Image
-          src={"/svg/swap.svg"}
-          alt="piggy bank "
-          width={100}
-          height={100}
-        />
+        <Image src={"/svg/swap.svg"} alt="piggy bank " width={100} height={100} />
         <h1 className="text-lg font-semibold">Crypto Swap</h1>
         <div className="text-center max-w-md">
-          All cryptocurrencies received with Cashley will be automatically
-          converted to USDT and sent to your USDT account
+          All cryptocurrencies received with Cashley will be automatically converted to USDT and
+          sent to your USDT account
         </div>
       </div>
 
@@ -63,9 +58,7 @@ export default function Swap() {
             </div>
             <div className="">
               <div className="font-black text-lg">Receive Crypto</div>
-              <div className="">
-                Receive cryptocurrency through correct wallet
-              </div>
+              <div className="">Receive cryptocurrency through correct wallet</div>
             </div>
           </div>
         </div>
@@ -76,9 +69,7 @@ export default function Swap() {
             </div>
             <div className="">
               <div className="font-black text-lg">Crypto Coversion </div>
-              <div className="">
-                System automatically coverts to USDT at market rate
-              </div>
+              <div className="">System automatically coverts to USDT at market rate</div>
             </div>
           </div>
         </div>
@@ -172,9 +163,7 @@ export default function Swap() {
                 <div className=" flex justify-between items-center">
                   <div className="flex gap-2 items-center">
                     <div className="">
-                      <div className="">
-                        Conversion fee: 0.5% per transaction
-                      </div>
+                      <div className="">Conversion fee: 0.5% per transaction</div>
                     </div>
                   </div>
                 </div>
@@ -194,13 +183,12 @@ export default function Swap() {
             </div>
           </div>
         </div>
-
       </div>
-        <div className=" p-0.5 w-full mt-3 rounded-full relative primary-purple-to-blue ">
-          <button className="cursor-pointer w-full rounded-full py-4 text-center bg-card font-black">
-            Go to FAQ
-          </button>
-        </div>
+      <div className=" p-0.5 w-full mt-3 rounded-full relative primary-purple-to-blue ">
+        <button className="cursor-pointer w-full rounded-full py-4 text-center bg-card font-black">
+          Go to FAQ
+        </button>
+      </div>
     </div>
   );
 }

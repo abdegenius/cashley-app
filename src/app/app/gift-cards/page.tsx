@@ -4,15 +4,7 @@ import { Keypad } from "@/components/modals/Keypad";
 import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowLeft,
-  Check,
-  X,
-  Eye,
-  EyeOff,
-  ArrowRight,
-  Search,
-} from "lucide-react";
+import { ArrowLeft, Check, X, Eye, EyeOff, ArrowRight, Search } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
@@ -151,11 +143,9 @@ export default function GiftCard() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
   const [showOTPFull] = useState(false);
-  const [reference, setReference] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredProviders, setFilteredProviders] =
-    useState<Provider[]>(giftCardProviders);
+  const [filteredProviders, setFilteredProviders] = useState<Provider[]>(giftCardProviders);
 
   const [formData, setFormData] = useState({
     service_id: "",
@@ -180,8 +170,6 @@ export default function GiftCard() {
       setFilteredProviders(filtered);
     }
   }, [searchQuery]);
-
-
 
   // Fetch variations when provider is selected
   useEffect(() => {
@@ -263,10 +251,7 @@ export default function GiftCard() {
 
   const handleNumberClick = (num: string) => {
     if (num === "←") {
-      const lastFilledIndex = otp.reduce(
-        (acc, digit, idx) => (digit ? idx : acc),
-        -1
-      );
+      const lastFilledIndex = otp.reduce((acc, digit, idx) => (digit ? idx : acc), -1);
       if (lastFilledIndex >= 0) {
         const newOtp = [...otp];
         newOtp[lastFilledIndex] = "";
@@ -292,14 +277,9 @@ export default function GiftCard() {
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // Generate voucher code for gift cards
-      const voucherCode = `PSN-${Math.random()
-        .toString(36)
-        .substr(2, 9)
-        .toUpperCase()}`;
+      const voucherCode = `PSN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-      const selectedProvider = giftCardProviders.find(
-        (p) => p.service_id === formData.service_id
-      );
+      const selectedProvider = giftCardProviders.find((p) => p.service_id === formData.service_id);
 
       // Create transaction data
       const transactionData: TransactionData = {
@@ -324,7 +304,6 @@ export default function GiftCard() {
       };
 
       setSuccess(true);
-      setReference(transactionData.transactionId);
       setFormData((prev) => ({ ...prev, transactionData }));
       handleNext();
     } catch (error) {
@@ -394,9 +373,7 @@ export default function GiftCard() {
                       handleNext();
                     }}
                     className={`flex flex-col items-center rounded-2xl overflow-hidden transition-all ${
-                      formData.service_id === provider.service_id
-                        ? "bg-primary/10"
-                        : "bg-card"
+                      formData.service_id === provider.service_id ? "bg-primary/10" : "bg-card"
                     }`}
                   >
                     <div className="w-full h-auto mb-2 flex items-center justify-center">
@@ -418,9 +395,7 @@ export default function GiftCard() {
 
               {filteredProviders.length === 0 && (
                 <div className="text-center py-8">
-                  <p className="text-zinc-500">
-                    No gift cards found matching your search.
-                  </p>
+                  <p className="text-zinc-500">No gift cards found matching your search.</p>
                 </div>
               )}
             </div>
@@ -439,9 +414,7 @@ export default function GiftCard() {
             className="space-y-8"
           >
             <div className="space-y-1">
-              <h2 className="text-3xl font-black">
-                {selectedProvider?.service_name}
-              </h2>
+              <h2 className="text-3xl font-black">{selectedProvider?.service_name}</h2>
             </div>
 
             <div className="w-full h-40 relative rounded-2xl overflow-hidden">
@@ -461,9 +434,7 @@ export default function GiftCard() {
                     <div
                       key={country.flag}
                       className={` rounded-2xl overflow-hidden h-30 transition-all w-full flex   ${
-                        selectedCountry === country.name
-                          ? "purple-bg font-black p-0.5"
-                          : "bg-card"
+                        selectedCountry === country.name ? "purple-bg font-black p-0.5" : "bg-card"
                       }`}
                     >
                       <motion.button
@@ -493,10 +464,9 @@ export default function GiftCard() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {variations.map((variation) => (
                       <div
-                      key={variation.variation_id}
+                        key={variation.variation_id}
                         className={` rounded-2xl text-center transition-all p-0.5 ${
-                          formData.variation?.variation_id ===
-                          variation.variation_id
+                          formData.variation?.variation_id === variation.variation_id
                             ? "purple-bg"
                             : "bg-card"
                         }`}
@@ -516,9 +486,7 @@ export default function GiftCard() {
                         >
                           <div className="flex flex-col justify-between items-center">
                             <div>
-                              <h4 className="font-black text-center">
-                                {variation.service_name}
-                              </h4>
+                              <h4 className="font-black text-center">{variation.service_name}</h4>
                             </div>
                             <span className="text-center text-lg">
                               ₦{parseInt(variation.price).toLocaleString()}
@@ -551,9 +519,7 @@ export default function GiftCard() {
         );
 
       case 3:
-        const provider = giftCardProviders.find(
-          (p) => p.service_id === formData.service_id
-        );
+        const provider = giftCardProviders.find((p) => p.service_id === formData.service_id);
 
         return (
           <motion.div
@@ -563,9 +529,7 @@ export default function GiftCard() {
           >
             <div className="w-full bg-card py-5 rounded-t-3xl">
               <div className="space-y-1">
-                <h2 className="text-xl font-black w-full text-center">
-                  Summary
-                </h2>
+                <h2 className="text-xl font-black w-full text-center">Summary</h2>
               </div>
 
               <div className="w-full rounded-2xl p-6 space-y-4">
@@ -580,32 +544,19 @@ export default function GiftCard() {
                     height={30}
                     className=""
                   />
-                  <span className="font-black w-full">
-                    {formData.variation?.service_name}
-                  </span>
+                  <span className="font-black w-full">{formData.variation?.service_name}</span>
                 </div>
 
                 <div className="space-y-3">
                   <ReviewItem label="Product" value="Gift Card" />
-                  <ReviewItem
-                    label="Brand"
-                    value={provider?.service_name || ""}
-                  />
+                  <ReviewItem label="Brand" value={provider?.service_name || ""} />
                   <ReviewItem label="Country" value={selectedCountry} />
-                  <ReviewItem
-                    label="Amount"
-                    value={formData.variation?.service_name || ""}
-                  />
+                  <ReviewItem label="Amount" value={formData.variation?.service_name || ""} />
                 </div>
               </div>
 
               <div className="flex gap-4">
-                <Button
-                  onclick={handleBack}
-                  type="primary"
-                  text="Back"
-                  width="flex-1 py-4"
-                />
+                <Button onclick={handleBack} type="primary" text="Back" width="flex-1 py-4" />
                 <Button
                   onclick={handleNext}
                   type="secondary"
@@ -619,16 +570,10 @@ export default function GiftCard() {
 
       case 4:
         return (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="space-y-8"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
             <div className="text-center space-y-2">
               <h2 className="text-3xl font-black">Enter Your PIN</h2>
-              <p className="text-lg">
-                To complete this transaction, please enter your 4-digit PIN
-              </p>
+              <p className="text-lg">To complete this transaction, please enter your 4-digit PIN</p>
             </div>
 
             <div className="flex justify-center gap-4 mb-6">
@@ -637,11 +582,7 @@ export default function GiftCard() {
                   key={index}
                   animate={{ scale: digit ? 1.1 : 1 }}
                   className={`w-15 h-15 rounded-full flex items-center justify-center text-xl font-semibold ${
-                    showOTPFull
-                      ? ""
-                      : digit
-                      ? "primary-purple-to-blue"
-                      : "bg-card"
+                    showOTPFull ? "" : digit ? "primary-purple-to-blue" : "bg-card"
                   }`}
                 >
                   {showOTPFull ? digit || "" : digit ? "•" : ""}
@@ -658,20 +599,7 @@ export default function GiftCard() {
             </button>
 
             <Keypad
-              numbers={[
-                "1",
-                "2",
-                "3",
-                "4",
-                "5",
-                "6",
-                "7",
-                "8",
-                "9",
-                "✓",
-                "0",
-                "←",
-              ]}
+              numbers={["1", "2", "3", "4", "5", "6", "7", "8", "9", "✓", "0", "←"]}
               onNumberClick={handleNumberClick}
               onDelete={() => handleNumberClick("←")}
               onConfirm={() => handleNumberClick("✓")}
@@ -694,11 +622,7 @@ export default function GiftCard() {
                 animate={{ scale: 1 }}
                 className="w-20 h-20 primary-purple-to-blue rounded-full flex items-center justify-center mx-auto"
               >
-                {success ? (
-                  <Check size={40} className="" />
-                ) : (
-                  <X size={40} className="" />
-                )}
+                {success ? <Check size={40} className="" /> : <X size={40} className="" />}
               </motion.div>
 
               <div className="space-y-2">
@@ -751,9 +675,7 @@ export default function GiftCard() {
                 <div className="w-full rounded-2xl p-6 space-y-3">
                   <div className="flex justify-between items-center">
                     <span>Date & Time</span>
-                    <span className="font-medium">
-                      {formData.transactionData.dateTime}
-                    </span>
+                    <span className="font-medium">{formData.transactionData.dateTime}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Payment method</span>
@@ -763,9 +685,7 @@ export default function GiftCard() {
                   </div>
                   <div className="flex justify-between">
                     <span>Status</span>
-                    <span className="font-mono text-sm">
-                      {formData.transactionData.status}
-                    </span>
+                    <span className="font-mono text-sm">{formData.transactionData.status}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Description</span>
@@ -783,12 +703,8 @@ export default function GiftCard() {
               )}
             </motion.div>
             <div className="w-full flex gap-6">
-              <button className="w-full py-4 px-5 rounded-full bg-card">
-                Share as image
-              </button>
-              <button className="w-full py-4 px-5 rounded-full bg-card">
-                Share as PDF
-              </button>
+              <button className="w-full py-4 px-5 rounded-full bg-card">Share as image</button>
+              <button className="w-full py-4 px-5 rounded-full bg-card">Share as PDF</button>
             </div>
           </div>
         );
@@ -799,10 +715,7 @@ export default function GiftCard() {
     <div className="w-full h-full  mx-auto max-w-xl flex flex-col">
       {step > 1 && (
         <div className=" flex items-center justify-between">
-          <button
-            onClick={handleBack}
-            className="p-2 hover:bg-card rounded-full transition-colors"
-          >
+          <button onClick={handleBack} className="p-2 hover:bg-card rounded-full transition-colors">
             <ArrowLeft size={24} />
           </button>
         </div>

@@ -1,21 +1,17 @@
 "use client";
 
-import { Keypad } from "@/components/modals/Keypad";
 import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
-import { motion } from "framer-motion";
-import { Check, Camera } from "lucide-react";
-import React, { useEffect, useRef, useState } from "react";
+import { Check } from "lucide-react";
+import React, { useState } from "react";
 import { z } from "zod";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { ApiResponse } from "@/types/api";
-import { tree } from "next/dist/build/templates/app-page";
 import { LoadingOverlay } from "../Loading";
-import { address } from "framer-motion/client";
 
-type VerificationType = "bvn" | "nin" | "address" ;
+type VerificationType = "bvn" | "nin" | "address";
 
 interface VerifyProps {
   type: VerificationType;
@@ -89,10 +85,7 @@ export default function Verify({ type }: VerifyProps) {
     try {
       const validatedData = bvnSchema.parse(data);
 
-      const response = await api.post<ApiResponse>(
-        "/user/verify/bvn",
-        validatedData
-      );
+      const response = await api.post<ApiResponse>("/user/verify/bvn", validatedData);
       if (response.data && !response.data.error) {
         toast.success("BVN verified successfully");
         return true;
@@ -105,7 +98,7 @@ export default function Verify({ type }: VerifyProps) {
       if (error instanceof z.ZodError) {
         throw new Error(error.issues[0].message);
       }
-      console.log("failed to verify BVN", error);
+      console.warn("failed to verify BVN", error);
       return false;
     }
   };
@@ -113,10 +106,7 @@ export default function Verify({ type }: VerifyProps) {
   const verifyNin = async (data: NinData): Promise<boolean> => {
     try {
       const validatedData = ninSchema.parse(data);
-      const response = await api.post<ApiResponse>(
-        "/user/verify/nin",
-        validatedData
-      );
+      const response = await api.post<ApiResponse>("/user/verify/nin", validatedData);
 
       if (response.data && !response.data.error) {
         toast.success("NIN verified successfully");
@@ -130,7 +120,7 @@ export default function Verify({ type }: VerifyProps) {
       if (error instanceof z.ZodError) {
         throw new Error(error.issues[0].message);
       }
-      console.log("failed to verify BVN", error);
+      console.warn("failed to verify BVN", error);
       return false;
     }
   };
@@ -138,10 +128,7 @@ export default function Verify({ type }: VerifyProps) {
   const uploadAddress = async (data: AddressDataProps): Promise<boolean> => {
     try {
       const validatedData = addressSchema.parse(data);
-      const response = await api.post<ApiResponse>(
-        "/user/verify/address",
-        validatedData
-      );
+      const response = await api.post<ApiResponse>("/user/verify/address", validatedData);
 
       if (response.data && !response.data.error) {
         toast.success("Address uploaded successfully");
@@ -155,7 +142,7 @@ export default function Verify({ type }: VerifyProps) {
       if (error instanceof z.ZodError) {
         throw new Error(error.issues[0].message);
       }
-      console.log("failed to Upload Address", error);
+      console.warn("failed to Upload Address", error);
       return false;
     }
   };
@@ -173,7 +160,7 @@ export default function Verify({ type }: VerifyProps) {
         result = await verifyBvn(bvnData);
       } else if (type === "nin") {
         result = await verifyNin(ninData);
-      }else if (type === "address") {
+      } else if (type === "address") {
         result = await uploadAddress(addressData);
       }
       if (result) {
@@ -293,20 +280,14 @@ export default function Verify({ type }: VerifyProps) {
       case 1:
         return (
           <div className="">
-            <h1 className="text-2xl font-semibold text-stone-400">
-              {config.title}
-            </h1>
-            <h3 className="text-md font-normal text-stone-200 pb-10">
-              {config.description}
-            </h3>
+            <h1 className="text-2xl font-semibold text-stone-400">{config.title}</h1>
+            <h3 className="text-md font-normal text-stone-200 pb-10">{config.description}</h3>
             <div className="space-y-2 mb-4">
               {config.fields?.map((field) => (
                 <TextInput
                   key={field.label}
                   value={getFieldValue(field.label)}
-                  onChange={(value) =>
-                    handleInputChange(labelToFieldName(field.label), value)
-                  }
+                  onChange={(value) => handleInputChange(labelToFieldName(field.label), value)}
                   placeholder={field.label}
                   type={field.type as any}
                   // required={field.required}
@@ -321,17 +302,15 @@ export default function Verify({ type }: VerifyProps) {
         return (
           <div className="w-full h-full min-h-full flex flex-col items-center justify-start space-y-12">
             <div className="w-full">
-              <h1 className="text-2xl font-semibold text-stone-400">
-                {config.title}
-              </h1>
+              <h1 className="text-2xl font-semibold text-stone-400">{config.title}</h1>
               <h3 className="text-md font-normal text-stone-200 pb-10">
                 {type === "bvn"
                   ? "Your BVN was successfully verified. Your account is now a Level 1 account. Proceed with Cashley and enjoy our services."
                   : type === "nin"
-                  ? "Your NIN was successfully verified. Your account is now a Level 2 account. Proceed with Cashley and enjoy our services."
-                  : type === "address"
-                  ? "Your Address was successfully Uploaded. Your account is now a Level 3 account. Proceed with Cashley and enjoy our services."
-                  : "Your CAC was successfully verified. Your account is now a Level 4 account. Proceed with Cashley and enjoy our services."}
+                    ? "Your NIN was successfully verified. Your account is now a Level 2 account. Proceed with Cashley and enjoy our services."
+                    : type === "address"
+                      ? "Your Address was successfully Uploaded. Your account is now a Level 3 account. Proceed with Cashley and enjoy our services."
+                      : "Your CAC was successfully verified. Your account is now a Level 4 account. Proceed with Cashley and enjoy our services."}
               </h3>
             </div>
 
@@ -357,8 +336,8 @@ export default function Verify({ type }: VerifyProps) {
             type === "bvn"
               ? !isBvnDataComplete()
               : type === "nin"
-              ? !isNinDataComplete()
-              : !isAddressDataComplete()
+                ? !isNinDataComplete()
+                : !isAddressDataComplete()
           }
         />
       )}

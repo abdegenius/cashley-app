@@ -10,6 +10,9 @@
 !.yarn/releases
 !.yarn/versions
 
+# dump
+/unused
+
 # testing
 /coverage
 

@@ -11,12 +11,7 @@ export default function Break() {
       <h1 className="text-3xl font-black">Break Investment</h1>
 
       <div className="w-full bg-card rounded-xl flex-col flex items-center justify-center p-4 gap-2">
-        <Image
-          src={"/svg/warning.svg"}
-          alt="piggy bank "
-          width={100}
-          height={100}
-        />
+        <Image src={"/svg/warning.svg"} alt="piggy bank " width={100} height={100} />
         <h1 className="text-lg font-semibold">Break Investment Early?</h1>
         <div className="text-center max-w-md">
           Breaking your investment before maturity will incur penalty charges
@@ -117,8 +112,7 @@ export default function Break() {
                 <Button width="w-8 h-8 rounded-full " />
               </div>
               <div className="">
-                I understand that breaking this investment will result in a
-                loss.
+                I understand that breaking this investment will result in a loss.
               </div>
             </div>
           </div>
@@ -128,8 +122,8 @@ export default function Break() {
                 <Button width="w-8 h-8 rounded-full " />
               </div>
               <div className="">
-                I confirm that I want to proceed with breaking this investment
-                despite the financial implications.
+                I confirm that I want to proceed with breaking this investment despite the financial
+                implications.
               </div>
             </div>
           </div>
@@ -143,11 +137,7 @@ export default function Break() {
           </button>
         </div>
 
-        <Button
-          type="primary"
-          text="Keep Investment"
-          width="w-full py-4 rounded-full"
-        />
+        <Button type="primary" text="Keep Investment" width="w-full py-4 rounded-full" />
       </div>
     </div>
   );

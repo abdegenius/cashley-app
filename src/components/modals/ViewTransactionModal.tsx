@@ -6,7 +6,7 @@ import React from "react";
 
 interface TransactionProps {
   transaction: Transaction;
-  onClose: () => void
+  onClose: () => void;
 }
 export default function ViewTransactionDetails({ transaction, onClose }: TransactionProps) {
   return (
@@ -18,10 +18,7 @@ export default function ViewTransactionDetails({ transaction, onClose }: Transac
           className="space-y-4 text-center py-4 bg-card rounded-2xl px-4"
         >
           <div className="w-full flex p-2 items-end justify-end">
-            <button
-              onClick={onClose}
-              className="text-lg font-medium text-red-400"
-            >
+            <button onClick={onClose} className="text-lg font-medium text-red-400">
               Close
             </button>
           </div>
@@ -39,9 +36,7 @@ export default function ViewTransactionDetails({ transaction, onClose }: Transac
 
           <div className="space-y-0">
             <h2 className="text-xl font-black">
-              {transaction.status === "completed"
-                ? "Transaction Successful"
-                : "Transaction Failed"}
+              {transaction.status === "completed" ? "Transaction Successful" : "Transaction Failed"}
             </h2>
             <p className="text-sm text-stone-400">
               {transaction.status === "completed"
@@ -93,12 +88,14 @@ export default function ViewTransactionDetails({ transaction, onClose }: Transac
                 {transaction.reference}
               </span>
             </div>
-            {transaction.session_id && <div className="flex justify-between items-start space-x-4">
-              <span className="text-sm">Session ID</span>
-              <span className="font-mono text-sm text-right text-stone-400">
-                {transaction.session_id}
-              </span>
-            </div>}
+            {transaction.session_id && (
+              <div className="flex justify-between items-start space-x-4">
+                <span className="text-sm">Session ID</span>
+                <span className="font-mono text-sm text-right text-stone-400">
+                  {transaction.session_id}
+                </span>
+              </div>
+            )}
 
             <div className="flex justify-between items-start space-x-4">
               <span className="text-sm">Description</span>
@@ -109,12 +106,8 @@ export default function ViewTransactionDetails({ transaction, onClose }: Transac
           </div>
         </motion.div>
         <div className="my-6 w-full flex gap-4 px-4">
-          <button className="w-full p-4 rounded-full bg-card">
-            Share as image
-          </button>
-          <button className="w-full p-4 rounded-full bg-card">
-            Share as PDF
-          </button>
+          <button className="w-full p-4 rounded-full bg-card">Share as image</button>
+          <button className="w-full p-4 rounded-full bg-card">Share as PDF</button>
         </div>
       </div>
     </div>

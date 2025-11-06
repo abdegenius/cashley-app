@@ -7,8 +7,7 @@ export const usePin = () => {
   const { user, loading } = useAuth();
   const [hasPin, setHasPin] = useState<boolean>(false);
   const router = useRouter();
-  const [pinConfirmationLoading, setPinConfirmationLoading] =
-    useState<boolean>(true);
+  const [pinConfirmationLoading, setPinConfirmationLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const checkPinStatus = async () => {
@@ -20,7 +19,7 @@ export const usePin = () => {
       setPinConfirmationLoading(false);
     };
     if (!loading) checkPinStatus();
-  }, [loading]);
+  }, [loading, router, user?.pin]);
 
   return { hasPin, pinConfirmationLoading };
 };

@@ -16,17 +16,11 @@ const UpdateUserSchema = z.object({
   username: z
     .string()
     .min(1, "Username must be valid")
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      "Username can only contain letters, numbers, and underscores"
-    ),
+    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
   phone: z
     .string()
     .min(1, "phone much be 13 digit")
-    .regex(
-      /^234\d{10}$/,
-      "Phone number must start with 234 and be 13 digits long"
-    ),
+    .regex(/^234\d{10}$/, "Phone number must start with 234 and be 13 digits long"),
   email: z.string().email("Email must be valid").min(1, "Email is required"),
 });
 
@@ -35,15 +29,7 @@ type updateUserForm = z.infer<typeof UpdateUserSchema>;
 export default function EditProfilePage() {
   const { user } = useAuthContext();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
-    trigger,
-    reset,
-  } = useForm<updateUserForm>({
+  const { handleSubmit, setValue, watch, trigger, reset } = useForm<updateUserForm>({
     resolver: zodResolver(UpdateUserSchema),
     mode: "onChange",
   });
@@ -62,11 +48,10 @@ export default function EditProfilePage() {
     }
   }, [user, reset]);
 
-  const handleInputChange =
-    (field: keyof updateUserForm) => (value: string) => {
-      setValue(field, value);
-      trigger(field);
-    };
+  const handleInputChange = (field: keyof updateUserForm) => (value: string) => {
+    setValue(field, value);
+    trigger(field);
+  };
 
   const onSubmit = async (data: updateUserForm) => {
     try {
@@ -85,27 +70,19 @@ export default function EditProfilePage() {
     }
   };
   if (!user) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        Loading...
-      </div>
-    );
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
   }
 
   return (
     <div className="max-w-lg mx-auto w-full flex flex-col min-h-full h-full justify-between space-y-2 px-4">
       <h1 className="text-xl font-black">Profile Details</h1>
-      <div className="pb-4 text-sm placeholder-text">
-        Update your profile information
-      </div>
+      <div className="pb-4 text-sm placeholder-text">Update your profile information</div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-4 w-full mx-auto text-lg pt-4">
           <div className="w-full grid grid-cols-2 items-center gap-4">
             <div className="col-span-1 w-full">
               <div className="col-span-full w-full">
-                <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
-                  First Name
-                </p>
+                <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">First Name</p>
 
                 <TextInput
                   value={formValues.firstname || ""}
@@ -116,9 +93,7 @@ export default function EditProfilePage() {
               </div>
             </div>
             <div className="col-span-1 w-full">
-              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
-                Last Name
-              </p>
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Last Name</p>
 
               <TextInput
                 value={formValues.lastname || ""}
@@ -129,9 +104,7 @@ export default function EditProfilePage() {
             </div>
 
             <div className="col-span-full w-full">
-              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
-                Username
-              </p>
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Username</p>
 
               <TextInput
                 value={formValues.username || ""}
@@ -142,9 +115,7 @@ export default function EditProfilePage() {
             </div>
 
             <div className="col-span-full w-full">
-              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
-                Email address
-              </p>
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Email address</p>
 
               <TextInput
                 value={formValues.email || ""}
@@ -155,9 +126,7 @@ export default function EditProfilePage() {
             </div>
 
             <div className="col-span-full  w-full">
-              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">
-                Phone Number
-              </p>
+              <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Phone Number</p>
 
               <TextInput
                 value={formValues.phone || ""}

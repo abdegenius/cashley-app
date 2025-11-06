@@ -61,7 +61,8 @@
 }
 
 .gradient-border {
-  background: linear-gradient(white, white) padding-box,
+  background:
+    linear-gradient(white, white) padding-box,
     linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899) border-box;
   border: 2px solid transparent;
   border-radius: 50px;
@@ -122,27 +123,15 @@ body {
 }
 
 .primary-purple-to-blue {
-  background: linear-gradient(
-    90deg,
-    rgb(var(--gradient-purple)),
-    rgb(var(--gradient-blue))
-  );
+  background: linear-gradient(90deg, rgb(var(--gradient-purple)), rgb(var(--gradient-blue)));
 }
 
 .primary-orange-to-purple {
-  background: linear-gradient(
-    90deg,
-    rgb(var(--gradient-orange)),
-    rgb(var(--gradient-purple))
-  );
+  background: linear-gradient(90deg, rgb(var(--gradient-orange)), rgb(var(--gradient-purple)));
 }
 
 .gradient-text-purple-to-blue {
-  background: linear-gradient(
-    90deg,
-    rgb(var(--gradient-purple)),
-    rgb(var(--gradient-blue))
-  );
+  background: linear-gradient(90deg, rgb(var(--gradient-purple)), rgb(var(--gradient-blue)));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -150,11 +139,7 @@ body {
 }
 
 .gradient-text-orange-to-purple {
-  background: linear-gradient(
-    90deg,
-    rgb(var(--gradient-orange)),
-    rgb(var(--gradient-purple))
-  );
+  background: linear-gradient(90deg, rgb(var(--gradient-orange)), rgb(var(--gradient-purple)));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -162,11 +147,8 @@ body {
 }
 
 .organic-gradient-bg {
-  background: radial-gradient(
-      circle at 20% 80%,
-      rgba(var(--purple)) 0%,
-      transparent 50%
-    ),
+  background:
+    radial-gradient(circle at 20% 80%, rgba(var(--purple)) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(var(--orange)) 0%, transparent 50%),
     radial-gradient(circle at 40% 40%, rgba(var(--blue)) 0%, transparent 50%),
     linear-gradient(135deg, rgba(var(--purple)) 0%, rgba(var(--blue)) 100%);

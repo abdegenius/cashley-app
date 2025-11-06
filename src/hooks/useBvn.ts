@@ -7,8 +7,7 @@ export const useBVN = () => {
   const { user, loading } = useAuth();
   const [hasBVN, setHasBVN] = useState<boolean>(false);
   const router = useRouter();
-  const [bvnConfirmationLoading, setBVNConfirmationLoading] =
-    useState<boolean>(true);
+  const [bvnConfirmationLoading, setBVNConfirmationLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const checkBVNStatus = async () => {
@@ -20,7 +19,7 @@ export const useBVN = () => {
       setBVNConfirmationLoading(false);
     };
     if (!loading) checkBVNStatus();
-  }, [loading]);
+  }, [loading, router, user?.bvn_status]);
 
   return { hasBVN, bvnConfirmationLoading };
 };

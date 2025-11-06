@@ -2,17 +2,17 @@
 const nextConfig = {
   images: {
     domains: [
-      'sandbox.vtpass.com',
-      'vtpass.com' // If you might use production URLs later
+      "sandbox.vtpass.com",
+      "vtpass.com", // If you might use production URLs later
     ],
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'sandbox.vtpass.com',
-        pathname: '/resources/products/**',
+        protocol: "https",
+        hostname: "sandbox.vtpass.com",
+        pathname: "/resources/products/**",
       },
     ],
   },
-}
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

@@ -2,7 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import {
   UserCircle,
   Contact,
@@ -25,7 +24,6 @@ import { logoutModal } from "@/controllers/logout-modal";
 
 export default function ProfilePage() {
   const { user } = useAuthContext();
-  const router = useRouter();
 
   return (
     <div className="w-full h-full flex items-start justify-center px-4 py-6">
@@ -112,17 +110,13 @@ export default function ProfilePage() {
         <div className="w-full bg-card rounded-2xl shadow-sm border border-border/30 py-6 px-5 flex flex-col gap-4">
           <div>
             <h3 className="font-bold text-lg">Refer & Earn</h3>
-            <p className="text-xs text-muted-foreground">
-              Earn ₦500 for each friend you invite
-            </p>
+            <p className="text-xs text-muted-foreground">Earn ₦500 for each friend you invite</p>
           </div>
 
           <div className="flex justify-between items-center bg-background/60 px-3 py-2 rounded-xl">
             <div>
               <div className="text-xs text-muted-foreground">Referral Code</div>
-              <div className="font-semibold text-sm">
-                {user?.referral_code}
-              </div>
+              <div className="font-semibold text-sm">{user?.referral_code}</div>
             </div>
             <button className="hover:text-purple-600 transition">
               <Copy size={16} />

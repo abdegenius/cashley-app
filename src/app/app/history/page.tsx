@@ -2,11 +2,10 @@
 import React, { useEffect, useState } from "react";
 import TransactionHistory from "@/components/modals/TransactionHistory";
 import api from "@/lib/axios";
-import { ApiResponse, BankAccount, Transaction } from "@/types/api";
+import { ApiResponse, Transaction } from "@/types/api";
 import { useAuthContext } from "@/context/AuthContext";
 
 export default function TransactionHistoryPage() {
-  const { user } = useAuthContext();
   const [loading, setLoading] = useState(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
@@ -35,8 +34,6 @@ export default function TransactionHistoryPage() {
   return (
     <div className="w-full h-full space-y-4 overflow-y-scroll px-4">
       <div className="space-y-6 relative">
-
-
         {/* Transactions */}
         <div className="flex flex-col gap-6">
           <h1 className="text-xl font-black">Transaction history</h1>

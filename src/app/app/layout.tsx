@@ -2,24 +2,13 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useBack } from "@/hooks/useBack";
 import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Coins,
-  CoinsIcon,
-  Home,
-  LayoutGrid,
-  UserCircle,
-} from "lucide-react";
+import { ArrowLeft, CoinsIcon, Home, LayoutGrid, UserCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LogoutModal from "@/components/Logout";
 import TopupModal from "@/components/Topup";
 
-export default function CenteredLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function CenteredLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const goBack = useBack();
 
@@ -43,29 +32,23 @@ export default function CenteredLayout({
     { icon: UserCircle, name: "Settings", link: "/app/profile" },
   ];
 
-  const bounceTransition = {
-    y: {
-      duration: 0.4,
-      yoyo: Infinity,
-      ease: "easeOut",
-    },
-  };
-
   return (
     <ProtectedRoute>
       <div className="w-full max-w-xl mx-auto overflow-none min-h-screen h-full flex flex-col items-center py-4 bg-background">
-        {pathname !== "/app" && <div className="w-full flex justify-start">
-          <button
-            onClick={goBack}
-            className="rounded-full placeholder-text hover:bg-black/10 cursor-pointer mb-4 px-4"
-          >
-            <ArrowLeft size={24} />
-          </button>
-        </div>}
+        {pathname !== "/app" && (
+          <div className="w-full flex justify-start">
+            <button
+              onClick={goBack}
+              className="rounded-full placeholder-text hover:bg-black/10 cursor-pointer mb-4 px-4"
+            >
+              <ArrowLeft size={24} />
+            </button>
+          </div>
+        )}
         <div className="w-full h-full pb-[90px]">{children}</div>
-        <div
-          className="mb-0 fixed w-full max-w-xl mx-auto bottom-0 left-0 right-0">
-          <div className="w-full bg-card rounded-t-4xl border-t-8 border-zinc-950/30
+        <div className="mb-0 fixed w-full max-w-xl mx-auto bottom-0 left-0 right-0">
+          <div
+            className="w-full bg-card rounded-t-4xl border-t-8 border-zinc-950/30
           pb-[env(safe-area-inset-bottom)] flex items-center justify-between 
           backdrop-blur-lg  shadow-[0_-2px_10px_rgba(0,0,0,0.08)] py-8 z-20"
           >
@@ -84,13 +67,15 @@ export default function CenteredLayout({
                       y: active ? -4 : 0,
                     }}
                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                    className={`flex flex-col items-center justify-center ${active ? "purple-text" : "placeholder-text"
-                      }`}
+                    className={`flex flex-col items-center justify-center ${
+                      active ? "purple-text" : "placeholder-text"
+                    }`}
                   >
                     <Icon size={26} strokeWidth={2} />
                     <span
-                      className={`text-[15px]  ${active ? "gradient-text-purple-to-blue" : "placeholder-text"
-                        }`}
+                      className={`text-[15px]  ${
+                        active ? "gradient-text-purple-to-blue" : "placeholder-text"
+                      }`}
                     >
                       {item.name}
                     </span>
@@ -104,5 +89,5 @@ export default function CenteredLayout({
       <LogoutModal />
       <TopupModal />
     </ProtectedRoute>
-  )
+  );
 }

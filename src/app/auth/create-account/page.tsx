@@ -21,24 +21,16 @@ const registerSchema = z
     username: z
       .string()
       .min(4, "Username must be at least 4 characters")
-      .regex(
-        /^[a-zA-Z0-9_]+$/,
-        "Username can only contain letters, numbers, and underscores"
-      ),
+      .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
     email: z.email("Enter a valid email address"),
     phone: z
       .string()
-      .regex(
-        /^234\d{10}$/,
-        "Phone number must start with 234 and be 13 digits long"
-      ),
-    password: z
-      .string()
-      .min(6, "Password must be at least 6 characters"),
-      // .regex(
-      //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/,
-      //   "Password must contain uppercase, lowercase, number, and special character"
-      // )
+      .regex(/^234\d{10}$/, "Phone number must start with 234 and be 13 digits long"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    // .regex(
+    //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/,
+    //   "Password must contain uppercase, lowercase, number, and special character"
+    // )
     passwordConfirm: z.string(),
   })
   .refine((data) => data.password === data.passwordConfirm, {
@@ -65,11 +57,10 @@ export default function RegisterPage() {
 
   const formValues = watch();
 
-  const handleInputChange =
-    (field: keyof RegisterFormData) => (value: string) => {
-      setValue(field, value);
-      trigger(field);
-    };
+  const handleInputChange = (field: keyof RegisterFormData) => (value: string) => {
+    setValue(field, value);
+    trigger(field);
+  };
 
   const formatPhoneNumber = (value: string): string => {
     if (!value.startsWith("234")) {
@@ -85,7 +76,7 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     setLoading(true);
     try {
-      const { passwordConfirm, ...payload } = data;
+      const { ...payload } = data;
 
       const res = await api.post<ApiResponse>("/auth/register/initiate", payload);
 
@@ -103,10 +94,8 @@ export default function RegisterPage() {
       if (err.response) {
         toast.error(err.response.data?.message || "Registration failed");
       } else if (err.request) {
-        toast.error(
-          "Network error: Unable to connect to server. Check CORS configuration."
-        );
-        console.log("CORS/Network issue - no response received");
+        toast.error("Network error: Unable to connect to server. Check CORS configuration.");
+        console.warn("CORS/Network issue - no response received");
       } else {
         toast.error("Something went wrong");
       }
@@ -126,9 +115,7 @@ export default function RegisterPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-4">
-
           <div className="w-full grid grid-cols-2 items-center gap-2.5 items-start">
-
             <div className="col-span-1 w-full">
               <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Firstname</p>
               <TextInput
@@ -138,9 +125,7 @@ export default function RegisterPage() {
                 placeholder="Firstname"
               />
               {errors.firstname && (
-                <p className="text-red-500 text-xs mt-0 pl-2">
-                  {errors.firstname.message}
-                </p>
+                <p className="text-red-500 text-xs mt-0 pl-2">{errors.firstname.message}</p>
               )}
             </div>
 
@@ -153,9 +138,7 @@ export default function RegisterPage() {
                 placeholder="Lastname"
               />
               {errors.lastname && (
-                <p className="text-red-500 text-xs mt-0 pl-2">
-                  {errors.lastname.message}
-                </p>
+                <p className="text-red-500 text-xs mt-0 pl-2">{errors.lastname.message}</p>
               )}
             </div>
 
@@ -168,9 +151,7 @@ export default function RegisterPage() {
                 placeholder="Username"
               />
               {errors.username && (
-                <p className="text-red-500 text-xs mt-0 pl-2">
-                  {errors.username.message}
-                </p>
+                <p className="text-red-500 text-xs mt-0 pl-2">{errors.username.message}</p>
               )}
             </div>
 
@@ -183,9 +164,7 @@ export default function RegisterPage() {
                 placeholder="Email Address"
               />
               {errors.email && (
-                <p className="text-red-500 text-xs mt-0 pl-2">
-                  {errors.email.message}
-                </p>
+                <p className="text-red-500 text-xs mt-0 pl-2">{errors.email.message}</p>
               )}
             </div>
 
@@ -202,9 +181,7 @@ export default function RegisterPage() {
                 placeholder="2348012345678"
               />
               {errors.phone && (
-                <p className="text-red-500 text-xs mt-0 pl-2">
-                  {errors.phone.message}
-                </p>
+                <p className="text-red-500 text-xs mt-0 pl-2">{errors.phone.message}</p>
               )}
             </div>
 
@@ -230,9 +207,10 @@ export default function RegisterPage() {
                 <p className="text-red-500 text-xs mt-0 pl-2">
                   {errors.password?.message || errors.passwordConfirm?.message}
                 </p>
-              ) : <></>}
+              ) : (
+                <></>
+              )}
             </div>
-
           </div>
 
           <Button

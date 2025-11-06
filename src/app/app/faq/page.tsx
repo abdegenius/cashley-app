@@ -69,11 +69,7 @@ export default function Faq() {
       </motion.div>
 
       {/* FAQ List */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        className="space-y-4"
-      >
+      <motion.div initial="hidden" animate="visible" className="space-y-4">
         {faqs.map((faq, i) => (
           <motion.div
             key={i}

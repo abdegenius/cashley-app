@@ -32,15 +32,13 @@ export default function Card() {
       </div>
 
       <div className="w-full rounded-2xl border-border p-6 space-y-6">
-      <h2 className="text-2xl font-black">
-        Get your virtual cards for online purchases
-      </h2>
+        <h2 className="text-2xl font-black">Get your virtual cards for online purchases</h2>
 
-     <ul className="list-disc text-lg pl-5 space-y-1">
-        <li>No monthly fees or minimum balance.</li>
-        <li>Pay bills early with delay</li>
-        <li>Top up card with various means</li>
-     </ul>
+        <ul className="list-disc text-lg pl-5 space-y-1">
+          <li>No monthly fees or minimum balance.</li>
+          <li>Pay bills early with delay</li>
+          <li>Top up card with various means</li>
+        </ul>
       </div>
     </div>
   );

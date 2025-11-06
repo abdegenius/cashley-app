@@ -12,7 +12,9 @@ export default function ForgotPasswordPage() {
       <div className="w-full flex flex-col space-y-6">
         <div className="w-full flex flex-col space-y-2 pt-8">
           <h2 className="text-3xl font-semibold">Forgot Password</h2>
-          <p className="text-sm font-normal placeholder-text">Enter email address below to reset password</p>
+          <p className="text-sm font-normal placeholder-text">
+            Enter email address below to reset password
+          </p>
         </div>
         <div className="w-full max-w-sm items-center space-y-6">
           <div className="col-span-full w-full">

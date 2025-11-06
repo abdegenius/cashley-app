@@ -1,13 +1,13 @@
-"use client"
-import Purchase from '@/components/flows/service-flow'
-import React from 'react'
+"use client";
+import Purchase from "@/components/flows/service-flow";
+import React from "react";
 import { useAuthContext } from "@/context/AuthContext";
 
 export default function DataPage() {
   const { user } = useAuthContext();
   return (
     <div>
-      <Purchase type='data' user={user} />
+      <Purchase type="data" user={user} />
     </div>
-  )
+  );
 }

@@ -1,6 +1,16 @@
 import { motion } from "framer-motion";
 
-export function Section({ title, description, children, delay = 0.15 }: { title: string; description?: string; children: React.ReactNode; delay?: number }) {
+export function Section({
+  title,
+  description,
+  children,
+  delay = 0.15,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  delay?: number;
+}) {
   return (
     <motion.section
       initial={{ opacity: 0, y: 10 }}

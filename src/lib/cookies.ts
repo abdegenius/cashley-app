@@ -14,8 +14,7 @@ export const setToCookie = (
 
   let cookieStr = `${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
 
-  if (options.expires)
-    cookieStr += `; expires=${options.expires.toUTCString()}`;
+  if (options.expires) cookieStr += `; expires=${options.expires.toUTCString()}`;
   if (options.path) cookieStr += `; path=${options.path}`;
 
   document.cookie = cookieStr;

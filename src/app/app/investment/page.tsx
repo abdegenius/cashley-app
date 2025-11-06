@@ -42,16 +42,10 @@ export default function Investment() {
       <h1 className="text-3xl font-black">Investment</h1>
 
       <div className="w-full bg-card rounded-xl flex-col flex items-center justify-center p-4 gap-2">
-        <Image
-          src={"/svg/piggybank.svg"}
-          alt="piggy bank "
-          width={100}
-          height={100}
-        />
+        <Image src={"/svg/piggybank.svg"} alt="piggy bank " width={100} height={100} />
         <h1 className="text-lg font-semibold">Grow Your Money</h1>
         <div className="text-center max-w-md">
-          Start investing today and watch your savings grow with competitive
-          returns
+          Start investing today and watch your savings grow with competitive returns
         </div>
       </div>
 
@@ -148,11 +142,7 @@ export default function Investment() {
             <button className="bg-card rounded-full w-14 h-14 flex flex-none items-center justify-center text-2xl">
               ₦
             </button>
-            <TextInput
-              value=""
-              onChange={() => {}}
-              placeholder="Enter savings amount"
-            />
+            <TextInput value="" onChange={() => {}} placeholder="Enter savings amount" />
           </div>
         </div>
         <div className="w-full rounded-full bg-card ">
@@ -173,10 +163,7 @@ export default function Investment() {
 
         <div className="p-8 grid grid-cols-2 gap-10 w-full">
           {whyCashley?.map((why, id) => (
-            <div
-              key={id}
-              className="w-full flex flex-col gap-1 items-center justify-center"
-            >
+            <div key={id} className="w-full flex flex-col gap-1 items-center justify-center">
               {why.icon}
               <div className="font-black">{why.title}</div>
               <div className="text-sm">{why.description}</div>

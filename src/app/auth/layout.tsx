@@ -4,21 +4,10 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 
-export default function CenteredLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function CenteredLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { resolvedTheme } = useTheme();
-  const [imageSrc, setImageSrc] = useState("");
-
-  useEffect(() => {
-    setImageSrc(
-      resolvedTheme === "dark" ? "/svg/cashley.svg" : "/svg/cashley-dark.svg"
-    );
-  }, [resolvedTheme]);
-
+  const [imageSrc, setImageSrc] = useState(resolvedTheme === "dark" ? "/svg/cashley.svg" : "/svg/cashley-dark.svg");
 
   return (
     <div className="w-full overflow-none min-h-screen h-full flex flex-col items-center p-6 bg-background">

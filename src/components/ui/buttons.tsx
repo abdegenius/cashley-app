@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Dispatch, ReactNode, SetStateAction, useState } from "react";
+import { ReactNode } from "react";
 import { Url } from "url";
 
 export function MenuItem({
@@ -28,42 +28,19 @@ export function MenuItem({
   const baseClasses =
     "w-full flex items-center justify-between px-0 py-2 transition-all duration-200 hover:bg-violet-950/10";
   const borderClass = showBorder ? "border-b border-border" : "";
-  const labelClass = `flex-1 text-[15px] font-medium ${isRed ? "text-red-500" : ""
-    }`;
-  const labelClass2 = `flex-1 text-[11px] font-medium ${isRed ? "text-red-500" : ""
-    }`;
+  const labelClass = `flex-1 text-[15px] font-medium ${isRed ? "text-red-500" : ""}`;
+  const labelClass2 = `flex-1 text-[11px] font-medium ${isRed ? "text-red-500" : ""}`;
 
   const iconWrapper =
     "w-10 h-10 flex items-center justify-center rounded-full placeholder-text flex-shrink-0";
 
-  const Chevron = () => (
-    <svg
-      className="w-5 h-5 placeholder-text"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M9 5l7 7-7 7"
-      />
-    </svg>
-  );
-
   if (type === "button") {
     return (
-      <button
-        onClick={onclick}
-        type="button"
-        className={`${baseClasses} ${borderClass}`}
-      >
+      <button onClick={onclick} type="button" className={`${baseClasses} ${borderClass}`}>
         <div className="flex justify-start items-center gap-2 flex-row">
           <div className={iconWrapper}>{icon}</div>
           <span className={labelClass}>{label}</span>
         </div>
-        {/* <Chevron /> */}
       </button>
     );
   }
@@ -78,7 +55,9 @@ export function MenuItem({
             <span className={labelClass2}>{label2}</span>
           </div>
         </div>
-        <Chevron />
+        <svg className="w-5 h-5 placeholder-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
       </Link>
     );
   }
@@ -98,7 +77,7 @@ export function MenuItem({
     );
   }
 
-   if (type === "verify") {
+  if (type === "verify") {
     return (
       <Link href={link || "#"} className={`${baseClasses} ${borderClass}`}>
         <div className="flex items-center gap-4 flex-1">
@@ -136,14 +115,10 @@ export function ToggleItem({
         <div className="w-10 h-10 flex items-center justify-center rounded-full bg-violet-950/5 text-violet-950 flex-shrink-0">
           {icon}
         </div>
-        <span className="flex-1 text-[15px] text-stone-700 font-medium">
-          {label}
-        </span>
+        <span className="flex-1 text-[15px] text-stone-700 font-medium">{label}</span>
         <button
           type="button"
-          className={`w-14 h-8 flex items-center rounded-full transition-all duration-300 ${isToggled === "dark"
-            ? "bg-violet-950/30 justify-end"
-            : "bg-stone-200 justify-start"
+          className={`w-14 h-8 flex items-center rounded-full transition-all duration-300 ${isToggled === "dark" ? "bg-violet-950/30 justify-end" : "bg-stone-200 justify-start"
             } p-1`}
         >
           <div
