@@ -176,27 +176,32 @@ export default function DashboardPage() {
       {/* Quick Links */}
       <div className="flex flex-col gap-6 mt-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-black">Quick links</h1>
-          <Link href="/app/services" className="hover:underline">
-            See all
+          <h1 className="text-xl font-bold bg-gradient-to-r from-purple-500 to-cyan-400 bg-clip-text text-transparent">
+            Quick Links
+          </h1>
+          <Link
+            href="/app/services"
+            className="text-sm text-purple-400 hover:text-purple-300 transition hover:underline"
+          >
+            See all →
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {services
             .filter((service) => service.featured)
             .map((service) => (
               <Link
                 key={service.id}
                 href={service.link}
-                className="w-full rounded-full py-4 bg-card border-2 border-transparent hover:border-purple-600 flex items-center justify-center gap-2 transition-all"
+                className="flex flex-row items-center justify-start gap-3 px-2.5 py-2 rounded-2xl
+                     bg-card border border-transparent hover:border-purple-500/60 hover:bg-purple-500/10
+                     transition-all duration-300 hover:scale-[1.02] shadow-sm hover:shadow-purple-500/20"
               >
-                <span className="w-6 placeholder-text">
-                  <service.icon size={24} className="purple-text" />
-                </span>
-                <span className="text-center text-lg font-normal">
-                  {service.name}
-                </span>
+                <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-500/10 shrink-0">
+                  <service.icon size={22} className="text-purple-400" />
+                </div>
+                <span className="text-base font-medium text-gray-100 truncate">{service.name}</span>
               </Link>
             ))}
         </div>

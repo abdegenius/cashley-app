@@ -1,10 +1,10 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import { Loader2, CheckCircle2, LockKeyhole, ArrowRight } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { Section } from "@/components/ui/Section";
-import { Check } from "lucide-react";
-import Image from "next/image";
-import React, { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import api from "@/lib/axios";
 import { ApiResponse } from "@/types/api";
@@ -19,15 +19,18 @@ interface Limits {
 }
 
 export default function KYCVerification() {
-  const [limits, setlimits] = useState<Limits[]>([]);
+  const [limits, setLimits] = useState<Limits[]>([]);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
   const fetchLimits = async () => {
     try {
       const res = await api.get<ApiResponse>("/limits");
-      if (!res.data.error) setlimits(res.data.data);
+      if (!res.data.error) setLimits(res.data.data);
     } catch {
-      console.log("failed to fetch");
+      console.log("Failed to fetch limits");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,14 +39,14 @@ export default function KYCVerification() {
   }, []);
 
   const step1 = user?.bvn;
-  const step2 = step1 && user.nin;
+  const step2 = step1 && user?.nin;
   const step3 =
     step2 &&
-    user.city &&
-    user.country &&
-    user.house_number &&
-    user.street &&
-    user.state;
+    user?.city &&
+    user?.country &&
+    user?.house_number &&
+    user?.street &&
+    user?.state;
 
   const isStepIncomplete = (count: number) => {
     switch (count) {
@@ -68,165 +71,154 @@ export default function KYCVerification() {
         return "address";
       case 4:
         return "cac";
+      default:
+        return "";
     }
   };
 
   return (
-    <div className="flex flex-col gap-10 h-full max-w-lg mx-auto overflow-y-scroll w-full px-4">
-      <div>
-        <h1 className="text-3xl font-bold">KYC Verification</h1>
-        <h2 className="text-lg">
-          Verify your identity to enjoy better transaction limit.
-        </h2>
+    <div className="flex flex-col gap-10 h-full max-w-2xl mx-auto overflow-y-auto w-full px-4 py-6">
+      {/* Header */}
+      <div className="text-center">
+        <h1 className="text-3xl font-extrabold text-gradient bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-orange-400">
+          KYC Verification
+        </h1>
+        <p className="text-muted-foreground mt-2 text-sm">
+          Verify your identity to unlock higher transaction limits.
+        </p>
       </div>
 
-      <div className="rounded-lg bg-card flex-col py-5 flex items-center justify-center">
+      {/* Current Level */}
+      <div className="rounded-2xl bg-card py-6 flex flex-col items-center justify-center text-center shadow-md relative border border-border/40">
         <Image
-          src={"/svg/vector1.svg"}
-          alt="vector-down"
-          width={100}
+          src="/svg/vector1.svg"
+          alt="vector"
+          width={90}
           height={50}
+          className="mb-3 opacity-80"
         />
-        <div className="text-lg font-semibold">
-          Current Level: {user?.level ?? "--"}
+        <h2 className="text-lg font-semibold">
+          Current Level:{" "}
+          <span className="text-primary">{user?.level ?? "--"}</span>
+        </h2>
+        <p className="text-xs text-muted-foreground mt-1">
+          Keep your account up to date on Cashley
+        </p>
+
+        <div className="relative mt-4 w-full max-w-sm h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div
+            className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-orange-500 transition-all duration-700"
+            style={{
+              width: `${((Number(user?.level ?? 0) / 4) * 100).toFixed(0)}%`,
+            }}
+          />
         </div>
-        <div className="py-2">Keep your account upto date on cashley</div>
-        <div className="w-full h-[1.25px] bg-stone-600 rounded-full" />
-        <div className="flex py-2 text-stone-400 text-sm items-center">
-          {user?.level ?? 0} out of 4 tiers completed
-        </div>
+
+        <p className="text-xs text-gray-500 mt-2">
+          {user?.level ?? 0} of 4 tiers completed
+        </p>
       </div>
 
-      <Section title="Verification Tiers" description="" delay={0.12}>
-        {limits?.map((limit) => (
-          <div key={limit.level} className={`${!isStepIncomplete(limit.level) ? 'bg-white/50 opacity-50' : 'opacity-100'} flex w-full flex-col gap-2 border border-stone-600/25 mb-4 rounded-xl p-4`}>
-            <div className="flex w-full justify-between items-center">
-              <div className="flex gap-3 items-center">
-                <Image
-                  src={"/svg/vector1.svg"}
-                  alt="vector1"
-                  width={25}
-                  height={25}
-                />
-                <div>
-                  <h1 className="font-bold">Level {limit.level} </h1>
-                  <h1 className="text-sm">
-                    {limit.level <= Number(user?.level)
-                      ? "Completed"
-                      : "In progress"}
-                  </h1>
+      {/* Levels */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center h-60 text-gray-400">
+          <Loader2 className="animate-spin mb-2 w-6 h-6" />
+          Loading verification tiers...
+        </div>
+      ) : (
+        <Section title="Verification Tiers" description="" delay={0.12}>
+          <div className="flex flex-col gap-6">
+            {limits.map((limit) => {
+              const isComplete =
+                limit.level <= Number(user?.level ?? 0) && !isStepIncomplete(limit.level);
+              const inProgress = !isComplete && !isStepIncomplete(limit.level);
+              const locked = isStepIncomplete(limit.level);
+
+              return (
+                <div
+                  key={limit.level}
+                  className={`relative border rounded-2xl p-5 flex flex-col gap-4 transition hover:shadow-md ${
+                    isComplete
+                      ? "bg-gradient-to-r from-green-50 to-green-100 border-green-300"
+                      : locked
+                      ? "bg-gradient-to-r from-gray-50 to-gray-100 border-gray-300"
+                      : "bg-gradient-to-r from-orange-50 to-yellow-100 border-yellow-300"
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      {isComplete ? (
+                        <CheckCircle2 className="text-green-600 w-6 h-6" />
+                      ) : locked ? (
+                        <LockKeyhole className="text-gray-500 w-6 h-6" />
+                      ) : (
+                        <ArrowRight className="text-yellow-600 w-6 h-6" />
+                      )}
+                      <div>
+                        <h1 className="font-semibold text-stone-600">
+                          Level {limit.level}
+                        </h1>
+                        <p className="text-xs text-stone-400">
+                          {isComplete
+                            ? "Completed"
+                            : locked
+                            ? "Pending Requirements"
+                            : "Not Started"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500">Requires</p>
+                      <div className="flex gap-1 flex-wrap justify-end mt-1">
+                        {limit.requires.map((r, i) => (
+                          <span
+                            key={i}
+                            className="bg-background border text-[10px] rounded-full px-2 py-0.5 font-medium"
+                          >
+                            {r.toUpperCase()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between text-sm bg-card px-5 py-3 rounded-xl shadow-inner">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500">Daily Limit</p>
+                      <p className="font-semibold">
+                        {formatToNGN(limit.daily_transaction_limit)}
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500">Single Transfer</p>
+                      <p className="font-semibold">
+                        {formatToNGN(limit.per_single_transfer)}
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-xs text-gray-500">Wallet Balance</p>
+                      <p className="font-semibold">{limit.wallet_balance}</p>
+                    </div>
+                  </div>
+
+                  {!isComplete && locked && (
+                    <Button
+                      type="primary"
+                      width="w-full py-4"
+                      text="Verify Now"
+                      href={`/app/profile/kyc-verification/${links(limit.level)}`}
+                    />
+                  )}
                 </div>
-              </div>
-              <div className="flex flex-col placeholder-text gap-2 items-center">
-                <span className="flex">
-                  Requires
-                </span>
-                <div className="w-full max-w-40 justify-end flex flex-wrap gap-2">
-                  {limit.requires.map((rec, idx) => (
-                    <span className="text-xs" key={idx}>{rec.toUpperCase()}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center  text-center justify-between rounded-full px-8 py-2 bg-card gap-4 ">
-              <div className=" text-sm   ">
-                <div className="placeholder-text ">Daily limit</div>
-                {formatToNGN(limit.daily_transaction_limit)}
-              </div>
-              <div className=" text-sm  ">
-                <div className="placeholder-text ">Single Transfer</div>
-                {formatToNGN(limit.per_single_transfer)}
-              </div>
-              <div className=" text-sm  ">
-                <div className="placeholder-text ">Balance</div>
-                {limit.wallet_balance}
-              </div>
-            </div>
+              );
+            })}
+          </div>
+        </Section>
+      )}
 
-            {isStepIncomplete(limit.level) && (
-              <Button
-                type="primary"
-                width="w-full max-w-2xl py-4"
-                text={`Verify Now`}
-                href={`/app/profile/kyc-verification/${links(limit.level)} `}
-              />
-            )}
-          </div>
-        ))}
-      </Section>
-
-      {/* <Section title="Tier 3 Benefits" description="" delay={0.12}>
-        <div className=" flex w-full flex-col gap-3 pb-5    ">
-          <div className="flex w-full justify-between items-center  p-2">
-            <div className="flex gap-3 items-center">
-              <Image
-                src={"/svg/vector1.svg"}
-                alt="vector1"
-                width={25}
-                height={25}
-              />
-              <div>
-                <h1 className="font-bold">Higher transaction limits</h1>
-                <h1 className="">Up to ₦2,000,000 monthly</h1>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className=" flex w-full flex-col gap-3 pb-5   py-5 ">
-          <div className="flex w-full justify-between items-center  p-2">
-            <div className="flex gap-3 items-center">
-              <Image
-                src={"/svg/vector1.svg"}
-                alt="vector1"
-                width={25}
-                height={25}
-              />
-              <div>
-                <h1 className="font-bold">Crypto transaction access</h1>
-                <h1 className="">Receive cryptocurrencies</h1>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className=" flex w-full flex-col gap-3 pb-5   py-5">
-          <div className="flex w-full justify-between items-center  p-2">
-            <div className="flex gap-3 items-center">
-              <Image
-                src={"/svg/vector1.svg"}
-                alt="vector1"
-                width={25}
-                height={25}
-              />
-              <div>
-                <h1 className="font-bold">Priority customer support</h1>
-                <h1 className="">Faster response times</h1>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className=" flex w-full flex-col gap-3 pb-5  border-b  border-border py-5">
-          <div className="flex w-full justify-between items-center  p-2">
-            <div className="flex gap-3 items-center">
-              <Image
-                src={"/svg/vector1.svg"}
-                alt="vector1"
-                width={25}
-                height={25}
-              />
-              <div>
-                <h1 className="font-bold"> Need Help?</h1>
-                <h1 className="">
-                  Having trouble with verification? Our support team is here to
-                  help.
-                </h1>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Section> */}
-
-      <div className="w-full p-0.5 -mt-4 rounded-full  primary-orange-to-purple">
-        <button className="text-lg  font-black w-full bg-card gradient-border  py-2 rounded-full">
+      {/* Support Button */}
+      <div className="w-full mt-4">
+        <button className="w-full bg-gradient-to-r from-orange-500 to-purple-600 text-white font-bold py-3 rounded-full shadow-md hover:opacity-90 transition">
           Contact Support
         </button>
       </div>

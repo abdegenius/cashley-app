@@ -84,7 +84,7 @@ export default function LeaderboardPage() {
             {loading ? (
                 <div className="flex flex-col items-center justify-center h-60 text-gray-400">
                     <Loader2 className="animate-spin mb-2" />
-                    Loading leaderboard...
+                    Loading, please wait...
                 </div>
             ) : (
                 <>

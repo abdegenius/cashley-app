@@ -38,12 +38,12 @@ export default function ViewTransactionDetails({ transaction, onClose }: Transac
           </motion.div>
 
           <div className="space-y-0">
-            <h2 className="text-xl text-stone-400 font-black">
+            <h2 className="text-xl font-black">
               {transaction.status === "completed"
                 ? "Transaction Successful"
                 : "Transaction Failed"}
             </h2>
-            <p className="text-sm text-stone-200">
+            <p className="text-sm text-stone-400">
               {transaction.status === "completed"
                 ? "Your transaction has been processed successfully"
                 : "Something went wrong. Please try again."}
@@ -52,57 +52,57 @@ export default function ViewTransactionDetails({ transaction, onClose }: Transac
               <span className="font-black purple-text text-4xl">
                 {formatToNGN(Number(transaction.amount))}
               </span>
-              <span className="text-stone-400 text-sm">Amount</span>
+              <span className="text-sm">Amount</span>
             </div>
           </div>
 
           <div className="w-full rounded-2xl p-2 space-y-2">
             <div className="flex justify-between items-start space-x-4">
-              <span className="text-stone-400 text-sm">Type</span>
-              <span className="font-mono text-sm text-right text-stone-200">
+              <span className="text-sm">Type</span>
+              <span className="font-mono text-sm text-right text-stone-400">
                 {transaction.type}
               </span>
             </div>
             <div className="flex justify-between items-start space-x-4">
-              <span className="text-stone-400 text-sm">Service</span>
-              <span className="font-mono text-sm text-right text-stone-200">
+              <span className="text-sm">Service</span>
+              <span className="font-mono text-sm text-right text-stone-400">
                 {transaction.action}
               </span>
             </div>
             <div className="flex justify-between items-start space-x-4">
-              <span className="text-stone-400 text-sm">Status</span>
-              <span className="font-mono text-sm text-right text-stone-200">
+              <span className="text-sm">Status</span>
+              <span className="font-mono text-sm text-right text-stone-400">
                 {transaction.status}
               </span>
             </div>
             <div className="flex justify-between items-start space-x-4">
-              <span className="text-stone-400 text-sm">Amount</span>
-              <span className="font-mono text-sm text-right text-stone-200">
+              <span className="text-sm">Amount</span>
+              <span className="font-mono text-sm text-right text-stone-400">
                 {formatToNGN(Number(transaction.amount))}
               </span>
             </div>
             <div className="flex justify-between items-start space-x-4">
-              <span className="text-stone-400 text-sm">Date</span>
-              <span className="font-mono text-sm text-right text-stone-200">
+              <span className="text-sm">Date</span>
+              <span className="font-mono text-sm text-right text-stone-400">
                 {transaction.created_at}
               </span>
             </div>
             <div className="flex justify-between items-start space-x-4">
-              <span className="text-stone-400 text-sm">Reference</span>
-              <span className="font-mono text-sm text-right text-stone-200">
+              <span className="text-sm">Reference</span>
+              <span className="font-mono text-sm text-right text-stone-400">
                 {transaction.reference}
               </span>
             </div>
             {transaction.session_id && <div className="flex justify-between items-start space-x-4">
-              <span className="text-stone-400 text-sm">Session ID</span>
-              <span className="font-mono text-sm text-right text-stone-200">
+              <span className="text-sm">Session ID</span>
+              <span className="font-mono text-sm text-right text-stone-400">
                 {transaction.session_id}
               </span>
             </div>}
 
             <div className="flex justify-between items-start space-x-4">
-              <span className="text-stone-400 text-sm">Description</span>
-              <span className="font-mono text-sm text-right text-stone-200">
+              <span className="text-sm">Description</span>
+              <span className="font-mono text-sm text-right text-stone-400">
                 {transaction.description}
               </span>
             </div>
