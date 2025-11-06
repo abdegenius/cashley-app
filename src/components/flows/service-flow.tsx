@@ -199,7 +199,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
     }
   }
 
-  const handleVerifyCustomer = async () => {
+  const handleVerify = async () => {
     setVerifying(true);
     try {
       let payload = {
@@ -322,7 +322,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
                         maxLength="10"
                       />
                       {["tv", "electricity"].includes(type) &&
-                        <button type="button" onClick={() => handleVerifyCustomer()} className="py-4 px-12 my-3 rounded-full primary-purple-to-blue">Verify</button>
+                        <button type="button" onClick={() => handleVerify()} className="py-4 px-12 my-3 rounded-full primary-purple-to-blue">Verify</button>
                       }
                     </div>
                     {verifyData &&
