@@ -11,7 +11,9 @@ export default function CryptoPage() {
     const [selected, setSelected] = useState<Token>(SUPPORTED_TOKENS[0]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [token, setToken] = useState<TokenData | null>(null);
+    const [networks, setNetworks] = useState<Network[] | null>(null);
     const [selectedNetwork, setSelectedNetwork] = useState<Network | null>(null);
+    const [isLoadingNetwork, setIsLoadingNetwork] = useState(false);
 
     const [amount, setAmount] = useState("");
 
@@ -21,13 +23,23 @@ export default function CryptoPage() {
     //  FETCH TOKEN DATA (CHAINS)
     // ============================
     const getTokenData = async () => {
-        const res = await api.get<ApiResponse>(
-            `/crypto/token/${selected?.symbol}`
-        );
+        setIsLoadingNetwork(true)
+        try {
+            const res = await api.get<ApiResponse>(
+                `/crypto/token/${selected?.symbol}`
+            );
 
-        if (!res.data.error && res.data.data) {
-            setToken(res.data.data);
-            setSelectedNetwork(res.data.data.chains?.[0] ?? null);
+            if (!res.data.error && res.data.data) {
+                const data = res.data.data;
+                const networks = data.length > 0 ? data[data.length - 1] : []
+                setToken(data);
+                setNetworks(networks);
+                setSelectedNetwork(networks.length > 0 ? networks[0] : null);
+            }
+        } catch {
+
+        } finally {
+            setIsLoadingNetwork(false)
         }
     };
 
@@ -57,14 +69,14 @@ export default function CryptoPage() {
     // ============================
     const [history, setHistory] = useState([]);
 
-    const fetchHistory = async () => {
-        const res = await api.get<ApiResponse>(`/crypto/transactions`);
-        if (!res.data.error) setHistory(res.data.data || []);
-    };
+    // const fetchHistory = async () => {
+    //     const res = await api.get<ApiResponse>(`/crypto/transactions`);
+    //     if (!res.data.error) setHistory(res.data.data || []);
+    // };
 
-    useEffect(() => {
-        fetchHistory();
-    }, []);
+    // useEffect(() => {
+    //     fetchHistory();
+    // }, []);
 
     // ============================
     // SWAP (UI ONLY)
@@ -74,18 +86,7 @@ export default function CryptoPage() {
     const [swapAmount, setSwapAmount] = useState("");
 
     return (
-        <div className="w-full h-full px-4 py-5 space-y-8">
-            {/* Header */}
-            <div className="flex items-center gap-3">
-                <Link
-                    href="/app"
-                    className="p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition"
-                >
-                    <ArrowLeft size={20} />
-                </Link>
-                <h1 className="text-xl font-semibold">Crypto</h1>
-            </div>
-
+        <div className="w-full h-full p-4 space-y-8">
             {/* ================ */}
             {/* CRYPTO SELECTOR */}
             {/* ================ */}
@@ -112,6 +113,8 @@ export default function CryptoPage() {
                                     onClick={() => {
                                         setSelected(coin);
                                         setDropdownOpen(false);
+                                        setSelectedNetwork(null)
+                                        setNetworks(null)
                                     }}
                                     className="w-full flex items-center gap-3 p-3 hover:bg-zinc-800 transition text-left"
                                 >
@@ -139,13 +142,17 @@ export default function CryptoPage() {
             {token && (
                 <div className="w-full space-y-3">
                     <h2 className="text-sm text-zinc-400 font-medium">Select Network</h2>
-                    {token.chains?.length === 0 ? (
+                    {isLoadingNetwork &&
+                        <p className="text-center w-full p-4 text-white">
+                            Loading available network in selected coin...
+                        </p>}
+                    {networks?.length === 0 ? (
                         <p className="text-center w-full p-4 text-white">
                             No network available for selected token
                         </p>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            {token.chains?.map((chain: any) => (
+                            {networks?.map((chain: any) => (
                                 <button
                                     key={chain.chain}
                                     onClick={() => setSelectedNetwork(chain)}
