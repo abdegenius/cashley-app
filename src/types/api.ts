@@ -124,3 +124,31 @@ export type Variation = {
   fixed_price: string;
   service_id?: string;
 };
+
+export const SUPPORTED_TOKENS = [
+  { id: "eth", name: "Ethereum", symbol: "ETH", icon: "/img/eth.png" },
+  { id: "btc", name: "Bitcoin", symbol: "BTC", icon: "/img/btc.png" },
+  { id: "usdt", name: "Tether", symbol: "USDT", icon: "/img/usdt.png" },
+];
+
+export interface Token {
+  id: string;
+  name: string;
+  symbol: string;
+  icon: string;
+}
+
+export interface TokenData {
+  coin: string;
+  iconUrl: string;
+  chains: Network[];
+}
+export interface Network {
+  chain?: string;
+  needTag?: string;
+  depositConfirm?: string;
+  withdrawConfirm?: string;
+  minDepositAmount?: string;
+  minWithdrawAmount?: string;
+  txUrl?: string;
+}

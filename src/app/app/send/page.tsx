@@ -89,7 +89,7 @@ export default function SendMoney() {
       } else {
         setFormData((prev) => ({
           ...prev,
-          account_name: res.data.data.name,
+          account_name: res.data.data.name ?? res.data.data.account_name,
         }));
         setVerifyData(res.data.data);
         toast.success("Verification successful");
@@ -415,7 +415,7 @@ export default function SendMoney() {
   );
 
   return (
-    <div className="max-w-lg mx-auto w-full space-y-6 py-6">
+    <div className="max-w-lg mx-auto w-full space-y-6 p-6">
       {step === 1 && renderStep1()}
       {step === 2 && renderStep2()}
       {step === 3 && renderStep3()}

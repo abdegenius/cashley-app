@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, Eye, EyeOff, Gift } from "lucide-react";
+import { Bell, Eye, EyeOff } from "lucide-react";
 import Button from "@/components/ui/Button";
 import TransactionHistory from "@/components/modals/TransactionHistory";
 import api from "@/lib/axios";
@@ -11,6 +11,8 @@ import { formatToNGN, formatToUSD } from "@/utils/amount";
 import { services } from "@/utils/string";
 import { useAuthContext } from "@/context/AuthContext";
 import { topupModal } from "@/controllers/topup-modal";
+import ServicesSlider from "@/components/ServiceSlider";
+
 
 export default function DashboardPage() {
   const { user } = useAuthContext();
@@ -61,6 +63,7 @@ export default function DashboardPage() {
       mounted = false;
     };
   }, []);
+
 
   return (
     <div className="w-full h-full space-y-4 overflow-y-scroll px-4">
@@ -137,33 +140,8 @@ export default function DashboardPage() {
           />
         </div>
 
-        {/* Referral Section */}
-        <div className="w-full rounded-2xl p-6 relative overflow-hidden bg-gradient-to-br from-purple-700 via-fuchsia-700 to-indigo-700 text-white shadow-lg flex items-center justify-between">
-          <div className="space-y-2 max-w-[70%]">
-            <h1 className="text-xl font-bold">Refer & Earn</h1>
-            <p className="text-sm text-gray-100">
-              Earn ₦500 when your friends join and complete their first transaction.
-            </p>
-            <Link
-              href="/app/refer"
-              className="inline-block mt-2 bg-white/20 hover:bg-white/30 text-white font-semibold px-4 py-2 rounded-full transition"
-            >
-              Refer Now
-            </Link>
-          </div>
-          <div className="absolute right-0 bottom-0">
-            <Image
-              src="/img/refer-gift.png"
-              alt="refer and earn"
-              width={200}
-              height={200}
-              className="object-contain opacity-80"
-            />
-          </div>
-          <div className="absolute top-0 left-0 opacity-5">
-            <Gift size={160} />
-          </div>
-        </div>
+        {/* Slider Section */}
+        <ServicesSlider />
       </div>
 
       {/* Quick Links */}

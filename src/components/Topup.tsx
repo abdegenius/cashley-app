@@ -32,6 +32,7 @@ export default function TopupModal() {
       const res = await api.post("/user/create-bank-account");
       if (!res.data.error) {
         toast.success("New account generated successfully!");
+        setShow(false);
         router.refresh();
       } else {
         toast.error(res.data.message);

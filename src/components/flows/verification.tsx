@@ -8,7 +8,7 @@ import { z } from "zod";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { ApiResponse } from "@/types/api";
+import { ApiResponse, User } from "@/types/api";
 import { LoadingOverlay } from "../Loading";
 
 type VerificationType = "bvn" | "nin" | "address";
@@ -65,11 +65,9 @@ export default function Verify({ type }: VerifyProps) {
   const [bvnData, setBvnData] = useState<BvnData>({
     bvn: "",
   });
-
   const [ninData, setNinData] = useState<NinData>({
     nin: "",
   });
-
   const [addressData, setAddressData] = useState<AddressDataProps>({
     city: "",
     state: "",
@@ -78,6 +76,7 @@ export default function Verify({ type }: VerifyProps) {
     street: "",
     house_number: "",
   });
+  const [refreshUser, setRefreshUser] = useState<User | null>(null);
   const [error, setError] = useState<string>("");
   const router = useRouter();
 
@@ -146,6 +145,17 @@ export default function Verify({ type }: VerifyProps) {
       return false;
     }
   };
+
+  const getUser = async () => {
+    try {
+      const res = await api.get("/user/profile");
+      if (!res.data.error) {
+        setRefreshUser(res.data.data)
+      }
+    } catch (err) {
+      console.warn("Failed to refresh user");
+    }
+  }
 
   const handleNext = () => {
     setStep((prev) => prev + 1);
@@ -290,7 +300,7 @@ export default function Verify({ type }: VerifyProps) {
                   onChange={(value) => handleInputChange(labelToFieldName(field.label), value)}
                   placeholder={field.label}
                   type={field.type as any}
-                  // required={field.required}
+                // required={field.required}
                 />
               ))}
               {error && <p className="text-red-500 text-sm mt-2">{error}</p>}

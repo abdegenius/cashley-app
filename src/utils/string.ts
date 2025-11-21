@@ -77,6 +77,12 @@ export const services = [
     link: "/app/services/data",
     featured: true,
     purchaseable: true,
+    slider: {
+      color: "from-green-500 to-green-700",
+      title: "Data Topups Made Easy",
+      subtitle: "Stay connected & stream anywhere",
+      tagline: "Tap, recharge, and surf the web 🌐",
+    },
   },
   {
     id: "airtime",
@@ -86,6 +92,12 @@ export const services = [
     link: "/app/services/airtime",
     featured: true,
     purchaseable: true,
+    slider: {
+      color: "from-blue-500 to-blue-700",
+      title: "Instant Airtime Recharge",
+      subtitle: "Never run out of talk time",
+      tagline: "Recharge and stay chatting 💬",
+    },
   },
   {
     id: "electricity",
@@ -95,6 +107,12 @@ export const services = [
     link: "/app/services/electricity",
     featured: true,
     purchaseable: true,
+    slider: {
+      color: "from-yellow-500 to-yellow-700",
+      title: "Power Up Instantly",
+      subtitle: "Pay bills and keep your lights on",
+      tagline: "Simple, fast, and shock-free ⚡",
+    },
   },
   {
     id: "tv",
@@ -104,6 +122,12 @@ export const services = [
     link: "/app/services/tv",
     featured: true,
     purchaseable: true,
+    slider: {
+      color: "from-purple-500 to-pink-500",
+      title: "Binge Without Limits",
+      subtitle: "Cable subscriptions in a flash",
+      tagline: "Catch your favorite shows anytime 📺",
+    },
   },
   {
     id: "giftcard",
@@ -122,6 +146,12 @@ export const services = [
     link: "",
     featured: false,
     purchaseable: false,
+    slider: {
+      color: "from-red-500 to-red-700",
+      title: "Bet & Win",
+      subtitle: "Top up your betting account instantly",
+      tagline: "Place bets, win big, flex later 🎯",
+    },
   },
   {
     id: "crypto",
@@ -131,6 +161,12 @@ export const services = [
     link: "",
     featured: true,
     purchaseable: false,
+    slider: {
+      color: "from-indigo-500 to-purple-600",
+      title: "Trade Crypto Easily",
+      subtitle: "Transact crypto instantly",
+      tagline: "Flex your digital assets 🚀",
+    },
   },
   {
     id: "savings",
@@ -140,6 +176,12 @@ export const services = [
     link: "",
     featured: true,
     purchaseable: false,
+    slider: {
+      color: "from-teal-500 to-cyan-500",
+      title: "Save Smarter",
+      subtitle: "Grow your funds effortlessly",
+      tagline: "Stack coins and watch them grow 💰",
+    },
   },
   {
     id: "investments",
