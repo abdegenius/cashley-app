@@ -76,7 +76,7 @@ export default function ChangeUsernamePage() {
           </div>
         </div>
         <div className="mt-8">
-          <Button type="secondary" varient="submit" text="Save Changes" />
+          <Button type="secondary" variant="submit" text="Save Changes" />
         </div>
       </form>
     </div>

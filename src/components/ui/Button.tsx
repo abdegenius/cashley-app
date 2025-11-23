@@ -19,7 +19,7 @@ interface ButtonProps {
   loading?: boolean;
   disabled?: boolean;
   href?: string;
-  varient?: "button" | "submit" | "reset" | undefined;
+  variant?: "button" | "submit" | "reset" | undefined;
 }
 
 export default function Button({
@@ -31,7 +31,7 @@ export default function Button({
   loading,
   disabled = false,
   href,
-  varient,
+  variant,
 }: ButtonProps): React.JSX.Element {
   const buttonClasses = `
     ${width} 
@@ -75,7 +75,7 @@ export default function Button({
 
   return (
     <button
-      type={varient}
+      type={variant}
       onClick={onclick}
       disabled={disabled || loading}
       className={buttonClasses}

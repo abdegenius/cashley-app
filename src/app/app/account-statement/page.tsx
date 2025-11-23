@@ -103,7 +103,7 @@ export default function AccountStatementPage() {
           </div>
         </div>
         <div className="mt-8">
-          <Button type="secondary" varient="submit" text="Submit" />
+          <Button type="secondary" variant="submit" text="Submit" />
         </div>
       </form>
     </div>
