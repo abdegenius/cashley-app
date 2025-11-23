@@ -4,7 +4,19 @@ import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
 import Link from "next/link";
 import React, { useState } from "react";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import api from "@/lib/axios";
+import { useForm } from "react-hook-form";
+import { ApiResponse } from "@/types/api";
+import toast from "react-hot-toast";
 
+const forgotPasswordSchema = z.object({
+  email: z.email().min(1, "Email address is required"),
+});
+
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState<string>("");
   return (

@@ -56,14 +56,13 @@ export default function EditProfilePage() {
   const onSubmit = async (data: updateUserForm) => {
     try {
       const res = await api.post("/user/profile", data);
-      if (res.data && !res.data.err) {
-        toast.success("Profile updated successfully");
-        if (res.data.data.user) {
-          setToLocalStorage("user", JSON.stringify(res.data.data.user));
-        }
-      } else {
-        const errorMessage = res.data.message;
-        toast.error("failed to update profile", errorMessage);
+      if (res.data.error) {
+        toast.error(res.data.message ?? "failed to update profile");
+        return
+      }
+      toast.success("Profile updated successfully");
+      if (res.data.data.user) {
+        setToLocalStorage("user", JSON.stringify(res.data.data.user));
       }
     } catch (err) {
       console.log(err);

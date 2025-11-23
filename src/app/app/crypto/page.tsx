@@ -6,8 +6,13 @@ import Link from "next/link";
 import { ArrowLeft, ChevronDown, Repeat } from "lucide-react";
 import api from "@/lib/axios";
 import { ApiResponse, Network, SUPPORTED_TOKENS, Token, TokenData } from "@/types/api";
+import { useAuth } from "@/hooks/useAuth";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function CryptoPage() {
+    const router = useRouter();
+    const { user, loading } = useAuth();
     const [selected, setSelected] = useState<Token>(SUPPORTED_TOKENS[0]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [token, setToken] = useState<TokenData | null>(null);
@@ -46,6 +51,24 @@ export default function CryptoPage() {
     useEffect(() => {
         getTokenData();
     }, [selected]);
+
+    useEffect(() => {
+        if (loading) return;
+        if (!user?.house_number || !user?.street || !user?.state || !user.city) {
+            router.push("/app/profile/address")
+        }
+        if (!user?.rwref && (user?.bvn || user?.nin)) {
+            const setupCryptoService = async () => {
+                try {
+                    const res = await api.post<ApiResponse>("/crypto/setup");
+                    console.log(res)
+                }
+                catch (err) {
+                }
+            }
+            setupCryptoService();
+        }
+    }, [user, loading])
 
 
     // ============================

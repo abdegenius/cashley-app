@@ -32,8 +32,11 @@ export default function About() {
 
         {/* Description */}
         <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-          Your all-in-one wallet for everyday payments & crypto. Top-up airtime, buy data, pay
-          bills, transfer locally, deposit cash, and even receive crypto — all in one seamless app.
+          Meet your all-in-one wallet designed to simplify every part of your financial life.
+          From topping up airtime and purchasing data to settling your utility bills and making
+          instant local transfers, everything is just a tap away. Need to deposit cash? No problem.
+          Want to receive crypto quickly and securely? We've built that in too. This is your
+          complete financial companion — fast, flexible, and effortless.
         </p>
 
         {/* Close Button */}
