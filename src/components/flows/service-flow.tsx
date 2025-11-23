@@ -637,6 +637,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
                     <div className="text-xl font-black w-full justify-end flex">
                       {formatToNGN(Number(formData.amount))}
                     </div>
+                  
                   </div>
 
                   <div className="space-y-3">
