@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ArrowRight, ChevronDown, Building, User } from "lucide-react";
+import { ArrowRight, ChevronDown, Building, User, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/Button";
 import TextInput from "@/components/ui/TextInput";
@@ -14,6 +14,9 @@ import { pinExtractor } from "@/utils/string";
 import { EnterPin } from "@/components/EnterPin";
 import ViewTransactionDetails from "@/components/modals/ViewTransactionModal";
 import { LoadingOverlay } from "@/components/Loading";
+import { Beneficiary, Favourites } from "@/components/flows/service-flow";
+import useBeneficiary from "@/hooks/useBeneficiary";
+import useFavourite from "@/hooks/useFavourite";
 
 type SendMethod = "entity" | "bank";
 
@@ -36,6 +39,8 @@ interface Bank {
 export default function SendMoney() {
   const { user } = useAuthContext();
   const { resolvedTheme } = useTheme();
+  const { beneficiaries, fetchBeneficiaries } = useBeneficiary();
+  const { favourites, fetchFavourites } = useFavourite();
 
   const [step, setStep] = useState(1);
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -52,6 +57,10 @@ export default function SendMoney() {
   const [transaction, setTransaction] = useState<any>(null);
   const [search, setSearch] = useState("");
   const [_imageSrc, setImageSrc] = useState("");
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [toggleBeneficiary, setToggleBeneficiary] = useState(false);
+  const [selectedBeneficiary, setSelectedBeneficiary] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     entity: "",
@@ -62,6 +71,23 @@ export default function SendMoney() {
     amount: "",
     remarks: "",
   });
+
+  const onClose = () => {
+    setToggleBeneficiary(!toggleBeneficiary);
+  };
+
+  const filteredType = () => {
+    switch (sendMethod) {
+      case "entity":
+        return "intra";
+      default:
+        return "inter";
+    }
+  };
+  useEffect(() => {
+    fetchBeneficiaries(filteredType());
+    fetchFavourites(filteredType());
+  }, [step]);
 
   const fetchBanks = async () => {
     try {
@@ -247,7 +273,16 @@ export default function SendMoney() {
           {sendMethod === "entity" ? "Send to Cashley User" : "Send to Bank Account"}
         </h2>
       </div>
-
+      <div className="w-full relative">
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="w-full flex justify-between items-center"
+        >
+          <span className="gradient-text-orange-to-purple">Favourites</span>
+          <ChevronRight size={20} color="purple" />
+        </button>
+        {isDropdownOpen && <Favourites setSelected={setSelectedTag} favourites={favourites} />}
+      </div>
       {sendMethod === "bank" && (
         <div className="relative">
           <p className="pl-2 w-full text-[12px] text-zinc-400 font-medium">Select Bank</p>
@@ -326,7 +361,12 @@ export default function SendMoney() {
           </span>
         </div>
       )} */}
-
+      <Beneficiary
+        toggle={toggleBeneficiary}
+        onclose={onClose}
+        beneficiaries={beneficiaries}
+        setSelected={setSelectedBeneficiary}
+      />
       <div className="py-8">
         <Button
           text="Continue"
@@ -435,6 +475,7 @@ export default function SendMoney() {
       {sending && <LoadingOverlay />}
       {success && transaction && (
         <ViewTransactionDetails
+          type={sendMethod}
           onClose={() => {
             handlePartialReset();
             setSuccess(false);
