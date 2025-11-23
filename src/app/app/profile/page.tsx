@@ -14,6 +14,8 @@ import {
   Palette,
   Copy,
   LogOut,
+  House,
+  UserCog2,
 } from "lucide-react";
 
 import Button from "@/components/ui/Button";
@@ -21,15 +23,27 @@ import { MenuItem } from "@/components/ui/buttons";
 import { Section } from "@/components/ui/Section";
 import { useAuthContext } from "@/context/AuthContext";
 import { logoutModal } from "@/controllers/logout-modal";
+import { copyToClipboard } from "@/utils/copy";
+import toast from "react-hot-toast";
+import ReferAndEarn from "@/components/ReferAndEarn";
 
 export default function ProfilePage() {
   const { user } = useAuthContext();
+
+  const handleCopy = async () => {
+    const success = await copyToClipboard(user?.uid ?? "");
+    if (success) {
+      toast.success("Copied!");
+    } else {
+      toast.error("Copy failed");
+    }
+  };
 
   return (
     <div className="w-full h-full flex items-start justify-center px-4 py-6">
       <div className="w-full flex flex-col gap-10 max-w-lg">
         {/* === PROFILE CARD === */}
-        <div className="relative w-full bg-card rounded-2xl shadow-sm p-6 flex flex-col items-center justify-center space-y-3 border border-border/30">
+        <div className="relative w-full bg-card rounded-2xl shadow-sm p-6 flex flex-col items-center justify-center space-y-3 border border-stone-700">
           <div className="w-24 h-24 rounded-full overflow-hidden ring-4 ring-purple-500/20">
             <Image
               src={user?.photo ?? "/default-avatar.png"}
@@ -46,7 +60,7 @@ export default function ProfilePage() {
             </h2>
             <div className="flex justify-center items-center gap-2 text-xs text-muted-foreground">
               <span className="tracking-wide">UID: {user?.uid}</span>
-              <button className="hover:text-purple-600 transition">
+              <button onClick={handleCopy} className="hover:text-purple-600 transition">
                 <Copy size={14} />
               </button>
             </div>
@@ -65,6 +79,22 @@ export default function ProfilePage() {
             label="Profile Details"
             label2="View and manage your info"
             link="/app/profile/edit"
+            showBorder
+            type="link"
+          />
+          <MenuItem
+            icon={<UserCog2 size={18} />}
+            label="Change Username"
+            label2="Update your account username"
+            link="/app/profile/change-username"
+            showBorder
+            type="link"
+          />
+          <MenuItem
+            icon={<House size={18} />}
+            label="My Address"
+            label2="View and manage address"
+            link="/app/profile/address"
             showBorder
             type="link"
           />
@@ -107,24 +137,7 @@ export default function ProfilePage() {
         </Section>
 
         {/* === REFERRAL === */}
-        <div className="w-full bg-card rounded-2xl shadow-sm border border-border/30 py-6 px-5 flex flex-col gap-4">
-          <div>
-            <h3 className="font-bold text-lg">Refer & Earn</h3>
-            <p className="text-xs text-muted-foreground">Earn ₦500 for each friend you invite</p>
-          </div>
-
-          <div className="flex justify-between items-center bg-background/60 px-3 py-2 rounded-xl">
-            <div>
-              <div className="text-xs text-muted-foreground">Referral Code</div>
-              <div className="font-semibold text-sm">{user?.referral_code}</div>
-            </div>
-            <button className="hover:text-purple-600 transition">
-              <Copy size={16} />
-            </button>
-          </div>
-
-          <Button type="secondary" text="Share Referral Code" width="w-full" />
-        </div>
+        <ReferAndEarn user={user ?? null} />
 
         {/* === SUPPORT === */}
         <Section title="Support & Help">

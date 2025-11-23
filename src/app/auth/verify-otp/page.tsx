@@ -108,7 +108,7 @@ export default function Verify() {
 
           <Button
             type="secondary"
-            varient="submit"
+            variant="submit"
             disabled={loading}
             text={loading ? "Verifying..." : "Verify"}
             width="w-full"

@@ -129,7 +129,7 @@ export default function LoginPage() {
 
           <Button
             type="secondary"
-            varient="submit"
+            variant="submit"
             disabled={loading}
             text={loading ? "Signing in..." : "Log in"}
             width="w-full"

@@ -4,6 +4,7 @@ import TransactionHistory from "@/components/modals/TransactionHistory";
 import api from "@/lib/axios";
 import { ApiResponse, Transaction } from "@/types/api";
 import { useAuthContext } from "@/context/AuthContext";
+import Link from "next/link";
 
 export default function TransactionHistoryPage() {
   const [loading, setLoading] = useState(true);
@@ -36,7 +37,13 @@ export default function TransactionHistoryPage() {
       <div className="space-y-6 relative">
         {/* Transactions */}
         <div className="flex flex-col gap-6">
-          <h1 className="text-xl font-black">Transaction history</h1>
+          <div className="w-full flex justify-between items-center">
+
+            <h1 className="text-xl font-black">Transaction history</h1>
+            <Link href="/app/account-statement" className="text-purple-600 font-bold text-sm border-2 border-purple-600 px-4 py-1 rounded-full">
+              Download
+            </Link>
+          </div>
           <div className="flex flex-col gap-4 h-full">
             {loading ? (
               <p className="text-gray-400 text-center">Loading transactions...</p>

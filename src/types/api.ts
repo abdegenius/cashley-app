@@ -18,6 +18,11 @@ export interface User {
   type: string;
   dob: string | null;
   photo: string | null;
+  bank_provider_id: string | null;
+  rwref: string | null;
+  rwid: string | null;
+  rwwkey: string | null;
+  last_change_username_date: string | null;
   created_at: string;
   updated_at: string;
   ngn_balance: string;

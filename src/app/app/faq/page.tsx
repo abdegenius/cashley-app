@@ -15,34 +15,50 @@ export default function Faq() {
     {
       title: "How do I deposit money into my wallet?",
       description:
-        "You can deposit money by linking your bank account, using a debit card, or via Cashley's supported agents. Deposits reflect instantly in most cases.",
+        "You can fund your wallet by transferring to your Cashley virtual bank account, using a debit card, or depositing cash through supported Cashley agents. Most deposits reflect instantly.",
+    },
+    {
+      title: "Can I make bank transfers with Cashley?",
+      description:
+        "Yes. Cashley lets you send money to any supported bank account instantly. Just enter the recipient’s account number, verify their name, and complete the transfer in seconds.",
     },
     {
       title: "Is my money safe with Cashley?",
       description:
-        "Absolutely. Cashley uses bank-level security with 256-bit SSL encryption, two-factor authentication, and complies with all financial regulations.",
+        "Absolutely. Cashley uses bank-level security with 256-bit SSL encryption, device authorization, PIN protection, and optional two-factor authentication. Your data and funds are fully secured using industry best practices.",
     },
     {
       title: "How long do transfers take?",
       description:
-        "Transfers are processed instantly to supported banks and wallets. Some transactions may take a few minutes depending on the network.",
+        "Transfers to banks and other Cashley wallets are instant. In rare cases, delays may occur due to bank network issues, but most transactions complete within seconds.",
+    },
+    {
+      title: "Can I receive crypto into my wallet?",
+      description:
+        "Yes. Cashley supports receiving crypto from supported wallets globally. Once received, it is securely stored and viewable inside the app.",
+    },
+    {
+      title: "What can I pay for inside Cashley?",
+      description:
+        "You can recharge airtime, buy data bundles, pay utility bills, subscribe to TV services, settle electricity payments, and more — all directly from your wallet.",
     },
     {
       title: "What are the fees for using Cashley?",
       description:
-        "Most services are free. However, a small convenience fee may apply to certain transactions, which is always displayed upfront before you confirm.",
+        "Most services are free. Some actions, like bank transfers or bill payments, may include a small convenience fee which is always shown upfront before you confirm any transaction.",
     },
     {
       title: "Can I use Cashley internationally?",
       description:
-        "Currently, Cashley operates within select countries. You can still receive international crypto transfers from supported wallets globally.",
+        "Cashley currently supports users in select countries. However, you can still receive international crypto payments from anywhere around the world.",
     },
     {
       title: "How do I reset my password?",
       description:
-        "Click 'Forgot Password' on the login page, follow the secure reset link sent to your email, and set a new password in seconds.",
+        "Tap ‘Forgot Password’ on the login page, follow the secure link sent to your email or phone number, and set a new password in seconds.",
     },
   ];
+
 
   const itemVariants = {
     hidden: { opacity: 0, y: 10 },
