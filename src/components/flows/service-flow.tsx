@@ -468,11 +468,10 @@ export default function Purchase({ type, user }: PurchaseProps) {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setFormData((prev) => ({ ...prev, type: "renew" }))}
-                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${
-                        formData.type === "renew"
-                          ? "border-purple-600 bg-purple-600/10"
-                          : "border-transparent bg-card"
-                      }`}
+                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${formData.type === "renew"
+                        ? "border-purple-600 bg-purple-600/10"
+                        : "border-transparent bg-card"
+                        }`}
                     >
                       Renew
                     </motion.button>
@@ -480,11 +479,10 @@ export default function Purchase({ type, user }: PurchaseProps) {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setFormData((prev) => ({ ...prev, type: "change" }))}
-                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${
-                        formData.type === "change"
-                          ? "border-purple-600 bg-purple-600/10"
-                          : "border-transparent bg-card"
-                      }`}
+                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${formData.type === "change"
+                        ? "border-purple-600 bg-purple-600/10"
+                        : "border-transparent bg-card"
+                        }`}
                     >
                       Change Package
                     </motion.button>
@@ -495,7 +493,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
               {formData.service_id && (config?.show_amount_grid || formData.variation) && (
                 <div className="space-y-1">
                   <div className="w-full flex justify-between ">
-                  <label className="text-sm font-semibold pb-0">{config?.recipient}</label>
+                    <label className="text-sm font-semibold pb-0">{config?.recipient}</label>
                     <button
                       onClick={() => setToggleBeneficiary(!toggleBeneficiary)}
                       className="w-fit flex justify-between items-center"
@@ -554,11 +552,10 @@ export default function Purchase({ type, user }: PurchaseProps) {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setFormData((prev) => ({ ...prev, type: "prepaid" }))}
-                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${
-                        formData.type === "prepaid"
-                          ? "border-purple-600 bg-purple-600/10"
-                          : "border-transparent bg-card"
-                      }`}
+                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${formData.type === "prepaid"
+                        ? "border-purple-600 bg-purple-600/10"
+                        : "border-transparent bg-card"
+                        }`}
                     >
                       Prepaid
                     </motion.button>
@@ -566,11 +563,10 @@ export default function Purchase({ type, user }: PurchaseProps) {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setFormData((prev) => ({ ...prev, type: "postpaid" }))}
-                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${
-                        formData.type === "postpaid"
-                          ? "border-purple-600 bg-purple-600/10"
-                          : "border-transparent bg-card"
-                      }`}
+                      className={`flex-1 p-4 rounded-2xl transition-all border-2 ${formData.type === "postpaid"
+                        ? "border-purple-600 bg-purple-600/10"
+                        : "border-transparent bg-card"
+                        }`}
                     >
                       Postpaid
                     </motion.button>
@@ -777,7 +773,7 @@ const ProviderSelect = React.memo(function ProviderSelect({
                       onError={(e) => {
                         try {
                           (e.target as HTMLImageElement).src = "/img/placeholder.png";
-                        } catch {}
+                        } catch { }
                       }}
                     />
                   </div>
@@ -816,15 +812,15 @@ const VariationSelect = React.memo(function VariationSelect({
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
           {type === "data"
             ? [...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-2xl p-0.5 bg-card animate-pulse">
-                  <div className="w-full p-4 rounded-2xl bg-card h-24" />
-                </div>
-              ))
+              <div key={i} className="rounded-2xl p-0.5 bg-card animate-pulse">
+                <div className="w-full p-4 rounded-2xl bg-card h-24" />
+              </div>
+            ))
             : [...Array(3)].map((_, i) => (
-                <div key={i} className="rounded-xl p-0.5 bg-card animate-pulse">
-                  <div className="w-full p-4 rounded-2xl bg-card h-12" />
-                </div>
-              ))}
+              <div key={i} className="rounded-xl p-0.5 bg-card animate-pulse">
+                <div className="w-full p-4 rounded-2xl bg-card h-12" />
+              </div>
+            ))}
         </div>
       </div>
     );
@@ -981,11 +977,8 @@ export function Beneficiary({ beneficiaries, setSelected, onclose, toggle }: Ben
             >
               {b.action === "intra" ? (
                 <div className="flex flex-col gap-1 text-start">
-                  <span className="truncate">{b.data.recipiant}</span>{" "}
-                  <span>
-                    <span>Tag: </span>
-                    <span className="gradient-text-orange-to-purple">{b.data.phone}</span>
-                  </span>
+                  <span className="truncate">{b.data.recipient}</span>{" "}
+                  <span className="gradient-text-orange-to-purple">{b.data.phone}</span>
                 </div>
               ) : b.action == "inter" ? (
                 <div className="space-y-1">
@@ -1040,11 +1033,8 @@ export function Favourites({ favourites, setSelected }: favouritesProps) {
           >
             {b.action === "intra" ? (
               <div className="flex flex-col gap-1 text-start">
-                <span className="truncate">{b.data.recipiant}</span>{" "}
-                <span>
-                  <span>Tag: </span>
-                  <span className="gradient-text-orange-to-purple">{b.data.phone}</span>
-                </span>
+                <span className="truncate">{b.data.recipient}</span>{" "}
+                <span className="gradient-text-orange-to-purple">{b.data.phone}</span>
               </div>
             ) : b.action == "inter" ? (
               <div className="space-y-1">

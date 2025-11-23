@@ -1,317 +1,508 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowLeft, ChevronDown, Repeat } from "lucide-react";
+import QRCode from "react-qr-code";
+import {
+    ArrowLeft,
+    Info,
+    SendHorizontal,
+    Download,
+    RefreshCw,
+    X,
+} from "lucide-react";
 import api from "@/lib/axios";
-import { ApiResponse, Network, SUPPORTED_TOKENS, Token, TokenData } from "@/types/api";
-import { useAuth } from "@/hooks/useAuth";
 import toast from "react-hot-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import { CRYPTO_ASSETS, CryptoSymbol } from "@/utils/assets";
+
+interface AssetChain {
+    chain: string;
+    needTag: string;
+    depositConfirm: string;
+    withdrawConfirm: string;
+    minDepositAmount: string;
+    minWithdrawAmount: string;
+    txUrl: string;
+}
+
+interface UserCryptoWallet {
+    id: string;
+    key: string;
+    reference: string;
+    coin: string;
+    chain: string;
+    network: string;
+    tag: string;
+    status: boolean;
+    address: string;
+    balance: number;
+    created_at: string;
+    updated_at: string;
+}
 
 export default function CryptoPage() {
     const router = useRouter();
     const { user, loading } = useAuth();
-    const [selected, setSelected] = useState<Token>(SUPPORTED_TOKENS[0]);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [token, setToken] = useState<TokenData | null>(null);
-    const [networks, setNetworks] = useState<Network[] | null>(null);
-    const [selectedNetwork, setSelectedNetwork] = useState<Network | null>(null);
-    const [isLoadingNetwork, setIsLoadingNetwork] = useState(false);
 
-    const [amount, setAmount] = useState("");
+    // UI states
+    const [selectedCoin, setSelectedCoin] = useState<CryptoSymbol | null>(null);
+    const [selectedChain, setSelectedChain] = useState<AssetChain | null>(null);
+    const [showInfo, setShowInfo] = useState<CryptoSymbol | null>(null);
+    const [showChainModal, setShowChainModal] = useState(false);
 
-    const dropdownRef = useRef<any>(null);
+    const [showSendModal, setShowSendModal] = useState(false);
+    const [showReceiveModal, setShowReceiveModal] = useState(false);
+    const [showSwapModal, setShowSwapModal] = useState(false);
 
-    // ============================
-    //  FETCH TOKEN DATA (CHAINS)
-    // ============================
-    const getTokenData = async () => {
-        setIsLoadingNetwork(true)
+    // data states
+    const [wallets, setWallets] = useState<UserCryptoWallet[]>([]);
+    const [selectedWallet, setSelectedWallet] = useState<UserCryptoWallet | null>(null);
+    const [chains, setChains] = useState<AssetChain[]>([]);
+
+    // loading states
+    const [isLoadingChains, setIsLoadingChains] = useState<boolean>(false);
+    const [isCreatingWallet, setIsCreatingWallet] = useState<boolean>(false);
+
+    /** -----------------------------
+     * Load User Wallets
+     * ------------------------------ */
+    const loadWallets = useCallback(async () => {
         try {
-            const res = await api.get<ApiResponse>(
-                `/crypto/token/${selected?.symbol}`
+            const res = await api.get("/crypto-wallet/user");
+            if (!res.data.error) setWallets(res.data.data || []);
+        } catch {
+            toast.error("Failed to load wallets");
+        }
+    }, []);
+
+    useEffect(() => {
+        loadWallets();
+    }, [loadWallets]);
+
+    /** -----------------------------
+     * Auto-setup crypto profile
+     * ------------------------------ */
+    useEffect(() => {
+        if (loading) return;
+        if (!user?.crypto_id) {
+            (async () => {
+                try {
+                    const r = await api.post("/crypto/setup");
+                    if (r.data.error) return toast.error(r.data.message);
+                    toast.success("Crypto profile ready!");
+                    router.refresh();
+                } catch {
+                    toast.error("Failed to initialize crypto profile");
+                }
+            })();
+        }
+    }, [user, loading]);
+
+    /** -----------------------------
+     * Select coin → open chain list
+     * ------------------------------ */
+    useEffect(() => {
+        if (!selectedCoin) return;
+
+        (async () => {
+            setIsLoadingChains(true);
+            try {
+                const res = await api.get(`/crypto/token/${selectedCoin}`);
+                if (!res.data.error) {
+                    setChains(res.data.data?.[2] || []);
+                    setShowChainModal(true);
+                }
+            } catch {
+                toast.error("Failed to load chains");
+            } finally {
+                setIsLoadingChains(false);
+            }
+        })();
+    }, [selectedCoin]);
+
+    /** -----------------------------
+     * When chain selected:
+     * 1. Check if wallet exists → select it
+     * 2. If not, create wallet → reload wallets → select
+     * ------------------------------ */
+    const handleChainSelect = async (chain: AssetChain) => {
+        setSelectedChain(chain);
+        setShowChainModal(false);
+
+        // Step 1: does wallet already exist?
+        const existing = wallets.find(
+            (w) => w.coin === selectedCoin && w.chain === chain.chain
+        );
+
+        if (existing) {
+            setSelectedWallet(existing);
+            return;
+        }
+
+        // Step 2: create new wallet
+        try {
+            setIsCreatingWallet(true);
+
+            const res = await api.post("/crypto/create-wallet", {
+                coin: selectedCoin,
+                chain: chain.chain,
+            });
+
+            if (res.data.error) {
+                toast.error(res.data.message);
+                return;
+            }
+
+            toast.success("Wallet created successfully");
+
+            // refresh wallet list
+            await loadWallets();
+
+            // auto-select new wallet
+            const newWallet = wallets.find(
+                (w) => w.coin === selectedCoin && w.chain === chain.chain
             );
 
-            if (!res.data.error && res.data.data) {
-                const data = res.data.data;
-                const networks = data.length > 0 ? data[data.length - 1] : []
-                setToken(data);
-                setNetworks(networks);
-                setSelectedNetwork(networks.length > 0 ? networks[0] : null);
-            }
+            setSelectedWallet(newWallet || null);
         } catch {
-
+            toast.error("Failed to create wallet");
         } finally {
-            setIsLoadingNetwork(false)
+            setIsCreatingWallet(false);
         }
     };
 
+    /** -----------------------------
+     * Select wallet when chain changes (after refresh)
+     * ------------------------------ */
     useEffect(() => {
-        getTokenData();
-    }, [selected]);
+        if (!selectedCoin || !selectedChain) return;
+        const w = wallets.find(
+            (w) => w.coin === selectedCoin && w.chain === selectedChain.chain
+        );
+        setSelectedWallet(w || null);
+    }, [wallets, selectedChain, selectedCoin]);
 
-    useEffect(() => {
-        if (loading) return;
-        if (!user?.house_number || !user?.street || !user?.state || !user.city) {
-            router.push("/app/profile/address")
-        }
-        if (!user?.rwref && (user?.bvn || user?.nin)) {
-            const setupCryptoService = async () => {
-                try {
-                    const res = await api.post<ApiResponse>("/crypto/setup");
-                    console.log(res)
-                }
-                catch (err) {
-                }
-            }
-            setupCryptoService();
-        }
-    }, [user, loading])
-
-
-    // ============================
-    // DROPDOWN TOGGLE HANDLER
-    // ============================
-    const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
-
-    // close dropdown when clicking outside
-    useEffect(() => {
-        const handler = (e: any) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-                setDropdownOpen(false);
-            }
-        };
-        document.addEventListener("click", handler);
-        return () => document.removeEventListener("click", handler);
-    }, []);
-
-    // ============================
-    // HISTORY FETCHER
-    // ============================
-    const [history, setHistory] = useState([]);
-
-    // const fetchHistory = async () => {
-    //     const res = await api.get<ApiResponse>(`/crypto/transactions`);
-    //     if (!res.data.error) setHistory(res.data.data || []);
-    // };
-
-    // useEffect(() => {
-    //     fetchHistory();
-    // }, []);
-
-    // ============================
-    // SWAP (UI ONLY)
-    // ============================
-    const [swapFrom, setSwapFrom] = useState("USDT");
-    const [swapTo, setSwapTo] = useState("ETH");
-    const [swapAmount, setSwapAmount] = useState("");
+    const activeAssets = Object.entries(CRYPTO_ASSETS).filter(([_, a]) => a.active);
 
     return (
-        <div className="w-full h-full p-4 space-y-8">
-            {/* ================ */}
-            {/* CRYPTO SELECTOR */}
-            {/* ================ */}
-            <div className="w-full bg-zinc-900 rounded-2xl p-5 space-y-4 border border-zinc-800">
-                <span className="text-sm text-zinc-400">Select Coin</span>
+        <div className="w-full h-full p-4 space-y-6">
 
-                <div className="relative" ref={dropdownRef}>
-                    <button
-                        onClick={toggleDropdown}
-                        className="w-full flex items-center justify-between p-4 rounded-xl bg-zinc-800 hover:bg-zinc-700 transition"
-                    >
-                        <div className="flex items-center gap-3">
-                            <Image src={selected.icon} alt={selected.name} width={28} height={28} />
-                            <span className="font-medium">{selected.name}</span>
-                        </div>
-                        <ChevronDown size={20} className="text-zinc-400" />
-                    </button>
+            {/* ----------------------------- */}
+            {/* COIN LIST */}
+            {/* ----------------------------- */}
+            {!selectedCoin && (
+                <>
+                    <h1 className="text-xl font-semibold">Available Crypto Assets</h1>
 
-                    {dropdownOpen && (
-                        <div className="absolute mt-2 w-full bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl z-30">
-                            {SUPPORTED_TOKENS.map((coin) => (
-                                <button
-                                    key={coin.id}
-                                    onClick={() => {
-                                        setSelected(coin);
-                                        setDropdownOpen(false);
-                                        setSelectedNetwork(null)
-                                        setNetworks(null)
-                                    }}
-                                    className="w-full flex items-center gap-3 p-3 hover:bg-zinc-800 transition text-left"
-                                >
-                                    <Image
-                                        src={coin.icon}
-                                        alt={coin.name}
-                                        width={26}
-                                        height={26}
-                                        className="rounded-full"
-                                    />
+                    <div className="space-y-4">
+                        {activeAssets.map(([symbol, asset]) => (
+                            <div
+                                key={symbol}
+                                onClick={() => setSelectedCoin(symbol as CryptoSymbol)}
+                                className="flex items-center justify-between bg-card px-4 py-3 rounded-xl border border-stone-800 shadow-sm hover:shadow-md transition cursor-pointer"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <Image src={asset.logo} width={40} height={40} alt={asset.name} className="rounded-full" />
                                     <div>
-                                        <p className="text-sm font-medium">{coin.name}</p>
-                                        <p className="text-xs text-zinc-500">{coin.symbol}</p>
+                                        <p className="font-semibold">{asset.name}</p>
+                                        <p className="text-stone-400 text-sm">{asset.symbol}</p>
                                     </div>
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
+                                </div>
 
-            {/* ===================== */}
-            {/* NETWORK SELECTION TAB */}
-            {/* ===================== */}
-            {token && (
-                <div className="w-full space-y-3">
-                    <h2 className="text-sm text-zinc-400 font-medium">Select Network</h2>
-                    {isLoadingNetwork &&
-                        <p className="text-center w-full p-4 text-white">
-                            Loading available network in selected coin...
-                        </p>}
-                    {networks?.length === 0 ? (
-                        <p className="text-center w-full p-4 text-white">
-                            No network available for selected token
-                        </p>
-                    ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            {networks?.map((chain: any) => (
                                 <button
-                                    key={chain.chain}
-                                    onClick={() => setSelectedNetwork(chain)}
-                                    className={`p-3 rounded-xl border text-left transition ${selectedNetwork?.chain === chain.chain
-                                        ? "border-purple-500 bg-purple-500/10"
-                                        : "border-zinc-800 bg-zinc-900 hover:bg-zinc-800"
-                                        }`}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowInfo(showInfo === symbol ? null : (symbol as CryptoSymbol));
+                                    }}
+                                    className="p-2 hover:bg-stone-700/40 rounded-full"
                                 >
-                                    <p className="font-medium">{chain.chain}</p>
-                                    <p className="text-xs text-zinc-400">
-                                        Min Deposit: {chain.minDepositAmount}
-                                    </p>
+                                    <Info className="w-5 h-5 text-stone-400" />
                                 </button>
-                            ))}
-                        </div>
-                    )}
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
 
-                    {selectedNetwork && (
-                        <div className="p-4 bg-zinc-900 border border-zinc-800 rounded-xl text-sm">
-                            <div className="flex justify-between">
-                                <span className="text-zinc-400">Deposit Confirmations</span>
-                                <span>{selectedNetwork.depositConfirm}</span>
-                            </div>
-                            <div className="flex justify-between mt-2">
-                                <span className="text-zinc-400">Withdraw Confirmations</span>
-                                <span>{selectedNetwork.withdrawConfirm}</span>
-                            </div>
-                            <div className="flex justify-between mt-2">
-                                <span className="text-zinc-400">Min Withdraw</span>
-                                <span>{selectedNetwork.minWithdrawAmount}</span>
+            {/* ----------------------------- */}
+            {/* WALLET DISPLAY + ACTIONS */}
+            {/* ----------------------------- */}
+            {selectedCoin && selectedChain && (
+                <div className="space-y-6 animate-fadeIn">
+
+                    {/* Back button */}
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => {
+                                setSelectedCoin(null);
+                                setSelectedChain(null);
+                                setSelectedWallet(null);
+                            }}
+                            className="p-2 rounded-full hover:bg-stone-700/30"
+                        >
+                            <ArrowLeft className="w-6 h-6 text-stone-300" />
+                        </button>
+                        <h1 className="text-xl font-semibold">
+                            {CRYPTO_ASSETS[selectedCoin].name} Wallet
+                        </h1>
+                    </div>
+
+                    {/* WALLET CARD */}
+                    <div className="bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 border border-stone-700 rounded-2xl p-6 shadow-xl space-y-5 relative overflow-hidden">
+
+                        {/* Accent glow */}
+                        <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-purple-600/20 to-blue-600/20 blur-3xl" />
+
+                        <div className="relative flex items-center gap-4">
+                            <Image
+                                src={CRYPTO_ASSETS[selectedCoin].logo}
+                                width={60}
+                                height={60}
+                                alt={CRYPTO_ASSETS[selectedCoin].name}
+                                className="rounded-full"
+                            />
+                            <div>
+                                <h2 className="text-lg font-semibold">
+                                    {CRYPTO_ASSETS[selectedCoin].name}
+                                </h2>
+                                <p className="text-stone-400 text-sm">{CRYPTO_ASSETS[selectedCoin].symbol}</p>
+                                <p className="text-xs text-purple-300 mt-1">Network: {selectedChain.chain}</p>
                             </div>
                         </div>
-                    )}
+
+                        {/* Balance */}
+                        {selectedWallet && (
+                            <div className="relative mt-4 space-y-2">
+                                <p className="text-4xl font-bold tracking-tight">
+                                    {selectedWallet.balance}
+                                    <span className="text-sm ml-2 text-stone-400">
+                                        {selectedWallet.coin}
+                                    </span>
+                                </p>
+
+                                <div className="flex items-center justify-between text-xs text-stone-500 pt-2">
+                                    <span>Available Balance</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* ACTIONS */}
+                    <div className="grid grid-cols-3 gap-4">
+                        <ActionButton
+                            icon={<SendHorizontal className="w-6 h-6 text-stone-600" />}
+                            label="Send"
+                            onClick={() => setShowSendModal(true)}
+                        />
+
+                        <ActionButton
+                            icon={<Download className="w-6 h-6 text-stone-600" />}
+                            label="Receive"
+                            onClick={() => setShowReceiveModal(true)}
+                        />
+
+                        <ActionButton
+                            icon={<RefreshCw className="w-6 h-6 text-stone-600" />}
+                            label="Swap"
+                            onClick={() => setShowSwapModal(true)}
+                        />
+                    </div>
                 </div>
             )}
 
-            {/* ================== */}
-            {/* BUY / SELL CARD */}
-            {/* ================== */}
-            <div className="bg-gradient-to-br from-zinc-800 via-zinc-900 to-slate-900 text-white p-6 rounded-2xl shadow-lg space-y-6">
-                <div className="flex items-center gap-3">
-                    <Image src={selected.icon} alt={selected.name} width={36} height={36} />
-                    <div>
-                        <h2 className="text-lg font-bold">{selected.name}</h2>
-                        <p className="text-zinc-400 text-sm">{selected.symbol}</p>
+            {/* ----------------------------- */}
+            {/* LOADING CHAINS */}
+            {/* ----------------------------- */}
+            {selectedCoin && isLoadingChains && (
+                <p className="text-center flex min-h-[80vh] items-center justify-center animate-pulse">
+                    Loading chains/networks...
+                </p>
+            )}
+
+            {/* ----------------------------- */}
+            {/* NETWORK SELECT MODAL */}
+            {/* ----------------------------- */}
+            {showChainModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-10">
+                    <div className="bg-card w-11/12 max-w-md p-6 rounded-2xl border border-stone-800 shadow-xl space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-xl font-semibold">Select Network</h2>
+                            <button onClick={() => setShowChainModal(false)} className="p-2 hover:bg-stone-700/40 rounded-full">
+                                <X size={22} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-3 max-h-80 overflow-y-auto">
+                            {chains.map((chain) => (
+                                <button
+                                    key={chain.chain}
+                                    onClick={() => handleChainSelect(chain)}
+                                    className="w-full bg-card border border-stone-700 hover:border-purple-400 hover:bg-stone-800 transition rounded-xl p-4 text-left flex justify-between items-center"
+                                >
+                                    <div>
+                                        <p className="text-base font-semibold">{chain.chain}</p>
+                                        <p className="text-xs text-stone-400 mt-1">Min Deposit: {chain.minDepositAmount}</p>
+                                        <p className="text-xs text-stone-400">Confirms: {chain.depositConfirm}</p>
+                                        {chain.needTag === "true" && (
+                                            <p className="text-xs text-amber-400 mt-1">⚠ Requires Tag/Memo</p>
+                                        )}
+                                    </div>
+                                    <span className="text-purple-400 font-medium">Select</span>
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
+            )}
 
-                <div>
-                    <span className="text-xs text-zinc-400">Amount</span>
-                    <input
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        placeholder="0.00"
-                        className="mt-1 w-full bg-transparent border-b border-zinc-600 focus:border-purple-400 outline-none py-2 text-xl font-semibold"
-                    />
+            {/* ----------------------------- */}
+            {/* WALLET CREATION OVERLAY */}
+            {/* ----------------------------- */}
+            {isCreatingWallet && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-20">
+                    <p className="animate-pulse text-sm">Creating wallet, please wait...</p>
                 </div>
+            )}
 
-                <div className="grid grid-cols-2 gap-3 pt-3">
-                    <button className="p-3 rounded-xl bg-purple-600 hover:bg-purple-500 transition font-medium">
-                        Buy {selected.symbol}
-                    </button>
-                    <button className="p-3 rounded-xl bg-red-600 hover:bg-red-500 transition font-medium">
-                        Sell {selected.symbol}
-                    </button>
-                </div>
-            </div>
+            {/* RECEIVE MODAL */}
+            {showReceiveModal && selectedWallet && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-20">
+                    <div className="bg-card w-11/12 max-w-md p-6 rounded-2xl border border-stone-800 shadow-xl space-y-6">
 
-            {/* ================== */}
-            {/* SWAP SECTION */}
-            {/* ================== */}
-            <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 space-y-4">
-                <h2 className="text-lg font-semibold">Swap Crypto</h2>
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-lg font-semibold">Receive {selectedWallet.coin}</h2>
+                            <button onClick={() => setShowReceiveModal(false)} className="p-2 hover:bg-stone-700/40 rounded-full">
+                                <X size={22} />
+                            </button>
+                        </div>
 
-                <div className="flex items-center justify-between gap-3">
-                    <input
-                        className="w-full p-3 rounded-xl bg-zinc-800 border border-zinc-700 focus:border-purple-500 outline-none"
-                        placeholder="Amount"
-                        value={swapAmount}
-                        onChange={(e) => setSwapAmount(e.target.value)}
-                    />
+                        <div className="flex flex-col items-center space-y-4">
+                            <QRCode value={selectedWallet.address} size={160} />
 
-                    <Repeat size={20} className="text-zinc-400" />
-                </div>
+                            <div className="text-center">
+                                <p className="text-sm text-stone-300 break-all font-mono">{selectedWallet.address}</p>
 
-                <div className="flex gap-3">
-                    <select
-                        value={swapFrom}
-                        onChange={(e) => setSwapFrom(e.target.value)}
-                        className="w-full bg-zinc-800 p-3 rounded-xl border border-zinc-700"
-                    >
-                        {SUPPORTED_TOKENS.map((c) => (
-                            <option key={c.symbol}>{c.symbol}</option>
-                        ))}
-                    </select>
-                    <select
-                        value={swapTo}
-                        onChange={(e) => setSwapTo(e.target.value)}
-                        className="w-full bg-zinc-800 p-3 rounded-xl border border-zinc-700"
-                    >
-                        {SUPPORTED_TOKENS.map((c) => (
-                            <option key={c.symbol}>{c.symbol}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <button className="w-full p-3 bg-purple-600 hover:bg-purple-500 transition rounded-xl font-medium">
-                    Swap
-                </button>
-            </div>
-
-            {/* ================== */}
-            {/* TRANSACTION HISTORY */}
-            {/* ================== */}
-            <div>
-                <h2 className="text-lg font-semibold mb-3">Crypto History</h2>
-
-                <div className="space-y-3">
-                    {history.length === 0 ? (
-                        <p className="text-zinc-500 text-sm">No crypto transactions yet.</p>
-                    ) : (
-                        history.map((tx: any, idx: number) => (
-                            <div
-                                key={idx}
-                                className="flex items-center justify-between p-4 bg-zinc-900 border border-zinc-800 rounded-xl"
-                            >
-                                <div>
-                                    <p className="font-medium">{tx.type}</p>
-                                    <p className="text-xs text-zinc-500">{tx.date}</p>
-                                </div>
-                                <p className="font-semibold">{tx.amount}</p>
+                                {selectedWallet.tag && (
+                                    <p className="text-xs text-amber-400 mt-2">
+                                        ⚠ Tag/Memo Required: {selectedWallet.tag}
+                                    </p>
+                                )}
                             </div>
-                        ))
-                    )}
+
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(selectedWallet.address);
+                                    toast.success("Address copied");
+                                }}
+                                className="w-full py-3 bg-purple-600/80 hover:bg-purple-600 rounded-xl font-medium text-white"
+                            >
+                                Copy Address
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            )}
+
+            {/* SEND MODAL */}
+            {showSendModal && selectedWallet && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-20">
+                    <div className="bg-card w-11/12 max-w-md p-6 rounded-2xl border border-stone-800 shadow-xl space-y-6">
+
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-lg font-semibold">Send {selectedWallet.coin}</h2>
+                            <button onClick={() => setShowSendModal(false)} className="p-2 hover:bg-stone-700/40 rounded-full">
+                                <X size={22} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-sm text-stone-300">Recipient Address</label>
+                                <input
+                                    type="text"
+                                    className="w-full mt-1 bg-stone-900 border border-stone-700 rounded-xl p-3"
+                                    placeholder="Enter wallet address"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm text-stone-300">Amount</label>
+                                <input
+                                    type="number"
+                                    className="w-full mt-1 bg-stone-900 border border-stone-700 rounded-xl p-3"
+                                    placeholder="0.00"
+                                />
+                            </div>
+
+                            <div className="text-xs text-stone-400">
+                                Network Fee applies depending on network congestion.
+                            </div>
+
+                            <button className="w-full py-3 bg-purple-600/80 hover:bg-purple-600 rounded-xl font-medium text-white">
+                                Send Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* SWAP MODAL */}
+            {showSwapModal && selectedWallet && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-20">
+                    <div className="bg-card w-11/12 max-w-md p-6 rounded-2xl border border-stone-800 shadow-xl space-y-6">
+
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-lg font-semibold">Swap {selectedWallet.coin}</h2>
+                            <button onClick={() => setShowSwapModal(false)} className="p-2 hover:bg-stone-700/40 rounded-full">
+                                <X size={22} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-sm text-stone-300">From</label>
+                                <input
+                                    type="number"
+                                    className="w-full mt-1 bg-stone-900 border border-stone-700 rounded-xl p-3"
+                                    placeholder="Amount"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm text-stone-300">To</label>
+                                <select className="w-full mt-1 bg-stone-900 border border-stone-700 rounded-xl p-3">
+                                    <option>BTC</option>
+                                    <option>ETH</option>
+                                    <option>USDT</option>
+                                </select>
+                            </div>
+
+                            <div className="text-xs text-stone-400">
+                                Estimated quote preview will appear here.
+                            </div>
+
+                            <button className="w-full py-3 bg-blue-600/80 hover:bg-blue-600 rounded-xl font-medium text-white">
+                                Get Quote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }
+
+/** Action Button Component */
+const ActionButton = ({ icon, label, onClick }: any) => (
+    <button
+        onClick={onClick}
+        className="flex flex-col items-center gap-2 bg-stone-900/40 p-4 rounded-xl hover:bg-stone-800 transition shadow-sm hover:shadow-md"
+    >
+        {icon}
+        <span className="text-md font-medium">{label}</span>
+    </button>
+);
+

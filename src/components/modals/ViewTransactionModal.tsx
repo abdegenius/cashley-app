@@ -34,7 +34,7 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
     error: favoriteError,
   } = useFavourite();
 
-  const exitingBenficiary = beneficiaries?.find(
+  const exitingBeneficiary = beneficiaries?.find(
     (i) =>
       i.data.service_id === transaction.extra.phone ||
       i.data.phone === transaction.extra.phone ||
@@ -54,7 +54,7 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
           action: "intra",
           data: {
             phone: transaction.extra.entity,
-            recipiant: transaction.extra.verify_data.name,
+            recipient: transaction.extra.verify_data.name,
           },
         };
       case "bank":
@@ -168,20 +168,20 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
             <button onClick={onClose} className="text-lg font-medium text-red-400">
               Close
             </button>
-            {!exitingBenficiary && (
-              <div>
+            {!exitingBeneficiary && (
+              <div className="w-auto flex-none flex">
                 {loadingFavorite ? (
                   <Loader2 className="animate-spin" />
                 ) : favoriteStatus === "Favorite created" ? (
-                  <span className="bg-background px-2 py-1 rounded-full ">
-                    <Star fill="gold" size={20} color="cold" />
+                  <span className="bg-background w-10 h-10 flex items-center justify-center rounded-full ">
+                    <Star fill="gold" size={24} color="cold" />
                   </span>
                 ) : (
                   <button
                     onClick={() => addFavourite(payload())}
-                    className="bg-background px-2 py-1 rounded-full text-sm "
+                    className="bg-background w-10 h-10 flex items-center justify-center rounded-full text-sm "
                   >
-                    <Star size={20} color="gold" />
+                    <Star size={24} color="gold" />
                   </button>
                 )}
               </div>
@@ -234,15 +234,18 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
               <Detail label="Session ID" value={transaction.session_id} />
             )}
 
-            <div className="flex justify-between items-start space-x-4">
+            {/* <div className="flex justify-between items-start space-x-4">
               <span className="text-sm">Description</span>
               <span className="font-mono text-sm text-right text-stone-400">
                 {transaction.description}
               </span>
-            </div>
-            {!exitingBenficiary && (
+            </div> */}
+
+            <Detail label="Description" value={transaction.description} />
+
+            {!exitingBeneficiary && (
               <div className="flex w-full items-center justify-between ">
-                <div className="gradient-text-purple-to-blue">Add as Beneficiary</div>
+                <div className="gradient-text-purple-to-blue">Save as a beneficiary</div>
 
                 {loadingBeneficiary ? (
                   <Loader2 className="animate-spin" />
@@ -260,7 +263,6 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
             )}
 
             {beneficiaryError && <div className="text-red-500 font-sm">{beneficiaryError}</div>}
-            <Detail label="Description" value={transaction.description} />
           </div>
         </motion.div>
 
@@ -290,7 +292,7 @@ function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between items-start space-x-4">
       <span className="text-sm">{label}</span>
-      <span className="font-mono text-sm text-right text-muted-foreground">
+      <span className="font-mono text-stone-300 text-sm text-right">
         {value}
       </span>
     </div>
