@@ -35,7 +35,7 @@ export default function About() {
           Meet your all-in-one wallet designed to simplify every part of your financial life.
           From topping up airtime and purchasing data to settling your utility bills and making
           instant local transfers, everything is just a tap away. Need to deposit cash? No problem.
-          Want to receive crypto quickly and securely? We've built that in too. This is your
+          Want to receive crypto quickly and securely? We have built that in too. This is your
           complete financial companion — fast, flexible, and effortless.
         </p>
 
