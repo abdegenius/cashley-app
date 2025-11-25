@@ -94,7 +94,7 @@ export default function ForgotPasswordVerifyPage() {
                     />
 
                     <div className="flex justify-center space-x-1">
-                        <span className="text-sm text-zinc-500">Still haven't received email?</span>
+                        <span className="text-sm text-zinc-500">Still have not received email?</span>
                         <Link href="/auth/forgot-password" className="text-zinc-300 text-sm">
                             Back to password reset
                         </Link>

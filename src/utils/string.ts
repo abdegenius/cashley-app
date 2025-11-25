@@ -159,7 +159,7 @@ export const services = [
     name: "Crypto",
     title: "Send & Receive Crypto",
     icon: Bitcoin,
-    link: "",
+    link: "/app/crypto",
     featured: true,
     purchaseable: false,
     slider: {

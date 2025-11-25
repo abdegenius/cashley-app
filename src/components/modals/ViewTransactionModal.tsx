@@ -17,10 +17,67 @@ interface TransactionProps {
   onClose: () => void;
 }
 export default function ViewTransactionDetails({ transaction, onClose, type }: TransactionProps) {
-  
+  const {
+    beneficiaries,
+    addBeneficiary,
+    fetchBeneficiaries,
+    status: beneficiaryStatus,
+    loading: loadingBeneficiary,
+    error: beneficiaryError,
+  } = useBeneficiary();
+  const {
+    favourites,
+    addFavourite,
+    fetchFavourites,
+    status: favoriteStatus,
+    loading: loadingFavorite,
+    error: favoriteError,
+  } = useFavourite();
 
+  const exitingBeneficiary = beneficiaries?.find(
+    (i) =>
+      i.data.service_id === transaction.extra.phone ||
+      i.data.phone === transaction.extra.phone ||
+      i.data.account_number === transaction.extra.account_number
+  );
 
-  
+  useEffect(() => {
+    fetchBeneficiaries(type);
+    fetchFavourites(type);
+  }, []);
+
+  const payload = () => {
+    switch (type) {
+      case "entity":
+        return {
+          phone: transaction.extra.entity,
+          action: "intra",
+          data: {
+            phone: transaction.extra.entity,
+            recipient: transaction.extra.verify_data.name,
+          },
+        };
+      case "bank":
+        return {
+          phone: transaction.extra.account_number,
+          action: "Inter",
+          data: {
+            phone: transaction.extra.account_number,
+            bank_name: transaction.extra.bank_name,
+            bank_code: transaction.extra.bank_code,
+          },
+        };
+      default:
+        return {
+          phone: transaction.extra.phone,
+          action: type,
+          data: {
+            phone: transaction.extra.phone,
+            servicer_id: transaction.extra.service_id,
+          },
+        };
+    }
+  };
   const shareRef = useRef<HTMLDivElement>(null);
   const filename = `${transaction.action}-${transaction.created_at}`;
 
@@ -111,7 +168,24 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
             <button onClick={onClose} className="text-lg font-medium text-red-400">
               Close
             </button>
-            
+            {!exitingBeneficiary && (
+              <div className="w-auto flex-none flex">
+                {loadingFavorite ? (
+                  <Loader2 className="animate-spin" />
+                ) : favoriteStatus === "Favorite created" ? (
+                  <span className="bg-background w-10 h-10 flex items-center justify-center rounded-full ">
+                    <Star fill="gold" size={24} color="cold" />
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => addFavourite(payload())}
+                    className="bg-background w-10 h-10 flex items-center justify-center rounded-full text-sm "
+                  >
+                    <Star size={24} color="gold" />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           <motion.div
@@ -160,14 +234,35 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
               <Detail label="Session ID" value={transaction.session_id} />
             )}
 
-            <div className="flex justify-between items-start space-x-4">
+            {/* <div className="flex justify-between items-start space-x-4">
               <span className="text-sm">Description</span>
               <span className="font-mono text-sm text-right text-stone-400">
                 {transaction.description}
               </span>
-            </div>
-           
+            </div> */}
+
             <Detail label="Description" value={transaction.description} />
+
+            {!exitingBeneficiary && (
+              <div className="flex w-full items-center justify-between ">
+                <div className="gradient-text-purple-to-blue">Save as a beneficiary</div>
+
+                {loadingBeneficiary ? (
+                  <Loader2 className="animate-spin" />
+                ) : beneficiaryStatus === "Beneficiary created" ? (
+                  <Check size={30} className="bg-background px-2 py-1 rounded-full " />
+                ) : (
+                  <button
+                    onClick={() => addBeneficiary(payload())}
+                    className="bg-background px-2 py-1 rounded-full text-sm "
+                  >
+                    Add
+                  </button>
+                )}
+              </div>
+            )}
+
+            {beneficiaryError && <div className="text-red-500 font-sm">{beneficiaryError}</div>}
           </div>
         </motion.div>
 
@@ -197,7 +292,7 @@ export function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between items-start w-full space-x-4">
       <span className="text-sm">{label}</span>
-      <span className="font-mono text-sm text-right text-muted-foreground">
+      <span className="font-mono text-stone-300 text-sm text-right">
         {value}
       </span>
     </div>

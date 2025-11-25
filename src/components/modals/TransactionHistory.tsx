@@ -82,7 +82,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({ transactions, c
         ))
       )}
       {transaction && (
-        <ViewTransactionDetails transaction={transaction} onClose={handleCloseSingleTransaction} />
+        <ViewTransactionDetails type={transaction.action} transaction={transaction} onClose={handleCloseSingleTransaction} />
       )}
     </div>
   );

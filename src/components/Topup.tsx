@@ -2,26 +2,26 @@
 
 import { useEffect, useState } from "react";
 import { topupModal } from "@/controllers/topup-modal";
-import { useBankAccount } from "@/hooks/useBankAccount";
 import Modal from "./ui/Modal";
 import { Copy, CheckCircle2, Building2, Loader2, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function TopupModal() {
   const router = useRouter();
   const [show, setShow] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { loading, bankAccount, hasBankAccount } = useBankAccount();
+  const { loading, user, } = useAuth();
 
   useEffect(() => {
     topupModal.register(setShow);
   }, []);
 
   const handleCopy = async () => {
-    if (bankAccount?.account_number) {
-      await navigator.clipboard.writeText(bankAccount.account_number);
+    if (user?.account_number) {
+      await navigator.clipboard.writeText(user.account_number);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -58,7 +58,7 @@ export default function TopupModal() {
 
         {/* Info */}
         <p className="text-sm text-gray-400 leading-relaxed">
-          {hasBankAccount
+          {user?.account_number
             ? "Deposit any amount to the account below. Your wallet will be credited automatically within minutes."
             : "You don’t currently have a virtual account. Click the button below to generate one instantly."}
         </p>
@@ -71,7 +71,7 @@ export default function TopupModal() {
         )}
 
         {/* Bank Account Details */}
-        {!loading && hasBankAccount && bankAccount && (
+        {!loading && user && user?.account_number && (
           <div className="w-full bg-gradient-to-br from-zinc-800 via-slate-800 to-stone-800 p-6 rounded-2xl text-white shadow-lg space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -80,7 +80,7 @@ export default function TopupModal() {
                 </div>
                 <div>
                   <h3 className="text-sm text-gray-300">Bank Name</h3>
-                  <p className="text-lg font-semibold">{bankAccount.bank_name || "N/A"}</p>
+                  <p className="text-lg font-semibold">{user.bank_name || "N/A"}</p>
                 </div>
               </div>
             </div>
@@ -91,10 +91,10 @@ export default function TopupModal() {
               <div>
                 <h3 className="text-sm text-gray-300">Account Number</h3>
                 <p className="text-2xl font-bold tracking-wider">
-                  {bankAccount.account_number || "N/A"}
+                  {user.account_number || "N/A"}
                 </p>
               </div>
-              {bankAccount.account_number && (
+              {user.account_number && (
                 <button
                   onClick={handleCopy}
                   className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 transition px-3 py-2 rounded-xl text-sm font-medium"
@@ -114,13 +114,13 @@ export default function TopupModal() {
 
             <div className="mt-3">
               <h3 className="text-sm text-gray-300">Account Name</h3>
-              <p className="text-base font-medium">{bankAccount.account_name || "N/A"}</p>
+              <p className="text-base font-medium">{user.account_name || "N/A"}</p>
             </div>
           </div>
         )}
 
         {/* Generate Account Section */}
-        {!loading && !hasBankAccount && (
+        {!loading && !user?.account_number && (
           <div className="flex justify-center">
             <button
               onClick={handleGenerateAccount}

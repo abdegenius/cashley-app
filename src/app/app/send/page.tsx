@@ -279,7 +279,7 @@ export default function SendMoney() {
           className="w-full flex justify-between items-center"
         >
           <span className="gradient-text-orange-to-purple">Favourites</span>
-          <ChevronRight size={20} color="purple" />
+          {/* <ChevronRight size={20} color="purple" /> */}
         </button>
         {isDropdownOpen && <Favourites setSelected={setSelectedTag} favourites={favourites} />}
       </div>
