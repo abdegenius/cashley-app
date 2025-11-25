@@ -22,7 +22,7 @@ import { EnterPin } from "../EnterPin";
 import { cleanServiceName, pinExtractor, getPurchaseableService } from "@/utils/string";
 import { useRouter } from "next/navigation";
 import { LoadingOverlay } from "../Loading";
-import { Calendar, ChevronDown, ChevronRight, Plus, PlusCircle, Star, Trash, Trash2, X } from "lucide-react";
+import { Calendar, ChevronDown, ChevronRight, Plus, PlusCircle, Star, Trash, Trash2, Users, X } from "lucide-react";
 import ViewTransactionDetails from "../modals/ViewTransactionModal";
 import useBeneficiary from "@/hooks/useBeneficiary";
 import useFavourite from "@/hooks/useFavourite";
@@ -516,9 +516,12 @@ export default function Purchase({ type, user }: PurchaseProps) {
                       className="w-fit  flex justify-between items-center"
                     >
                       {toggleBeneficiary ? (
-                        <ChevronDown color="purple" />
-                      ) : (
                         <ChevronRight color="purple" />
+                      ) : (
+                        <div className="flex gap-2 items-center gradient-text-purple-to-blue">
+                          <span>Beneficiary</span>
+                          <Users color="purple" />
+                        </div>
                       )}
                     </button>
                   </div>
