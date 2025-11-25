@@ -22,10 +22,11 @@ import { EnterPin } from "../EnterPin";
 import { cleanServiceName, pinExtractor, getPurchaseableService } from "@/utils/string";
 import { useRouter } from "next/navigation";
 import { LoadingOverlay } from "../Loading";
-import { ChevronDown, ChevronRight, Plus, PlusCircle, Trash, Trash2, X } from "lucide-react";
+import { Calendar, ChevronDown, ChevronRight, Plus, PlusCircle, Star, Trash, Trash2, X } from "lucide-react";
 import ViewTransactionDetails from "../modals/ViewTransactionModal";
 import useBeneficiary from "@/hooks/useBeneficiary";
 import useFavourite from "@/hooks/useFavourite";
+import { Schedule } from "@/app/app/services/schedule/page";
 
 interface PurchaseProps {
   type: PurchaseType;
@@ -43,7 +44,8 @@ export default function Purchase({ type, user }: PurchaseProps) {
   const [purchasing, setPurchasing] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [toggleBeneficiary, setToggleBeneficiary] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [toggleFavorite, setToggleFavorite] = useState(false);
+  const [toggleschedule, setToggleSchedule] = useState(false);
 
   const [formData, setFormData] = useState({
     service_id: "",
@@ -53,11 +55,13 @@ export default function Purchase({ type, user }: PurchaseProps) {
     type: "",
   });
 
+  console.log("Service ID", formData.service_id);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [variations, setVariations] = useState<Variation[]>([]);
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [verifyData, setVerifyData] = useState<any>(null);
   const [selectedBeneficiary, setSelectedBeneficiary] = useState<string | null>(null);
+  const [addBeneficiary, setAddBeneficiary] = useState(false);
 
   const [loadingProviders, setLoadingProviders] = useState(false);
   const [loadingVariations, setLoadingVariations] = useState(false);
@@ -71,6 +75,9 @@ export default function Purchase({ type, user }: PurchaseProps) {
 
   const providersAbort = useRef<AbortController | null>(null);
   const variationsAbort = useRef<AbortController | null>(null);
+
+  const existingBeneficiary = beneficiaries.find((b) => b.data.phone === formData.customer_id);
+  const existingFavourites = favourites.find((b) => b.data.phone === formData.customer_id);
 
   useEffect(() => {
     fetchBeneficiaries(type);
@@ -93,6 +100,8 @@ export default function Purchase({ type, user }: PurchaseProps) {
   const onClose = () => {
     setToggleBeneficiary(!toggleBeneficiary);
   };
+
+  // fetch provider
   const fetchProviders = useCallback(async () => {
     const cacheKey = config?.api_key;
     if (!cacheKey) return;
@@ -134,6 +143,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
     }
   }, [config?.api_key]);
 
+  //fetch variation
   const fetchVariations = useCallback(async (service_id: string) => {
     if (!service_id) return;
     if (variationsCache.current[service_id]) {
@@ -238,6 +248,8 @@ export default function Purchase({ type, user }: PurchaseProps) {
     setLoadingProviders(false);
     setLoadingVariations(false);
     setPurchasing(false);
+    fetchBeneficiaries(type);
+    fetchFavourites(type);
   }, []);
 
   const handleNext = useCallback(() => setStep((s) => s + 1), []);
@@ -312,6 +324,8 @@ export default function Purchase({ type, user }: PurchaseProps) {
         service_id: formData.service_id,
         pin: pinExtractor(otp),
         amount: formData.amount,
+        save_as_beneficiary: addBeneficiary,
+        add_to_favorites: toggleFavorite,
       };
 
       if (["airtime", "data"].includes(type)) {
@@ -410,9 +424,12 @@ export default function Purchase({ type, user }: PurchaseProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8 p-2 z-0"
-          >
-            <div className="space-y-1">
+          > 
+            <div className="space-y-1 justify-between flex items-center w-full">
               <h2 className="text-2xl font-black">{config?.step_1_title}</h2>
+            <button onClick={() => setToggleSchedule(!toggleschedule)}>
+              <Calendar size={20} color="purple" />
+            </button>
             </div>
 
             <div className="space-y-6">
@@ -495,10 +512,10 @@ export default function Purchase({ type, user }: PurchaseProps) {
               {formData.service_id && (config?.show_amount_grid || formData.variation) && (
                 <div className="space-y-1">
                   <div className="w-full flex justify-between ">
-                  <label className="text-sm font-semibold pb-0">{config?.recipient}</label>
+                    <label className="text-sm font-semibold pb-0">{config?.recipient}</label>
                     <button
                       onClick={() => setToggleBeneficiary(!toggleBeneficiary)}
-                      className="w-fit flex justify-between items-center"
+                      className="w-fit  flex justify-between items-center"
                     >
                       {toggleBeneficiary ? (
                         <ChevronDown color="purple" />
@@ -620,9 +637,29 @@ export default function Purchase({ type, user }: PurchaseProps) {
             <div className="z-1 inset-0 relative w-full h-full backdrop-blur-sm bg-zinc-900/10" />
             <div className="bottom-0 absolute z-2 w-full h-auto flex flex-col justify-end items-end">
               <div className="w-full bg-card py-5 rounded-t-3xl">
-                <div className="space-y-1">
+                <div className="space-y-1 flex">
                   <h2 className="text-2xl font-black w-full text-center">Summary</h2>
                 </div>
+
+                {!existingFavourites && (
+                  <div className="absolute top-6 right-5">
+                    {toggleFavorite ? (
+                      <button
+                        onClick={() => setToggleFavorite(!toggleFavorite)}
+                        className="bg-background flex items-center justify-center flex-none w-7 h-7 rounded-full text-sm "
+                      >
+                        <Star size={20} color="gold" fill="gold" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setToggleFavorite(!toggleFavorite)}
+                        className="bg-background flex items-center justify-center flex-none w-7 h-7 rounded-full text-sm "
+                      >
+                        <Star size={20} color="gold" />
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 <div className="w-full rounded-2xl p-6 space-y-4">
                   <div className="flex justify-between items-center w-full">
@@ -637,7 +674,6 @@ export default function Purchase({ type, user }: PurchaseProps) {
                     <div className="text-xl font-black w-full justify-end flex">
                       {formatToNGN(Number(formData.amount))}
                     </div>
-                  
                   </div>
 
                   <div className="space-y-3">
@@ -656,6 +692,20 @@ export default function Purchase({ type, user }: PurchaseProps) {
                       <ReviewItem label="Customer Name" value={verifyData.customer_name} />
                     )}
                   </div>
+
+                  {!existingBeneficiary && (
+                    <div className="flex w-full items-center justify-between">
+                      <h1 className="gradient-text-purple-to-blue">Add as a Benficiary</h1>
+                      <div
+                        className={`w-full p-1 rounded-full max-w-13 flex ${addBeneficiary ? "justify-end bg-white/20" : "justify-start bg-background"} items-center  `}
+                      >
+                        <button
+                          onClick={() => setAddBeneficiary(!addBeneficiary)}
+                          className={` rounded-full h-5 w-5 ${addBeneficiary ? "primary-purple-to-blue" : "bg-card"}  `}
+                        ></button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-x-4 px-5">
@@ -714,6 +764,8 @@ export default function Purchase({ type, user }: PurchaseProps) {
 
         {(purchasing || verifying) && <LoadingOverlay />}
       </div>
+
+      {toggleschedule && <Schedule type={type} close={setToggleSchedule} />}
     </div>
   );
 }
@@ -872,10 +924,16 @@ interface AmountGridProps {
   maxAmount?: string;
 }
 
-function AmountGrid({ value, onChange, presetAmounts, minAmount, maxAmount }: AmountGridProps) {
+export function AmountGrid({
+  value,
+  onChange,
+  presetAmounts,
+  minAmount,
+  maxAmount,
+}: AmountGridProps) {
   return (
     <div className="space-y-1">
-      <label className="text-sm font-semibold">Amount</label>
+      <label className="text-sm placeholder-text font-semibold">Amount</label>
       <div className="flex flex-row items-center justify-start space-x-2 overflow-x-auto mb-4">
         {presetAmounts.map((amount, i) => (
           <motion.button
@@ -914,7 +972,7 @@ interface AmountProps {
   maxAmount?: string;
 }
 
-function Amount({ value, onChange, minAmount, maxAmount }: AmountProps) {
+export function Amount({ value, onChange, minAmount, maxAmount }: AmountProps) {
   return (
     <div className="space-y-1">
       <label className="text-sm font-semibold">Amount</label>
@@ -1027,7 +1085,7 @@ interface favouritesProps {
 }
 
 export function Favourites({ favourites, setSelected }: favouritesProps) {
-  const { fetchFavourites, deleteFavourite } = useFavourite();
+  const { deleteFavourite } = useFavourite();
   return (
     <div className="w-full rounded-2xl h-fit max-h-70 overflow-auto  text-sm p-2 space-y-4">
       <div className="w-full flex gap-4 items-center overflow-x-scroll">
@@ -1037,7 +1095,7 @@ export function Favourites({ favourites, setSelected }: favouritesProps) {
               setSelected(b?.data?.phone ?? null);
             }}
             key={i}
-            className="p-3 text-sm w-fit gap-2 bg-card  justify-between flex hover:bg-hover items-center rounded-2xl mb-2"
+            className="p-3 text-sm w-fit gap-2 bg-card  flex-none justify-between flex hover:bg-hover items-center rounded-2xl mb-2"
           >
             {b.action === "intra" ? (
               <div className="flex flex-col gap-1 text-start">
@@ -1054,7 +1112,7 @@ export function Favourites({ favourites, setSelected }: favouritesProps) {
             ) : (
               <>
                 <Image
-                  src={`/img/${b.data.servicer_id}.png` || "/img/placeholder.png"}
+                  src={`/img/${b.data.service_id}.png` || "/img/placeholder.png"}
                   alt={b.data.service_id || ""}
                   width={40}
                   height={40}
@@ -1065,8 +1123,9 @@ export function Favourites({ favourites, setSelected }: favouritesProps) {
             )}
 
             <button
-              onClick={(e) => {
-                (deleteFavourite(b.reference), e.stopPropagation());
+              onClick={async (e) => {
+                e.stopPropagation();
+                await deleteFavourite(b.reference);
               }}
               className="bg-background p-3 rounded-3xl cursor-pointer"
             >

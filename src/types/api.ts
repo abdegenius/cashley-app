@@ -120,6 +120,7 @@ export type Provider = {
   minimum_amount: string;
   maximum_amount: string;
   type: string;
+  serviceID?:string;
 };
 
 export type Variation = {

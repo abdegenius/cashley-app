@@ -89,10 +89,19 @@ body {
 .bg-background {
   background-color: var(--background);
 }
+
+
+.hover\:bg-background:hover {
+  background-color: var(--background);
+}
+
 .hover\:bg-hover:hover {
   background-color: var(--background);
 }
 
+.hover\:primary-purple-to-blue:hover {
+  background: linear-gradient(90deg, rgb(var(--gradient-purple)), rgb(var(--gradient-blue)));
+}
 .placeholder-text {
   color: var(--placeholder);
 }

@@ -287,3 +287,20 @@ const purchaseable_services = [
 export const getPurchaseableService = (type: PurchaseType) => {
   return purchaseable_services.find((service) => service.id == type);
 };
+
+
+
+export const removeString = (input: string): string => {
+  if (typeof input !== 'string') {
+    return '';
+  }
+  return input.replace(/\D/g, '');
+};
+
+
+export const removeNum = (input: string): string => {
+  if (typeof input !== 'string') {
+    return '';
+  }
+  return input.replace(/[^a-zA-Z]/g, '');
+};
