@@ -120,7 +120,7 @@ export type Provider = {
   minimum_amount: string;
   maximum_amount: string;
   type: string;
-  serviceID?:string;
+  serviceID?: string;
 };
 
 export type Variation = {
@@ -157,4 +157,50 @@ export interface Network {
   minDepositAmount?: string;
   minWithdrawAmount?: string;
   txUrl?: string;
+}
+
+export interface AssetChain {
+  chain: string;
+  needTag: string;
+  depositConfirm: string;
+  withdrawConfirm: string;
+  minDepositAmount: string;
+  minWithdrawAmount: string;
+  txUrl: string;
+}
+
+export interface UserCryptoWallet {
+  id: string;
+  key: string;
+  reference: string;
+  coin: string;
+  chain: string;
+  network: string;
+  tag: string;
+  status: boolean;
+  address: string;
+  balance: number;
+  created_at: string;
+  updated_at: string;
+}
+export interface WalletAsset {
+  coin: string;
+  balance: string;
+  frozen: string;
+  updatedAt: string;
+}
+
+export interface EstimateFee {
+  coin: string;
+  chain: string;
+  withdrawFee: string;
+  minWithdrawAmount: string;
+  withdrawable: string;
+}
+
+export interface Rate {
+  usd_value: number;
+  usd_rate: number;
+  ngn_value: number;
+  ngn_rate: number;
 }
