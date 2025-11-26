@@ -1,7 +1,9 @@
+import { topupModal } from "@/controllers/topup-modal";
 import { PurchaseAction, PurchaseType } from "@/types/api";
 import {
   Bitcoin,
   ChartBar,
+  Clock12,
   Gift,
   Lightbulb,
   ListCheck,
@@ -60,15 +62,17 @@ export const services = [
     link: "/app/send",
     featured: false,
     purchaseable: false,
+    onclick: null,
   },
   {
     id: "receive",
     name: "Receive",
     title: "Receive Money",
     icon: Plus,
-    link: "/app/receive",
+    link: "",
     featured: false,
     purchaseable: false,
+    onclick: () => topupModal.open(),
   },
   {
     id: "data",
@@ -78,6 +82,7 @@ export const services = [
     link: "/app/services/data",
     featured: true,
     purchaseable: true,
+    onclick: null,
     slider: {
       color: "from-green-500 to-green-700",
       title: "Data Topups Made Easy",
@@ -93,6 +98,7 @@ export const services = [
     link: "/app/services/airtime",
     featured: true,
     purchaseable: true,
+    onclick: null,
     slider: {
       color: "from-blue-500 to-blue-700",
       title: "Instant Airtime Recharge",
@@ -108,6 +114,7 @@ export const services = [
     link: "/app/services/electricity",
     featured: true,
     purchaseable: true,
+    onclick: null,
     slider: {
       color: "from-yellow-500 to-yellow-700",
       title: "Power Up Instantly",
@@ -123,6 +130,7 @@ export const services = [
     link: "/app/services/tv",
     featured: true,
     purchaseable: true,
+    onclick: null,
     slider: {
       color: "from-purple-500 to-pink-500",
       title: "Binge Without Limits",
@@ -138,6 +146,7 @@ export const services = [
     link: "",
     featured: false,
     purchaseable: false,
+    onclick: null,
   },
   {
     id: "betting",
@@ -147,6 +156,7 @@ export const services = [
     link: "",
     featured: false,
     purchaseable: false,
+    onclick: null,
     slider: {
       color: "from-red-500 to-red-700",
       title: "Bet & Win",
@@ -162,6 +172,7 @@ export const services = [
     link: "/app/crypto",
     featured: true,
     purchaseable: false,
+    onclick: null,
     slider: {
       color: "from-indigo-500 to-purple-600",
       title: "Trade Crypto Easily",
@@ -175,8 +186,9 @@ export const services = [
     title: "Savings",
     icon: PiggyBank,
     link: "",
-    featured: true,
+    featured: false,
     purchaseable: false,
+    onclick: null,
     slider: {
       color: "from-teal-500 to-cyan-500",
       title: "Save Smarter",
@@ -192,6 +204,17 @@ export const services = [
     link: "",
     featured: false,
     purchaseable: false,
+    onclick: null,
+  },
+  {
+    id: "schedules",
+    name: "Schedules",
+    title: "Manage scheduled payments",
+    icon: Clock12,
+    link: "schedules",
+    featured: true,
+    purchaseable: false,
+    onclick: null,
   },
   {
     id: "account_statements",
@@ -199,8 +222,9 @@ export const services = [
     title: "Generate Account Statement",
     icon: ListCheck,
     link: "account-statement",
-    featured: false,
+    featured: true,
     purchaseable: false,
+    onclick: null,
   },
 ];
 
@@ -227,7 +251,7 @@ export const statusLabel = (_status: string) => {
 export const cleanServiceName = (name: string) => {
   return name
     .replace(
-      /\b(Distribution|distribution|DISTRIBUTION|Company|company|COMPANY|Electric|electric|ELECTRIC|Electricity|electricity|ELECTRICITY|vtu|Vtu|VTU|Payment|payment|PAYMENT|Data|data|DATA|airtime|Airtime|AIRTIME|internet|Internet|INTERNET|Subscription|subscription|SUBSCRIPTION)\b/gi,
+      /\b(Disco|disco|DISCO|Distribution|distribution|DISTRIBUTION|Company|company|COMPANY|Electric|electric|ELECTRIC|Electricity|electricity|ELECTRICITY|vtu|Vtu|VTU|Payment|payment|PAYMENT|Data|data|DATA|airtime|Airtime|AIRTIME|internet|Internet|INTERNET|Subscription|subscription|SUBSCRIPTION)\b/gi,
       ""
     )
     .trim();
@@ -288,19 +312,16 @@ export const getPurchaseableService = (type: PurchaseType) => {
   return purchaseable_services.find((service) => service.id == type);
 };
 
-
-
 export const removeString = (input: string): string => {
-  if (typeof input !== 'string') {
-    return '';
+  if (typeof input !== "string") {
+    return "";
   }
-  return input.replace(/\D/g, '');
+  return input.replace(/\D/g, "");
 };
 
-
 export const removeNum = (input: string): string => {
-  if (typeof input !== 'string') {
-    return '';
+  if (typeof input !== "string") {
+    return "";
   }
-  return input.replace(/[^a-zA-Z]/g, '');
+  return input.replace(/[^a-zA-Z]/g, "");
 };

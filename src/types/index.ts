@@ -1,3 +1,5 @@
+import { Dispatch, SetStateAction } from "react";
+
 export interface DatePickerProps {
   selectedDate?: Date;
   onDateChange: (date: Date) => void;
@@ -27,3 +29,11 @@ export interface Month {
   isSelected: boolean;
   isDisabled: boolean;
 }
+
+export const TIME_UNITS = ["Minutes", "Hour", "Days", "Week", "Months", "Year"] as const;
+export const PRESET_AMOUNTS = [100, 200, 500, 1000, 2000, 5000];
+export const SERVICE_CONFIG = {
+  electricity: { inputLabel: "Meter Number", inputPlaceholder: "Meter Number" },
+  tv: { inputLabel: "Smart Card Number", inputPlaceholder: "Smart Card Number" },
+  default: { inputLabel: "Phone Number", inputPlaceholder: "Phone Number" },
+} as const;

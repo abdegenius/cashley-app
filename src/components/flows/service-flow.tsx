@@ -7,7 +7,6 @@ import Image from "next/image";
 import React, {
   Dispatch,
   SetStateAction,
-  use,
   useCallback,
   useEffect,
   useMemo,
@@ -22,11 +21,11 @@ import { EnterPin } from "../EnterPin";
 import { cleanServiceName, pinExtractor, getPurchaseableService } from "@/utils/string";
 import { useRouter } from "next/navigation";
 import { LoadingOverlay } from "../Loading";
-import { Calendar, ChevronDown, ChevronRight, Plus, PlusCircle, Star, Trash, Trash2, Users, X } from "lucide-react";
+import { Calendar, ChevronRight, Star, Trash2, Users, X } from "lucide-react";
 import ViewTransactionDetails from "../modals/ViewTransactionModal";
 import useBeneficiary from "@/hooks/useBeneficiary";
 import useFavourite from "@/hooks/useFavourite";
-import { Schedule } from "@/app/app/services/schedule/page";
+import Link from "next/link";
 
 interface PurchaseProps {
   type: PurchaseType;
@@ -45,7 +44,6 @@ export default function Purchase({ type, user }: PurchaseProps) {
   const [verifying, setVerifying] = useState(false);
   const [toggleBeneficiary, setToggleBeneficiary] = useState(false);
   const [toggleFavorite, setToggleFavorite] = useState(false);
-  const [toggleschedule, setToggleSchedule] = useState(false);
 
   const [formData, setFormData] = useState({
     service_id: "",
@@ -55,7 +53,6 @@ export default function Purchase({ type, user }: PurchaseProps) {
     type: "",
   });
 
-  console.log("Service ID", formData.service_id);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [variations, setVariations] = useState<Variation[]>([]);
   const [transaction, setTransaction] = useState<Transaction | null>(null);
@@ -178,7 +175,6 @@ export default function Purchase({ type, user }: PurchaseProps) {
       }
     } catch (error: any) {
       if (error?.name === "CanceledError" || error?.name === "AbortError") {
-        // Silently handle abort
       } else {
         console.error("Network Error (fetchVariations):", error);
       }
@@ -197,7 +193,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
   useEffect(() => {
     if (!formData.service_id) {
       setVariations([]);
-      setVerifyData(null); // Clear verify data when provider changes
+      setVerifyData(null);
       return;
     }
     if (typeof formData.service_id !== "string" || !formData.service_id.trim()) {
@@ -424,12 +420,12 @@ export default function Purchase({ type, user }: PurchaseProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8 p-2 z-0"
-          > 
+          >
             <div className="space-y-1 justify-between flex items-center w-full">
               <h2 className="text-2xl font-black">{config?.step_1_title}</h2>
-            <button onClick={() => setToggleSchedule(!toggleschedule)}>
-              <Calendar size={20} color="purple" />
-            </button>
+              <Link href={`/app/schedules?type=${type}`}>
+                <Calendar size={20} color="purple" />
+              </Link>
             </div>
 
             <div className="space-y-6">
@@ -519,8 +515,8 @@ export default function Purchase({ type, user }: PurchaseProps) {
                         <ChevronRight color="purple" />
                       ) : (
                         <div className="flex gap-2 items-center gradient-text-purple-to-blue">
-                          <span>Beneficiary</span>
                           <Users color="purple" />
+                          <span>Beneficiaries</span>
                         </div>
                       )}
                     </button>
@@ -764,7 +760,6 @@ export default function Purchase({ type, user }: PurchaseProps) {
         {(purchasing || verifying) && <LoadingOverlay />}
       </div>
 
-      {toggleschedule && <Schedule type={type} close={setToggleSchedule} />}
     </div>
   );
 }
@@ -1006,6 +1001,7 @@ interface BeneficiaryProps {
   toggle: boolean;
   setSelected: Dispatch<SetStateAction<string | null>>;
 }
+
 export function Beneficiary({ beneficiaries, setSelected, onclose, toggle }: BeneficiaryProps) {
   const { deleteBeneficiary } = useBeneficiary();
   const safeBeneficiaries = Array.isArray(beneficiaries) ? beneficiaries : [];
@@ -1013,7 +1009,7 @@ export function Beneficiary({ beneficiaries, setSelected, onclose, toggle }: Ben
   return (
     <div
       onClick={() => onclose?.()}
-      className={`w-full h-full  absolute top-0 ${toggle ? "flex" : "hidden"} z-20 items-end  left-0 bg-black/70  `}
+      className={`w-full h-full  absolute top-0 ${toggle ? "flex" : "hidden"} z-[99] items-end  left-0 bg-black/70  `}
     >
       <div className="w-full space-y-4 p-6 h-[50%] bg-card rounded-t-4xl">
         <div className="flex items-start justify-between pr-1">
@@ -1074,7 +1070,6 @@ export function Beneficiary({ beneficiaries, setSelected, onclose, toggle }: Ben
     </div>
   );
 }
-
 interface favouritesProps {
   favourites: any[];
   setSelected: Dispatch<SetStateAction<string | null>>;

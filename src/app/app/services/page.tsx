@@ -44,7 +44,15 @@ export default function ServicesPage() {
         {services?.map((service, id) => (
           <Link
             key={id}
-            href={service.link}
+            href={service.link && service.link.length > 0 ? service.link : "#"}
+            onClick={(e) => {
+              if (!service.link || service.link.length === 0) {
+                e.preventDefault();
+                if (typeof service.onclick === "function") {
+                  service.onclick();
+                }
+              }
+            }}
             className="group relative w-full p-5 rounded-2xl bg-card flex flex-col border border-transparent hover:border-purple-600/40 hover:shadow-purple-300/10 hover:shadow-lg transition-all duration-300 items-center justify-center gap-2 text-center"
           >
             <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-400 text-white mb-2 shadow-md group-hover:scale-110 transition-transform">

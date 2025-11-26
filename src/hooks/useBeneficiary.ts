@@ -10,7 +10,7 @@ export default function useBeneficiary() {
   const [status, setStatus] = React.useState<string | null>();
 
   const fetchBeneficiaries = async (action: string | null) => {
-    if (!action || typeof action !== 'string') {
+    if (!action || typeof action !== "string") {
       setError("Invalid action parameter");
       return;
     }
@@ -38,36 +38,36 @@ export default function useBeneficiary() {
   };
 
   const deleteBeneficiary = async (reference: string) => {
-  setLoading(true);
-  setError(null);
-  try {
-    const res = await api.delete<ApiResponse>(`/beneficiaries/${reference}`);
-    if (res.data.message === "Successful") {
-      toast.success("Beneficiary deleted");
-      
-      setBeneficiaries(prev => prev.filter(ben => ben.data.reference !== reference));
-    } else {
-      const errorMessage = res.data.message || "Failed to delete beneficiary";
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.delete<ApiResponse>(`/beneficiaries/${reference}`);
+      if (!res.data.error) {
+        toast.success("Beneficiary deleted");
+
+        setBeneficiaries((prev) => prev.filter((ben) => ben.data.reference !== reference));
+      } else {
+        const errorMessage = res.data.message || "Failed to delete beneficiary";
+        toast.error(errorMessage);
+        setStatus(errorMessage);
+      }
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || "Failed to delete beneficiary";
+      setError(errorMessage);
       toast.error(errorMessage);
       setStatus(errorMessage);
+      console.error("Failed to delete beneficiary", err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err: any) {
-    const errorMessage = err.response?.data?.message || "Failed to delete beneficiary";
-    setError(errorMessage);
-    toast.error(errorMessage);
-    setStatus(errorMessage);
-    console.error("Failed to delete beneficiary", err);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const addBeneficiary = async (beneficiaryData: any) => {
     setLoading(true);
     setError(null);
     try {
       const res = await api.post<ApiResponse>("/beneficiaries", beneficiaryData);
-      
+
       if (!res.data.error && res.data.data) {
         setBeneficiaries((prev) => [...prev, res.data.data]);
         setStatus(res.data.message);
