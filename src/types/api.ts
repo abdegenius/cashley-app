@@ -204,3 +204,19 @@ export interface Rate {
   ngn_value: number;
   ngn_rate: number;
 }
+
+export interface Schedule {
+  id: number;
+  title: string;
+  action: string;
+  identifier: string;
+  interval: number;
+  frequency: string;
+  status: string;
+  reference: string;
+  data: {
+    [key: string]: any;
+  };
+  created_at: string;
+  updated_at: string;
+}

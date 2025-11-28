@@ -185,20 +185,15 @@ export function AddSchedule({ type, close }: AddScheduleProps) {
             service_id: form.formState.selectedProvider,
             amount: form.formState.amount,
             variation_code: form.formState.selectedVariation,
-            // title: form.formState.selectedVariation,
-            action: type,
-            interval: calculateInterval(Number(form.formState.duration), form.formState.type),
-            frequency: form.formState.frequency,
-            status: "running" as const,
             title: form.formState.title,
-            service_name: form.formState.selectedProvider,
         };
 
         return {
             title: form.formState.title,
             action: type,
-            interval: dataPayload.interval,
+            interval: calculateInterval(Number(form.formState.duration), form.formState.type),
             frequency: form.formState.frequency,
+            status: "running" as const,
             data: dataPayload,
         };
     }, [form.formState, type]);

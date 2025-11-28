@@ -211,7 +211,7 @@ export const services = [
     name: "Schedules",
     title: "Manage scheduled payments",
     icon: Clock12,
-    link: "schedules",
+    link: "/app/schedules",
     featured: true,
     purchaseable: false,
     onclick: null,

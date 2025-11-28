@@ -1,7 +1,6 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import { Schedule } from "./partials/Schedule";
 
 export default function SchedulePage() {

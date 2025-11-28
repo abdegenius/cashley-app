@@ -143,14 +143,13 @@ export function SwapCrypto({ reference, coin, balance, onClose }: SwapCryptoProp
     const buttonDisabled = zeroAmount || insufficientBalance;
     //  zeroAmount || belowMinimum || insufficientBalance || !swapFee;
 
-    const handleSwap = async (amount: number) => {
-        if (amount <= 0) return;
+    const handleSwap = async () => {
 
         setIsSwapping(true);
         try {
             const res = await api.post("/crypto/swap", {
                 coin,
-                amount,
+                amount: swapAmount,
                 reference
             });
 
@@ -267,7 +266,7 @@ export function SwapCrypto({ reference, coin, balance, onClose }: SwapCryptoProp
 
                     {/* SUBMIT */}
                     <button
-                        onClick={handleSwap}
+                        onClick={() => handleSwap}
                         disabled={buttonDisabled}
                         className={`w-full py-3 rounded-xl font-medium transition 
                                 ${buttonDisabled
