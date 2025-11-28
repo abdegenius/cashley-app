@@ -1,7 +1,7 @@
 "use client";
 
 import { useTheme } from "@/providers/ThemeProvider";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { useBack } from "@/hooks/useBack";
 import { motion } from "framer-motion";
@@ -9,16 +9,10 @@ import { Mail, Instagram, Twitter, Facebook, Send } from "lucide-react";
 
 export default function About() {
   const { resolvedTheme } = useTheme();
-  const [imageSrc, setImageSrc] = useState("/svg/cashley.svg");
+  const imageSrc = resolvedTheme === "dark"
+    ? "/svg/cashley.svg"
+    : "/svg/cashley-dark.svg"
   const goBack = useBack();
-
-  useEffect(() => {
-    setImageSrc(
-      resolvedTheme === "dark"
-        ? "/svg/cashley.svg"
-        : "/svg/cashley-dark.svg"
-    );
-  }, [resolvedTheme]);
 
   return (
     <div className="flex flex-col h-full w-full items-center px-4 py-10">
@@ -40,25 +34,6 @@ export default function About() {
           />
         </div>
 
-        {/* --- Introduction --- */}
-        {/* <section className="space-y-4 text-center">
-          <h2 className="text-xl font-semibold text-white">
-            Description of the Business
-          </h2>
-          <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
-            Cashley Ltd. is a dynamic fintech company designed to simplify financial
-            transactions and create a seamless experience for users of all ages.
-            The platform functions as a digital wallet that integrates savings, investments,
-            crypto trading, local transfers, bill payments, and airtime/data purchases—
-            all inside one secure, intuitive app.
-            <br /><br />
-            Currently in its testing and final development phase, Cashley is engineered
-            for speed, security, and reliability, bridging the gap between traditional
-            banking and modern digital finance. Through this all-in-one structure,
-            Cashley promotes financial inclusion and empowers individuals to manage,
-            grow, and transact their money easily without technical barriers.
-          </p>
-        </section> */}
 
         {/* --- Company Profile Card --- */}
         <motion.section
