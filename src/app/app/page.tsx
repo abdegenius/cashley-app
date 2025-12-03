@@ -27,7 +27,8 @@ export default function DashboardPage() {
   const [cryptoWallets, setCryptoWallets] = useState<any[] | null>(null);
   const [cryptoWallet, setCryptoWallet] = useState<CryptoWallet | null>(null);
   const [ngn_balance, setNGNBalance] = useState<number>(Number(user?.ngn_balance || 0));
-  const [unreadNotification, setUnreadNotification] = useState<number>(0)
+  const [unreadNotification, setUnreadNotification] = useState<number>(0);
+  const [selectedCryptoWallets, setSelectedChains] = useState<Record<string, any>>({});
 
   useEffect(() => {
     let mounted = true;
@@ -96,8 +97,6 @@ export default function DashboardPage() {
     swapCryptoModal.open()
     receiveCryptoModal.close()
   };
-
-  const [selectedCryptoWallets, setSelectedChains] = useState<Record<string, any>>({});
 
   const handleSelectChain = (coin: string, chainName: string, chains: any[]) => {
     const chain = chains.find((c) => c.chain === chainName);

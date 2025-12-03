@@ -234,4 +234,27 @@ export interface CryptoWallet {
   address: string;
   tag: string | null;
   balance: number | string;
+  [key: string]: any;
+}
+
+export interface Giftcard {
+  id: string;
+  reference: string;
+  name: string;
+  logo: string;
+  slug: string;
+  currency: string;
+  min_face_value: string;
+  max_face_value: string;
+  ngn_rate: string;
+  countries: string;
+  extra: string;
+  instruction: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GiftcardCountry {
+  country: string;
+  flag: string;
 }

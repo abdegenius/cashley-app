@@ -14,12 +14,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { CRYPTO_ASSETS } from "@/utils/assets";
 import { SupportedCoin } from "@/types";
-import { ReceiveCrypto } from "./partials/Receive";
-import { SwapCrypto } from "./partials/Swap";
-import { SendCrypto } from "./partials/Send";
 import { SelectCoin } from "./partials/SelectCoin";
-import { AssetChain, UserCryptoWallet, WalletAsset } from "@/types/api";
+import { AssetChain, CryptoWallet, UserCryptoWallet, WalletAsset } from "@/types/api";
 import { SelectChain } from "./partials/SelectChain";
+import ReceiveCryptoModal from "@/components/ReceiveCrypto";
+import { receiveCryptoModal } from "@/controllers/receive-crypto-modal";
+import { swapCryptoModal } from "@/controllers/swap-crypto-modal";
+import { sendCryptoModal } from "@/controllers/send-crypto-modal";
+import SendCryptoModal from "@/components/SendCrypto";
+import SwapCryptoModal from "@/components/SwapCrypto";
 
 
 export default function CryptoPage() {
@@ -30,10 +33,6 @@ export default function CryptoPage() {
     const [showChainModal, setShowChainModal] = useState(false);
     const [walletAsset, setWalletAsset] = useState<WalletAsset | null>(null);
 
-    const [showSendModal, setShowSendModal] = useState(false);
-    const [showReceiveModal, setShowReceiveModal] = useState(false);
-    const [showSwapModal, setShowSwapModal] = useState(false);
-
     // data states
     const [wallets, setWallets] = useState<UserCryptoWallet[]>([]);
     const [selectedWallet, setSelectedWallet] = useState<UserCryptoWallet | null>(null);
@@ -41,6 +40,8 @@ export default function CryptoPage() {
     // loading states
     const [isCreatingWallet, setIsCreatingWallet] = useState<boolean>(false);
     const [isLoadingWalletAsset, setIsLoadingWalletAsset] = useState<boolean>(false);
+
+    const [cryptoWallet, setCryptoWallet] = useState<CryptoWallet | null>(null);
 
     const getWalletAsset = useCallback(async () => {
         if (!selectedWallet) {
@@ -158,92 +159,161 @@ export default function CryptoPage() {
         setSelectedWallet(w || null);
     }, [wallets, selectedChain, selectedCoin]);
 
+
+    const openSendCryptoModal = (wallet: UserCryptoWallet | null) => {
+        if (!wallet) return;
+        setCryptoWallet({
+            reference: wallet.reference,
+            coin: wallet.coin,
+            chain: wallet.chain,
+            address: wallet.address,
+            network: wallet.network,
+            tag: wallet.tag,
+            balance: walletAsset?.balance ?? 0,
+        })
+        receiveCryptoModal.close()
+        swapCryptoModal.close()
+        sendCryptoModal.open()
+    };
+
+    const openReceiveCryptoModal = (wallet: UserCryptoWallet | null) => {
+        if (!wallet) return;
+        setCryptoWallet({
+            reference: wallet.reference,
+            coin: wallet.coin,
+            chain: wallet.chain,
+            address: wallet.address,
+            network: wallet.network,
+            tag: wallet.tag,
+            balance: walletAsset?.balance ?? 0,
+        })
+        sendCryptoModal.close()
+        swapCryptoModal.close()
+        receiveCryptoModal.open()
+    };
+
+    const openSwapCryptoModal = (wallet: UserCryptoWallet | null) => {
+        if (!wallet) return;
+        setCryptoWallet({
+            reference: wallet.reference,
+            coin: wallet.coin,
+            chain: wallet.chain,
+            address: wallet.address,
+            network: wallet.network,
+            tag: wallet.tag,
+            balance: walletAsset?.balance ?? 0,
+        })
+        sendCryptoModal.close()
+        swapCryptoModal.open()
+        receiveCryptoModal.close()
+    };
+
     return (
-        <div className="w-full h-full p-4 space-y-6">
+        <div className="w-full h-full p-5 space-y-6">
 
-            {(!selectedCoin || !selectedChain) && (<SelectCoin coin={selectedCoin} onSelect={handleSelectCoin} />)}
+            {/* COIN SELECTION */}
+            {(!selectedCoin || !selectedChain) && (
+                <SelectCoin coin={selectedCoin} onSelect={handleSelectCoin} />
+            )}
 
+            {/* MAIN WALLET PAGE */}
             {selectedCoin && selectedChain && (
                 <div className="space-y-6 animate-fadeIn">
 
-                    {/* Back button */}
+                    {/* TOP BAR */}
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => {
-                                // setSelectedCoin(null);
                                 setSelectedChain(null);
                                 setSelectedWallet(null);
                             }}
-                            className="p-2 rounded-full hover:bg-stone-700/30"
+                            className="p-2 rounded-full hover:bg-white/5 transition"
                         >
                             <ArrowLeft className="w-6 h-6 text-stone-300" />
                         </button>
-                        <h1 className="text-xl font-semibold">
+
+                        <h1 className="text-xl font-semibold tracking-tight">
                             {CRYPTO_ASSETS[selectedCoin].name} Wallet
                         </h1>
                     </div>
 
                     {/* WALLET CARD */}
-                    <div className="bg-gradient-to-br from-stone-900 via-stone-800 to-stone-900 border border-stone-700 rounded-2xl p-6 shadow-xl space-y-5 relative overflow-hidden">
+                    <div className="
+                    relative rounded-3xl p-6
+                    bg-gradient-to-br from-[#111113] via-[#0f0f12] to-[#101014]
+                    backdrop-blur-xl border border-white/10 shadow-2xl
+                    overflow-hidden
+                ">
+                        {/* glowing accent */}
+                        <div className="absolute inset-0 bg-purple-600/10 blur-3xl opacity-30" />
 
-                        {/* Accent glow */}
-                        <div className="absolute inset-0 opacity-20 bg-gradient-to-r from-purple-600/20 to-purple-600/20 blur-3xl" />
-
+                        {/* header */}
                         <div className="relative flex items-center gap-4">
                             <Image
                                 src={CRYPTO_ASSETS[selectedCoin].logo}
-                                width={60}
-                                height={60}
+                                width={52}
+                                height={52}
                                 alt={CRYPTO_ASSETS[selectedCoin].name}
                                 className="rounded-full"
                             />
+
                             <div>
                                 <h2 className="text-lg font-semibold">
                                     {CRYPTO_ASSETS[selectedCoin].name}
                                 </h2>
-                                <p className="text-stone-400 text-sm">{CRYPTO_ASSETS[selectedCoin].symbol}</p>
-                                <p className="text-xs text-purple-300 mt-1">Network: {selectedChain.chain}</p>
+                                <p className="text-stone-400 text-sm">
+                                    {CRYPTO_ASSETS[selectedCoin].symbol}
+                                </p>
+                                <p className="text-xs text-purple-300 mt-1">
+                                    Network → {selectedChain.chain}
+                                </p>
                             </div>
                         </div>
 
-                        {/* Balance */}
+                        {/* BALANCE */}
                         {selectedWallet && (
-                            <div className="relative mt-2 space-y-1">
-                                {!isLoadingWalletAsset ?
-                                    walletAsset ? <p className="text-2xl font-bold tracking-tight">
-                                        {walletAsset.balance}
-                                        <span className="pl-2 text-stone-400">
-                                            {walletAsset.coin}
-                                        </span>
-                                    </p> : <p className="text-2xl font-bold tracking-tight">---</p>
-                                    :
-                                    <p className="text-2xl animate-pulse">...</p>}
+                            <div className="relative mt-6 space-y-2">
+                                {!isLoadingWalletAsset ? (
+                                    walletAsset ? (
+                                        <p className="text-3xl font-bold tracking-tight">
+                                            {walletAsset.balance}
+                                            <span className="pl-2 text-stone-500 text-lg">
+                                                {walletAsset.coin}
+                                            </span>
+                                        </p>
+                                    ) : (
+                                        <p className="text-3xl font-bold tracking-tight opacity-50">
+                                            ---
+                                        </p>
+                                    )
+                                ) : (
+                                    <p className="text-xl animate-pulse">Loading...</p>
+                                )}
 
-                                <div className="flex items-center justify-between text-xs text-stone-500 pt-2">
-                                    <span>Available Balance</span>
-                                </div>
+                                <p className="text-xs text-stone-500">Available Balance</p>
                             </div>
                         )}
                     </div>
 
-                    {/* ACTIONS */}
+                    {/* ACTION BUTTONS */}
                     <div className="grid grid-cols-3 gap-4">
+
                         <ActionButton
-                            icon={<SendHorizontal className="w-6 h-6 text-stone-600" />}
+                            icon={<SendHorizontal className="w-6 h-6" />}
                             label="Send"
-                            onClick={() => setShowSendModal(true)}
+                            onClick={() => openSendCryptoModal(selectedWallet)}
                         />
 
                         <ActionButton
-                            icon={<Download className="w-6 h-6 text-stone-600" />}
+                            icon={<Download className="w-6 h-6" />}
                             label="Receive"
-                            onClick={() => setShowReceiveModal(true)}
+                            onClick={() => openReceiveCryptoModal(selectedWallet)}
                         />
 
                         <ActionButton
-                            icon={<RefreshCw className="w-6 h-6 text-stone-600" />}
+                            icon={<RefreshCw className="w-6 h-6" />}
                             label="Swap"
-                            onClick={() => setShowSwapModal(true)}
+                            onClick={() => openSwapCryptoModal(selectedWallet)}
                         />
                     </div>
                 </div>
@@ -251,42 +321,39 @@ export default function CryptoPage() {
 
             {/* SELECT CHAIN */}
             {showChainModal && (
-                <SelectChain coin={selectedCoin as unknown as SupportedCoin} onClose={() => setShowChainModal(false)} onSelect={handleSelectedChain} />
+                <SelectChain
+                    coin={selectedCoin as SupportedCoin}
+                    onClose={() => setShowChainModal(false)}
+                    onSelect={handleSelectedChain}
+                />
             )}
 
-            {/* RECEIVE MODAL */}
-            {showReceiveModal && selectedWallet && (
-                <ReceiveCrypto coin={selectedWallet.coin as unknown as SupportedCoin} address={selectedWallet.address} tag={selectedWallet.tag} onClose={() => setShowReceiveModal(false)} />
-            )}
+            {/* MODALS */}
+            {selectedWallet && <ReceiveCryptoModal wallet={selectedWallet} />}
+            {selectedWallet && <SendCryptoModal wallet={selectedWallet} />}
+            {selectedWallet && walletAsset && <SwapCryptoModal wallet={selectedWallet} />}
 
-            {/* SEND MODAL */}
-            {showSendModal && selectedWallet && (
-                <SendCrypto coin={selectedWallet.coin as unknown as SupportedCoin} onClose={() => setShowSendModal(false)} />
-            )}
-
-            {/* SWAP MODAL */}
-            {showSwapModal && selectedWallet && walletAsset && (
-                <SwapCrypto reference={selectedWallet.reference} coin={selectedWallet.coin as unknown as SupportedCoin} balance={walletAsset?.balance} onClose={() => setShowSwapModal(false)} />
-            )}
-
-            {/* CREATING WALLET LOADER */}
+            {/* WALLET CREATION LOADING */}
             {isCreatingWallet && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-20">
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
                     <p className="animate-pulse text-sm">Creating wallet, please wait...</p>
                 </div>
             )}
-
         </div>
     );
 }
-
 const ActionButton = ({ icon, label, onClick }: any) => (
     <button
         onClick={onClick}
-        className="flex flex-col items-center gap-2 bg-stone-900/40 p-4 rounded-xl hover:bg-stone-800 transition shadow-sm hover:shadow-md"
+        className="
+            flex flex-col items-center gap-2 p-4 rounded-xl
+            bg-white/5 hover:bg-white/10
+            transition-all backdrop-blur-md
+            border border-white/10
+            hover:shadow-lg hover:-translate-y-0.5
+        "
     >
-        {icon}
-        <span className="text-md font-medium">{label}</span>
+        <div className="text-stone-300">{icon}</div>
+        <span className="text-sm font-medium">{label}</span>
     </button>
 );
-
