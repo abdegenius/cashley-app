@@ -67,15 +67,13 @@ export default function CenteredLayout({ children }: { children: React.ReactNode
                       y: active ? -4 : 0,
                     }}
                     transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                    className={`flex flex-col items-center justify-center ${
-                      active ? "purple-text" : "placeholder-text"
-                    }`}
+                    className={`flex flex-col items-center justify-center ${active ? "purple-text" : "placeholder-text"
+                      }`}
                   >
                     <Icon size={26} strokeWidth={2} />
                     <span
-                      className={`text-[15px]  ${
-                        active ? "gradient-text-purple-to-blue" : "placeholder-text"
-                      }`}
+                      className={`text-[15px]  ${active ? "gradient-text-purple-to-blue" : "placeholder-text"
+                        }`}
                     >
                       {item.name}
                     </span>

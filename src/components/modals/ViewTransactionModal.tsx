@@ -1,15 +1,16 @@
 "use client";
 
 import { Transaction } from "@/types/api";
-import { formatToNGN } from "@/utils/amount";
 import { motion } from "framer-motion";
-import { Check, Loader2, Star, X } from "lucide-react";
+import { Check, Loader2, SignalLowIcon, Star, X } from "lucide-react";
 import React, { useEffect } from "react";
 import useBeneficiary from "@/hooks/useBeneficiary";
 import useFavourite from "@/hooks/useFavourite";
 import * as htmlToImage from "html-to-image";
 import jsPDF from "jspdf";
 import { useRef } from "react";
+import { getTransactionAmount, getTransactionDescription } from "@/utils/transaction";
+import moment from "moment"
 
 interface TransactionProps {
   transaction: Transaction;
@@ -34,7 +35,7 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
     error: favoriteError,
   } = useFavourite();
 
-  const exitingBeneficiary = beneficiaries?.find(
+  const existingBeneficiary = beneficiaries?.find(
     (i) =>
       i.data.service_id === transaction.extra.phone ||
       i.data.phone === transaction.extra.phone ||
@@ -73,7 +74,7 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
           action: type,
           data: {
             phone: transaction.extra.phone,
-            servicer_id: transaction.extra.service_id,
+            service_id: transaction.extra.service_id,
           },
         };
     }
@@ -168,7 +169,7 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
             <button onClick={onClose} className="text-lg font-medium text-red-400">
               Close
             </button>
-            {!exitingBeneficiary && (
+            {!existingBeneficiary && (
               <div className="w-auto flex-none flex">
                 {loadingFavorite ? (
                   <Loader2 className="animate-spin" />
@@ -196,7 +197,7 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
             {transaction.status === "completed" ? (
               <Check size={40} />
             ) : (
-              <X size={40} />
+              transaction.status === "pending" ? <SignalLowIcon size={40} /> : <X size={40} />
             )}
           </motion.div>
 
@@ -204,20 +205,21 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
             <h2 className="text-xl font-black">
               {transaction.status === "completed"
                 ? "Transaction Successful"
-                : "Transaction Failed"}
+                : (transaction.status === "pending" ? "Transaction Processing" : "Transaction Failed")
+              }
             </h2>
 
-            <p className="text-sm text-muted-foreground">
+            {/* <p className="text-sm text-muted-foreground">
               {transaction.status === "completed"
-                ? "Your transaction has been processed successfully"
-                : "Something went wrong. Please try again."}
-            </p>
+                ? "Transaction completed successfully"
+                : (transaction.status === "pending" ? "Transaction is currently been processed" : "Transaction failed, please check and try again")}
+            </p> */}
 
             <div className="flex flex-col gap-0 pt-2">
-              <span className="font-black purple-text text-4xl">
-                {formatToNGN(Number(transaction.amount))}
+              <span className="font-black purple-text text-2xl">
+                {getTransactionAmount(transaction)}
               </span>
-              <span className="text-sm">Amount</span>
+              {/* <span className="text-sm">Amount</span> */}
             </div>
           </div>
 
@@ -226,24 +228,17 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
             <Detail label="Type" value={transaction.type} />
             <Detail label="Service" value={transaction.action} />
             <Detail label="Status" value={transaction.status} />
-            <Detail label="Amount" value={formatToNGN(Number(transaction.amount))} />
-            <Detail label="Date" value={transaction.created_at} />
+            <Detail label="Amount" value={getTransactionAmount(transaction)} />
+            <Detail label="Date" value={moment(transaction.created_at).format("YYYY-MM-DD HH:mm:ssA")} />
             <Detail label="Reference" value={transaction.reference} />
 
             {transaction.session_id && (
               <Detail label="Session ID" value={transaction.session_id} />
             )}
 
-            {/* <div className="flex justify-between items-start space-x-4">
-              <span className="text-sm">Description</span>
-              <span className="font-mono text-sm text-right text-stone-400">
-                {transaction.description}
-              </span>
-            </div> */}
+            <Detail label="Description" value={getTransactionDescription(transaction)} />
 
-            <Detail label="Description" value={transaction.description} />
-
-            {!exitingBeneficiary && (
+            {!existingBeneficiary && (
               <div className="flex w-full items-center justify-between ">
                 <div className="gradient-text-purple-to-blue">Save as a beneficiary</div>
 
@@ -292,7 +287,7 @@ export function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between items-start w-full space-x-4">
       <span className="text-sm">{label}</span>
-      <span className="font-mono text-stone-300 text-sm text-right">
+      <span className="font-mono text-stone-300 text-sm text-right truncate overflow-x-auto">
         {value}
       </span>
     </div>

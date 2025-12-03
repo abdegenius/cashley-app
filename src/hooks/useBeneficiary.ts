@@ -4,34 +4,42 @@ import React from "react";
 import toast from "react-hot-toast";
 
 export default function useBeneficiary() {
-  const [beneficiaries, setBeneficiaries] = React.useState<any[]>([]);
+  const [beneficiaries, setBeneficiaries] = React.useState<any[] | null>(null);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [status, setStatus] = React.useState<string | null>();
+  const [status, setStatus] = React.useState<string | null>(null);
 
   const fetchBeneficiaries = async (action: string | null) => {
-    if (!action || typeof action !== "string") {
-      setError("Invalid action parameter");
+    if (!action) {
+      setBeneficiaries([]);
       return;
     }
+    // if (!action || typeof action !== "string") {
+    //   setError("Invalid action parameter");
+    //   return;
+    // }
 
     setLoading(true);
     setError(null);
     try {
       const res = await api.get<ApiResponse>(`/beneficiaries?action=${action}`);
       if (!res.data.error && res.data.data) {
-        setBeneficiaries(res.data.data.data);
-        setStatus(res.data.message);
+        setBeneficiaries(
+          res.data.data.data && Array.isArray(res.data.data.data) ? res.data.data.data : []
+        );
+        // setStatus(res.data.message);
       } else {
         const errorMessage = res.data.message || "Failed to fetch beneficiaries";
         setError(errorMessage);
         setStatus(errorMessage);
+        setBeneficiaries([]);
       }
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || "Failed to fetch beneficiaries";
       setError(errorMessage);
       setStatus(errorMessage);
       console.error("Failed to fetch beneficiaries", err);
+      setBeneficiaries([]);
     } finally {
       setLoading(false);
     }
@@ -44,8 +52,7 @@ export default function useBeneficiary() {
       const res = await api.delete<ApiResponse>(`/beneficiaries/${reference}`);
       if (!res.data.error) {
         toast.success("Beneficiary deleted");
-
-        setBeneficiaries((prev) => prev.filter((ben) => ben.data.reference !== reference));
+        setBeneficiaries((prev) => (prev ? prev.filter((ben) => ben.reference !== reference) : []));
       } else {
         const errorMessage = res.data.message || "Failed to delete beneficiary";
         toast.error(errorMessage);
@@ -69,7 +76,7 @@ export default function useBeneficiary() {
       const res = await api.post<ApiResponse>("/beneficiaries", beneficiaryData);
 
       if (!res.data.error && res.data.data) {
-        setBeneficiaries((prev) => [...prev, res.data.data]);
+        setBeneficiaries((prev) => [...(prev || []), res.data.data]);
         setStatus(res.data.message);
       } else {
         const errorMessage = res.data.message || "Failed to add beneficiary";

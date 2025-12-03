@@ -1,4 +1,5 @@
 "use client";
+
 import { Plus, X, Trash2 } from "lucide-react";
 import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 import useSchedule from "@/hooks/useSchedule";
@@ -26,24 +27,17 @@ export function Schedule({ type: _type }: ScheduleProps) {
         setType(_type)
     }
 
+
     useEffect(() => {
         if (!schedules)
             fetchSchedules(type);
     }, [type, schedules, fetchSchedules]);
 
-    const viewSchedule = useMemo(() =>
-        schedules?.find(schedule => schedule.reference === selectedSchedule),
-        [schedules, selectedSchedule]
-    );
 
     const handleDeleteSchedule = useCallback(async (reference: string) => {
         await deleteSchedule(reference);
         setReference(null)
     }, [deleteSchedule]);
-
-    if (viewSchedule) {
-        return <ViewSchedule onClose={() => setSelectedSchedule(null)} schedule={viewSchedule} />;
-    }
 
     const services = [
         { id: "", "name": "All" },
@@ -55,6 +49,20 @@ export function Schedule({ type: _type }: ScheduleProps) {
         { id: "tv", "name": "TV Subscription" },
         // { id: "betting", "name": "Betting Topup" }
     ];
+
+    const handleCloseAddSchedule = () => {
+        setToggleAdd(false);
+    }
+    
+    const viewSchedule = useMemo(() =>
+        schedules?.find(schedule => schedule.reference === selectedSchedule),
+        [schedules, selectedSchedule]
+    );
+
+    if (viewSchedule) {
+        return <ViewSchedule onClose={() => setSelectedSchedule(null)} schedule={viewSchedule} />;
+    }
+
     return (
         <div className="w-full flex flex-col space-y-2 p-4">
             <Header type={type} toggleAdd={toggleAdd} setToggleAdd={setToggleAdd} />
@@ -79,7 +87,7 @@ export function Schedule({ type: _type }: ScheduleProps) {
             <div className="flex justify-between flex-col w-full min-h-150">
                 {toggleAdd ? (
                     <div className="flex items-center justify-center">
-                        <AddSchedule type={type} close={setToggleAdd} />
+                        <AddSchedule type={type} close={handleCloseAddSchedule} />
                     </div>
                 ) : (
                     !schedules ?
@@ -108,7 +116,6 @@ const Header = ({ type, toggleAdd, setToggleAdd }: {
 }) => (
     <div className="flex justify-between w-full items-center mb-6">
         <h1 className="text-center gradient-text-purple-to-blue text-3xl">Schedules</h1>
-
         {
             type && <button
                 onClick={() => setToggleAdd(!toggleAdd)}
@@ -263,4 +270,3 @@ const StatusRow = ({ status }: { status: string }) => (
         </div>
     </div>
 );
-

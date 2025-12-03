@@ -1,3 +1,5 @@
+import { SupportedCoin } from ".";
+
 export type ApiResponse<T = any> = {
   error: boolean;
   message: string;
@@ -55,11 +57,10 @@ export interface User {
 
 export interface Notification {
   id: string;
+  reference: string;
   title: string;
-  date: string;
-  description: string;
-  isRead?: boolean;
-  type?: string;
+  body: string;
+  status?: string;
   created_at?: string;
 }
 
@@ -219,4 +220,18 @@ export interface Schedule {
   };
   created_at: string;
   updated_at: string;
+}
+
+export type Networks = {
+  [K in SupportedCoin]: AssetChain[];
+};
+
+export interface CryptoWallet {
+  reference: string;
+  coin: string;
+  chain: string;
+  network: string;
+  address: string;
+  tag: string | null;
+  balance: number | string;
 }

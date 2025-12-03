@@ -1,9 +1,13 @@
+"use client";
+
 import { Detail } from "@/components/modals/ViewTransactionModal";
 import useSchedule from "@/hooks/useSchedule";
 import { Schedule } from "@/types/api";
+import { formatToNGN } from "@/utils/amount";
 import { secondsToSmartUnit } from "@/utils/date";
 import { removeNum, removeString } from "@/utils/string";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import moment from "moment";
+import { useEffect, useState } from "react";
 
 interface ViewScheduleProps {
     onClose: () => void;
@@ -51,6 +55,7 @@ export function ViewSchedule({ onClose, schedule }: ViewScheduleProps) {
                         {schedule?.data?.service_id && <Detail label="Service" value={schedule.data.service_id.replaceAll("-", " ").toUpperCase().trim()} />}
                         {schedule?.data?.variation_code && <Detail label="Item" value={schedule.data.variation_code.replaceAll("-", " ").toUpperCase().trim()} />}
                         {schedule?.data?.phone && <Detail label="Recipient" value={schedule.data.phone} />}
+                        {schedule?.data?.amount && <Detail label="Amount" value={formatToNGN(schedule.data.amount)} />}
                         {intervalText && <div className="flex items-center w-full justify-between">
                             <Detail
                                 label="Interval"
@@ -59,6 +64,7 @@ export function ViewSchedule({ onClose, schedule }: ViewScheduleProps) {
                         </div>}
                         {schedule?.frequency && <Detail label="Frequency" value={schedule.frequency} />}
                         {schedule?.status && <Detail label="Status" value={schedule.status} />}
+                        {schedule?.created_at && <Detail label="Created At" value={moment(schedule.created_at).fromNow()} />}
                     </div>
                 </div>
             </div>

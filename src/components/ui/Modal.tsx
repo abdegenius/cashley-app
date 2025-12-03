@@ -28,10 +28,6 @@ const Modal: React.FC<ModalProps> = ({ show, onClose, children }) => {
           />
           <motion.div
             className="relative w-full bg-transparent"
-            initial={{ y: 200 }}
-            animate={{ y: 0 }}
-            exit={{ y: 200 }}
-            transition={{ type: "spring", stiffness: 200, damping: 18 }}
             onClick={(e) => e.stopPropagation()}
           >
             {children}

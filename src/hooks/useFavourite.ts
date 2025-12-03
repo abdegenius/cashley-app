@@ -12,29 +12,37 @@ interface Favourite {
 }
 
 export default function useFavourite() {
-  const [favourites, setFavourites] = React.useState<Favourite[]>([]);
+  const [favourites, setFavourites] = React.useState<Favourite[] | null>(null);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<string | null>(null);
   const [status, setStatus] = React.useState<string | null>(null);
 
   const fetchFavourites = async (action: string | null) => {
+    if (!action) {
+      setFavourites([]);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
       const res = await api.get<ApiResponse>(`/favorites?action=${action}`);
       if (!res.data.error && res.data.data) {
-        setFavourites(res.data.data.data);
-        setStatus(res.data.message);
+        setFavourites(
+          res.data.data.data && Array.isArray(res.data.data.data) ? res.data.data.data : []
+        );
+        // setStatus(res.data.message);
       } else {
         const errorMessage = res.data.message || "Failed to fetch favourites";
         setError(errorMessage);
         setStatus(errorMessage);
+        setFavourites([]);
       }
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || "Failed to fetch favourites";
       setError(errorMessage);
       setStatus(errorMessage);
       console.error("Failed to fetch favourites:", err);
+      setFavourites([]);
     } finally {
       setLoading(false);
     }
@@ -46,9 +54,9 @@ export default function useFavourite() {
     try {
       const res = await api.delete<ApiResponse>(`/favorites/${id}`);
       if (!res.data.error) {
-        setFavourites((prev) => prev.filter((fav) => fav.id !== id));
+        setFavourites((prev) => (prev ? prev.filter((fav) => fav.id !== id) : []));
         setStatus(res.data.message);
-        toast.success("Favorite Deleted")
+        toast.success("Favorite Deleted");
       } else {
         const errorMessage = res.data.message || "Failed to delete favourite";
         setError(errorMessage);
@@ -70,7 +78,10 @@ export default function useFavourite() {
     try {
       const res = await api.post<ApiResponse>("/favorites", favouriteData);
       if (!res.data.error && res.data.data) {
-        setFavourites((prev) => [...prev, res.data.data.data]);
+        setFavourites((prev) => [
+          ...(prev || []),
+          res.data.data, // ✅ FIXED
+        ]);
         setStatus(res.data.message);
       } else {
         const errorMessage = res.data.message || "Failed to add favourite";
@@ -89,14 +100,14 @@ export default function useFavourite() {
 
   const clearError = () => setError(null);
 
-  return { 
-    favourites, 
-    deleteFavourite, 
-    status, 
-    error, 
-    addFavourite, 
-    loading, 
+  return {
+    favourites,
+    deleteFavourite,
+    status,
+    error,
+    addFavourite,
+    loading,
     fetchFavourites,
-    clearError 
+    clearError,
   };
 }

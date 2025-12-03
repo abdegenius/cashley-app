@@ -1,49 +1,48 @@
 "use client";
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, Eye, EyeOff } from "lucide-react";
-import Button from "@/components/ui/Button";
+import { Bell, Eye, EyeOff, SendHorizonal, Download, Repeat } from "lucide-react";
 import TransactionHistory from "@/components/modals/TransactionHistory";
 import api from "@/lib/axios";
-import { ApiResponse, Transaction } from "@/types/api";
-import { formatToNGN, formatToUSD } from "@/utils/amount";
+import { ApiResponse, CryptoWallet, Transaction } from "@/types/api";
+import { formatToNGN } from "@/utils/amount";
 import { services } from "@/utils/string";
 import { useAuthContext } from "@/context/AuthContext";
 import { topupModal } from "@/controllers/topup-modal";
 import ServicesSlider from "@/components/ServiceSlider";
+import { sendCryptoModal } from "@/controllers/send-crypto-modal";
+import SendCryptoModal from "@/components/SendCrypto";
+import { receiveCryptoModal } from "@/controllers/receive-crypto-modal";
+import ReceiveCryptoModal from "@/components/ReceiveCrypto";
+import SwapCryptoModal from "@/components/SwapCrypto";
+import { swapCryptoModal } from "@/controllers/swap-crypto-modal";
 
 
 export default function DashboardPage() {
   const { user } = useAuthContext();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [showBalance, setShowBalance] = useState<boolean>(true);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [visibleBalances, setVisibleBalances] = useState<Record<string, boolean>>({
-    ngn: false,
-    usdt: false,
-    eth: false,
-    btc: false,
-  });
-
-  const handleToggleBalance = useCallback((id: string) => {
-    setVisibleBalances((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  }, []);
-
-  const balances = useMemo(
-    () => [
-      { id: "ngn", currency: "NGN", value: Number(user?.ngn_balance ?? 0), symbol: "₦" },
-      { id: "usdt", currency: "USDT", value: Number(user?.usdt_balance ?? 0), symbol: "$" },
-      { id: "eth", currency: "ETH", value: Number(user?.eth_balance ?? 0), symbol: "Ξ" },
-      { id: "btc", currency: "BTC", value: Number(user?.btc_balance ?? 0), symbol: "₿" },
-    ],
-    [user]
-  );
+  const [cryptoWallets, setCryptoWallets] = useState<any[] | null>(null);
+  const [cryptoWallet, setCryptoWallet] = useState<CryptoWallet | null>(null);
+  const [ngn_balance, setNGNBalance] = useState<number>(Number(user?.ngn_balance || 0));
+  const [unreadNotification, setUnreadNotification] = useState<number>(0)
 
   useEffect(() => {
     let mounted = true;
+
+
+    const fetchUnreadNotifications = async () => {
+      try {
+        const res = await api.get<ApiResponse>("/notifications/unread-count");
+        if (!res.data.error) {
+          setUnreadNotification(res.data.data || 0);
+        }
+      } catch (error) {
+        console.error("Failed to fetch notification count:", error);
+      }
+    };
 
     const fetchTransactions = async () => {
       try {
@@ -58,12 +57,57 @@ export default function DashboardPage() {
       }
     };
 
+    const fetchCryptoWallets = async () => {
+      try {
+        const res = await api.get<ApiResponse>("/crypto-wallet/home");
+        if (!res.data.error) {
+          setCryptoWallets(res.data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch crypto wallets:", error);
+      }
+    };
+
+    fetchCryptoWallets();
+    fetchUnreadNotifications();
     fetchTransactions();
     return () => {
       mounted = false;
     };
   }, []);
 
+  const openSendCryptoModal = (wallet: CryptoWallet) => {
+    setCryptoWallet(wallet)
+    receiveCryptoModal.close()
+    swapCryptoModal.close()
+    sendCryptoModal.open()
+  };
+
+  const openReceiveCryptoModal = (wallet: CryptoWallet) => {
+    setCryptoWallet(wallet)
+    sendCryptoModal.close()
+    swapCryptoModal.close()
+    receiveCryptoModal.open()
+  };
+
+  const openSwapCryptoModal = (wallet: CryptoWallet) => {
+    setCryptoWallet(wallet)
+    sendCryptoModal.close()
+    swapCryptoModal.open()
+    receiveCryptoModal.close()
+  };
+
+  const [selectedCryptoWallets, setSelectedChains] = useState<Record<string, any>>({});
+
+  const handleSelectChain = (coin: string, chainName: string, chains: any[]) => {
+    const chain = chains.find((c) => c.chain === chainName);
+    if (!chain) return;
+
+    setSelectedChains((prev) => ({
+      ...prev,
+      [coin]: chain,
+    }));
+  };
 
   return (
     <div className="w-full h-full space-y-4 overflow-y-scroll px-4">
@@ -82,67 +126,173 @@ export default function DashboardPage() {
         </div>
         <Link
           href="/app/notifications"
-          className="cursor-pointer hover:bg-card p-2 rounded-full placeholder-text"
+          className="relative bg-purple-50/25 inset-0 items-center flex flex-col cursor-pointer hover:bg-card p-2 rounded-full placeholder-text"
         >
-          <Bell size={24} />
+          <Bell size={24} className="text-purple-600" />
+          <div className="w-4 h-4 absolute -top-1 right-1 bg-red-600 text-white text-[12px] rounded-full items-center flex justify-center text-center">
+            {unreadNotification}
+          </div>
         </Link>
       </div>
 
-      {/* Wallet Balances - Scrollable */}
-      <div className="relative w-full mt-4">
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2">
-          {balances.map((balance) => {
-            const isVisible = visibleBalances[balance.id];
-            const amount =
-              balance.id === "ngn" ? formatToNGN(balance.value) : formatToUSD(balance.value);
+      <div className="w-full space-y-6 mt-4">
 
-            return (
-              <div
-                key={balance.id}
-                className="min-w-[200px] snap-center shrink-0 p-5 rounded-2xl bg-gradient-to-br from-zinc-800 via-zinc-900 to-slate-900 text-white flex flex-col justify-between transition-all duration-300 shadow-md hover:scale-[1.03]"
-              >
-                <div className="w-full flex justify-between items-center">
-                  <div className="flex items-center space-x-2">
-                    <Image src={`/img/${balance.id}.png`} alt={balance.id} width={24} height={24} />
-                    <span className="font-normal uppercase">{balance.currency}</span>
-                  </div>
-                  <button
-                    onClick={() => handleToggleBalance(balance.id)}
-                    className="text-gray-400 hover:text-gray-100 transition-colors"
-                  >
-                    {isVisible ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
+        {/* BALANCE CARD */}
+        <div
+          className="w-full p-5 rounded-2xl bg-gradient-to-br from-zinc-900/90 via-zinc-800/70 to-slate-900/80
+    backdrop-blur-xl border border-white/10 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.02]"
+        >
+          {/* Top Row */}
+          <div className="flex justify-between items-center mb-3">
+            <div className="flex items-center gap-2">
+              <Image
+                src="/img/ngn.png"
+                alt="NGN"
+                width={26}
+                height={26}
+                className="rounded-full"
+              />
+              <span className="text-sm text-gray-300">Available Balance</span>
+            </div>
 
-                <div className="text-2xl font-black mt-3">
-                  {isVisible ? amount : `${balance.symbol}***.**`}
-                </div>
-              </div>
-            );
-          })}
+            <button
+              onClick={() => setShowBalance(!showBalance)}
+              className="text-stone-400 hover:text-white transition-colors"
+            >
+              {showBalance ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+
+          {/* Balance */}
+          <div className="text-3xl font-extrabold tracking-tight text-white">
+            {showBalance ? formatToNGN(ngn_balance) : "₦***.**"}
+          </div>
         </div>
-      </div>
 
-      {/* Actions */}
-      <div className="w-full flex flex-col gap-6 mt-4">
-        <div className="flex justify-between items-center gap-4">
-          <Button
-            onclick={() => topupModal.open()}
-            type="primary"
-            text="Receive"
-            width="text-sm sm:text-lg w-full font-normal"
-          />
-          <Button
-            type="secondary"
-            text="Send"
-            width="text-sm sm:text-lg w-full font-normal"
+        {/* ACTION BUTTONS */}
+        <div className="flex gap-4">
+
+          {/* Receive */}
+          <button
+            onClick={() => topupModal.open()}
+            className="w-full py-3 rounded-xl font-medium text-white
+      bg-gradient-to-r from-indigo-600 to-purple-600
+      hover:from-indigo-500 hover:to-purple-500 transition-all
+      shadow-md hover:shadow-lg active:scale-[0.97]"
+          >
+            Receive
+          </button>
+
+          {/* Send */}
+          <a
             href="/app/send"
-          />
-        </div>
+            className="w-full py-3 rounded-xl font-medium text-white/90
+      primary-purple-to-blue backdrop-blur-sm
+      hover:bg-white/20 hover:text-white transition-all
+      shadow-md hover:shadow-lg active:scale-[0.97] text-center"
+          >
+            Send
+          </a>
 
-        {/* Slider Section */}
-        <ServicesSlider />
+        </div>
       </div>
+
+
+
+
+      {/* Crypto Wallets Section */}
+      {cryptoWallets && cryptoWallets.length > 0 && (
+        <div className="w-full">
+
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2">
+
+            {cryptoWallets.map((wallet) => {
+              const selectedCryptoWallet = selectedCryptoWallets[wallet.coin] || wallet.chains[0];
+              return (
+                <div
+                  key={wallet.coin}
+                  className="w-72 snap-center shrink-0 p-5 rounded-2xl  bg-gradient-to-br from-zinc-800 via-zinc-900 to-slate-900  text-white flex flex-col justify-between transition-all duration-300  shadow-md hover:scale-[1.03] space-y-4 border-2 border-stone-800"
+                >
+                  {/* Coin Header + Chain Dropdown */}
+                  <div className="w-full flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                      <Image
+                        src={`/img/${wallet.coin.toLowerCase()}.png`}
+                        alt={wallet.coin}
+                        width={30}
+                        height={30}
+                      />
+                      <span className="font-semibold text-lg">{wallet.coin}</span>
+                    </div>
+
+                    {/* Chain Dropdown */}
+                    <select
+                      value={selectedCryptoWallets[wallet.coin]?.chain || wallet.chains[0].chain}
+                      onChange={(e) => handleSelectChain(wallet.coin, e.target.value, wallet.chains)}
+                      className="bg-zinc-800 border border-zinc-800 text-stone-400 outline-none text-sm rounded-lg px-2 py-1 focus:ring-purple-500"
+                    >
+                      {wallet.chains.map((c: any) => (
+                        <option key={c.chain} value={c.chain}>
+                          {c.chain}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Balance */}
+                  <div className="flex flex-col">
+                    <span className="text-2xl font-black">
+                      {selectedCryptoWallet?.balance || 0}
+                      <span className="text-sm ml-1">{wallet.coin}</span>
+                    </span>
+                    <span className="text-[12px] text-stone-400">Balance</span>
+                  </div>
+
+                  {/* Address */}
+                  {/* <div className="mt-1">
+                    <span className="text-xs text-stone-400">Address</span>
+                    <p className="text-sm font-mono text-stone-300 truncate">
+                      {selectedCryptoWallet.address}
+                    </p>
+                  </div> */}
+
+                  {/* Icon Action Buttons */}
+                  <div className="flex items-center justify-end gap-4">
+                    <button
+                      onClick={() => openSendCryptoModal(selectedCryptoWallet)}
+                      className="p-2 flex items-center justify-center bg-purple-600/20 border border-purple-600/30 rounded-xl hover:bg-purple-600/30"
+                    >
+                      <SendHorizonal size={18} className="text-purple-400" />
+                    </button>
+
+                    <button
+                      onClick={() => openReceiveCryptoModal(selectedCryptoWallet)}
+                      className="p-2 flex items-center justify-center bg-green-600/20 border border-green-600/30 rounded-xl hover:bg-green-600/30"
+                    >
+                      <Download size={18} className="text-green-400" />
+                    </button>
+
+                    <button
+                      onClick={() => openSwapCryptoModal(selectedCryptoWallet)}
+                      className="p-2 flex items-center justify-center bg-blue-600/20 border border-blue-600/30 rounded-xl hover:bg-blue-600/30"
+                    >
+                      <Repeat size={18} className="text-blue-400" />
+                    </button>
+                  </div>
+                </div>
+
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {cryptoWallet && <ReceiveCryptoModal wallet={cryptoWallet} />}
+      {cryptoWallet && <SendCryptoModal wallet={cryptoWallet} />}
+      {cryptoWallet && <SwapCryptoModal wallet={cryptoWallet} />}
+
+      {/* Slider Section */}
+      <ServicesSlider />
 
       {/* Quick Links */}
       <div className="flex flex-col gap-6 mt-6">
@@ -172,7 +322,7 @@ export default function DashboardPage() {
                 <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-purple-500/10 shrink-0">
                   <service.icon size={22} className="text-purple-400" />
                 </div>
-                <span className="text-base font-medium text-gray-100 truncate">{service.name}</span>
+                <span className="text-base font-medium text-stone-100 truncate">{service.name}</span>
               </Link>
             ))}
         </div>
@@ -183,7 +333,7 @@ export default function DashboardPage() {
         <h1 className="text-xl font-black">Recent transactions</h1>
         <div className="flex flex-col gap-4">
           {loading ? (
-            <p className="text-gray-400 text-center">Loading transactions...</p>
+            <p className="text-stone-400 text-center">Loading transactions...</p>
           ) : (
             <TransactionHistory transactions={transactions} compact={true} />
           )}

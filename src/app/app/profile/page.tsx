@@ -18,7 +18,6 @@ import {
   UserCog2,
 } from "lucide-react";
 
-import Button from "@/components/ui/Button";
 import { MenuItem } from "@/components/ui/buttons";
 import { Section } from "@/components/ui/Section";
 import { useAuthContext } from "@/context/AuthContext";

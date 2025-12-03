@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { useAuthContext } from "@/context/AuthContext";
 import { services } from "@/utils/string";
 import { Sparkles } from "lucide-react";
 
@@ -53,9 +52,9 @@ export default function ServicesPage() {
                 }
               }
             }}
-            className="group relative w-full p-5 rounded-2xl bg-card flex flex-col border border-transparent hover:border-purple-600/40 hover:shadow-purple-300/10 hover:shadow-lg transition-all duration-300 items-center justify-center gap-2 text-center"
+            className="group relative w-full p-4 rounded-2xl bg-card flex flex-col border border-transparent hover:border-purple-600/40 hover:shadow-purple-300/10 hover:shadow-lg transition-all duration-300 items-center justify-center gap-0 text-center"
           >
-            <div className="relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-400 text-white mb-2 shadow-md group-hover:scale-110 transition-transform">
+            <div className="mb-2 relative flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-400 text-white mb-0 shadow-md group-hover:scale-110 transition-transform">
               <service.icon size={22} />
             </div>
             <span className="text-base font-semibold group-hover:text-purple-600 transition-colors">
