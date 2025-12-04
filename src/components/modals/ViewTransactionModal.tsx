@@ -2,7 +2,7 @@
 
 import { Transaction } from "@/types/api";
 import { motion } from "framer-motion";
-import { Check, Loader2, SignalLowIcon, Star, X } from "lucide-react";
+import { Check, Ellipsis, Loader2, Star, X } from "lucide-react";
 import React, { useEffect } from "react";
 import useBeneficiary from "@/hooks/useBeneficiary";
 import useFavourite from "@/hooks/useFavourite";
@@ -169,7 +169,7 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
             <button onClick={onClose} className="text-lg font-medium text-red-400">
               Close
             </button>
-            {!existingBeneficiary && (
+            {!existingBeneficiary && ["airtime", "data", "electricity", "tv", "betting", "intra", "inter"].includes(transaction.action) && (
               <div className="w-auto flex-none flex">
                 {loadingFavorite ? (
                   <Loader2 className="animate-spin" />
@@ -197,7 +197,7 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
             {transaction.status === "completed" ? (
               <Check size={40} />
             ) : (
-              transaction.status === "pending" ? <SignalLowIcon size={40} /> : <X size={40} />
+              transaction.status === "pending" ? <Ellipsis size={40} /> : <X size={40} />
             )}
           </motion.div>
 
@@ -238,7 +238,7 @@ export default function ViewTransactionDetails({ transaction, onClose, type }: T
 
             <Detail label="Description" value={getTransactionDescription(transaction)} />
 
-            {!existingBeneficiary && (
+            {!existingBeneficiary && ["airtime", "data", "electricity", "tv", "betting", "intra", "inter"].includes(transaction.action) && (
               <div className="flex w-full items-center justify-between ">
                 <div className="gradient-text-purple-to-blue">Save as a beneficiary</div>
 

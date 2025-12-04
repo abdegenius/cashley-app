@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { BanknoteArrowDown, BanknoteArrowUp, RefreshCcwDot, SquareArrowDown, SquareArrowUp } from "lucide-react";
+import { BanknoteArrowDown, BanknoteArrowUp, GiftIcon, RefreshCcwDot, SquareArrowDown, SquareArrowUp } from "lucide-react";
 import { Transaction } from "@/types/api";
 import { statusLabel } from "@/utils/string";
 import ViewTransactionDetails from "./ViewTransactionModal";
@@ -101,6 +101,8 @@ function RowTransaction({ transaction, onSelect }: RowTransactionProps) {
           return <RefreshCcwDot size={20} className="text-green-500" />;
         case "crypto":
           return <BanknoteArrowDown size={20} className="text-green-500" />;
+        case "giftcard":
+          return <GiftIcon size={20} className="text-green-500" />;
         default:
           return <SquareArrowDown size={20} className="text-green-500" />;
       }
@@ -109,10 +111,10 @@ function RowTransaction({ transaction, onSelect }: RowTransactionProps) {
       switch (action) {
         case "transfer":
           return <SquareArrowUp size={20} className="text-red-500" />;
-        case "deposit":
-          return <SquareArrowDown size={20} className="text-green-500" />;
         case "crypto":
           return <BanknoteArrowUp size={20} className="text-red-500" />;
+        case "deposit":
+          return <SquareArrowDown size={20} className="text-green-500" />;
         default:
           return <SquareArrowUp size={20} className="text-red-500" />;
       }

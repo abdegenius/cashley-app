@@ -8,6 +8,7 @@ export const getTransactionType = (transaction: Transaction) => {
     electricity: "Electricity Bill",
     tv: "TV Subscription",
     transfer: "Transfer",
+    giftcard: "Giftcard Sale",
     topup: "Wallet Topup",
     intra: "Wallet Transfer",
     inter: "Bank Transfer",
