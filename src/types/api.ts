@@ -5,7 +5,19 @@ export type ApiResponse<T = any> = {
 };
 
 export interface User {
-  uid: string;
+  id?: number;
+  password?: string | null;
+  device_code?: string | null;
+  pnd?: boolean;
+  address?: string | null;
+  phone_verified?: "0" | "1";
+  email_verified?: "0" | "1";
+  bvn_verification_status?: "0" | "1";
+  bvn_data?: string | null;
+  nin_verification_status?: "0" | "1";
+  nin_data?: string | null;
+  deleted_at?: string | null;
+  uid?: string;
   firstname: string;
   lastname: string;
   middlename: string | null;
@@ -19,38 +31,38 @@ export interface User {
   dob: string | null;
   photo: string | null;
   bank_provider_id: string | null;
-  crypto_reference: string | null;
-  crypto_id: string | null;
-  crypto_key: string | null;
-  last_change_username_date: string | null;
-  created_at: string;
-  updated_at: string;
-  ngn_balance: string;
-  usdt_balance: string;
-  btc_balance: string;
-  eth_balance: string;
-  bank_code: string | null;
-  bank_name: string | null;
-  account_reference: string | null;
-  account_id: string | null;
-  account_name: string | null;
-  account_number: string | null;
+  crypto_reference?: string | null;
+  crypto_id?: string | null;
+  crypto_key?: string | null;
+  last_change_username_date?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  ngn_balance?: string;
+  usdt_balance?: string;
+  btc_balance?: string;
+  eth_balance?: string;
+  bank_code?: string | null;
+  bank_name?: string | null;
+  account_reference?: string | null;
+  account_id?: string | null;
+  account_name?: string | null;
+  account_number?: string | null;
   level: string;
   pin: string | null;
-  house_number: string | null;
+  house_number?: string | null;
   street: string | null;
   city: string | null;
   state: string | null;
   country: string | null;
   zipcode: string | null;
   nin: string | null;
-  nin_status: string;
+  nin_status?: string;
   bvn: string | null;
-  bvn_status: string;
+  bvn_status?: string;
   phone_verification_otp: string;
-  phone_verification_status: string;
+  phone_verification_status?: string;
   email_verification_otp: string;
-  email_verification_status: string;
+  email_verification_status?: string;
 }
 
 export interface Notification {
@@ -85,6 +97,7 @@ export interface Wallet {
   usdt_balance: string;
   created_at?: string;
   updated_at?: string;
+  locked? : number
 }
 export interface BankAccount {
   id: number;
@@ -120,7 +133,7 @@ export type Provider = {
   minimum_amount: string;
   maximum_amount: string;
   type: string;
-  serviceID?:string;
+  serviceID?: string;
 };
 
 export type Variation = {
@@ -157,4 +170,116 @@ export interface Network {
   minDepositAmount?: string;
   minWithdrawAmount?: string;
   txUrl?: string;
+}
+
+export interface ServicesResponse {
+  service_id: string;
+  name: string;
+  minimium_purchase_amount: number;
+  maximium_purchase_amount: number;
+  purchase_type: "flexible" | "fix" | string;
+  logo: string;
+}
+
+export interface ServiceVariationsResponse {
+  variation_code: string;
+  variation_amount: number;
+  name: string;
+  duration: string;
+}
+
+export interface ElectricityService {
+  id: number;
+  user_id: string;
+  reference: string;
+  session_id: string | null;
+  type: "credit" | "debit";
+  action: string;
+  amount: string;
+  status: "completed" | "pending" | "failed";
+  wallet: string;
+  description: string;
+  extra: {
+    amount: number;
+    service_id: string;
+    recipient: string;
+    verify_data: {
+      address: string;
+      meter_number: string;
+      customer_name: string;
+      minimum_purchase_amount: number;
+    };
+    meter_number: string;
+    variation_code: string;
+  };
+  created_at: string;
+}
+
+export interface AirtimeService {
+  id: number;
+  user_id: string;
+  reference: string;
+  session_id: string | null;
+  type: "credit" | "debit";
+  action: string;
+  amount: string;
+  status: "completed" | "pending" | "failed";
+  wallet: string;
+  description: string;
+  extra: {
+    phone: string;
+    amount: number;
+    service_id: string;
+  };
+  created_at: string;
+}
+
+export interface DataService {
+  id: number;
+  user_id: string;
+  reference: string;
+  session_id: string | null;
+  type: "credit" | "debit";
+  action: string;
+  amount: string;
+  status: "completed" | "pending" | "failed";
+  wallet: string;
+  description: string;
+  extra: {
+    phone: string;
+    amount: number;
+    service_id: string;
+    recipient: string;
+    variation_code: string;
+  };
+  created_at: string;
+}
+
+export interface TvService {
+  id: number;
+  user_id: string;
+  reference: string | number;
+  session_id: string | null;
+  type: "credit" | "debit";
+  action: string;
+  amount: string;
+  status: "completed" | "pending" | "failed";
+  wallet: string;
+  description: string;
+  extra: {
+    type: string;
+    amount: number;
+    service_id: string;
+    recipient: string;
+    verify_data: {
+      status: string;
+      due_date: string;
+      customer_name: string;
+      customer_type: string;
+      customer_number: string;
+    };
+    variation_code: string;
+    smartcard_number: string;
+  };
+  created_at: string;
 }
