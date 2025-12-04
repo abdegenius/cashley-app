@@ -238,7 +238,7 @@ export interface CryptoWallet {
 }
 
 export interface Giftcard {
-  id: string;
+  id: number;
   reference: string;
   name: string;
   logo: string;
@@ -247,7 +247,7 @@ export interface Giftcard {
   min_face_value: string;
   max_face_value: string;
   ngn_rate: string;
-  countries: string;
+  countries: GiftcardCountry[];
   extra: string;
   instruction: string;
   created_at: string;

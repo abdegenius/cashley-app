@@ -3,69 +3,36 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Check, X, ArrowRight, Search, Upload, Circle } from "lucide-react";
+import { ArrowLeft, Check, X, ArrowRight, Search, Upload, Circle, ListFilter } from "lucide-react";
 import api from "@/lib/axios";
 import TextInput from "@/components/ui/TextInput";
 import Button from "@/components/ui/Button";
-import { ApiResponse } from "@/types/api";
+import { ApiResponse, Giftcard } from "@/types/api";
 import toast from "react-hot-toast";
 import { formatToNGN } from "@/utils/amount";
 import { EnterPin } from "@/components/EnterPin";
 import { LoadingOverlay } from "@/components/Loading";
+import Link from "next/link";
 
-interface Country {
-  country: string;
-  flag: string;
-}
-
-type GiftCard = {
-  id: number;
-  name: string;
-  reference: string;
-  slug: string;
-  logo: string;
-  currency: string;
-  min_face_value: string;
-  max_face_value: string;
-  ngn_rate: string;
-  instruction: string | null;
-  extra: {};
-  countries: Country[];
-};
-
-type TransactionData = {
-  dateTime: string;
-  paymentMethod: string;
-  status: string;
-  description: string;
-  transactionId: string;
-  providerLogo: string;
-  providerName: string;
-  planName: string;
-  voucherCode?: string;
-  country?: string;
-  currency?: string;
-  received?: string;
-};
 
 type FormDataType = {
   service_id: string;
-  selectedVariant: GiftCard | null;
+  selectedVariant: Giftcard | null;
   amount: string;
   voucher: string;
   proof: string | null;
 };
 
-export default function GiftCard() {
+export default function GiftcardPage() {
   const [step, setStep] = useState(1);
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [giftcards, setGiftcards] = useState<GiftCard[]>([]);
-  const [filteredProviders, setFilteredProviders] = useState<GiftCard[]>([]);
-  const [providers, setProviders] = useState<GiftCard[]>([]);
+  const [giftcards, setGiftcards] = useState<Giftcard[]>([]);
+  const [filteredProviders, setFilteredProviders] = useState<Giftcard[]>([]);
+  const [providers, setProviders] = useState<Giftcard[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const defaultFormData = {
@@ -83,10 +50,10 @@ export default function GiftCard() {
     const fetchGiftcards = async () => {
       try {
         const res = await api.get("/giftcards");
-        const data: GiftCard[] = res.data.data;
+        const data: Giftcard[] = res.data.data;
         setGiftcards(data);
 
-        const uniqueMap = new Map<string, GiftCard>();
+        const uniqueMap = new Map<string, Giftcard>();
         data.forEach((item) => {
           if (!uniqueMap.has(item.slug)) {
             uniqueMap.set(item.slug, { ...item, logo: `/img/giftcard/${item.logo}` });
@@ -109,7 +76,7 @@ export default function GiftCard() {
     const query = searchQuery.toLowerCase();
     const filtered = giftcards
       .filter((item) => item.name.toLowerCase().includes(query))
-      .reduce((acc: GiftCard[], item) => {
+      .reduce((acc: Giftcard[], item) => {
         if (!acc.find((p) => p.slug === item.slug)) {
           acc.push({ ...item, logo: `/img/giftcard/${item.logo}` });
         }
@@ -119,12 +86,12 @@ export default function GiftCard() {
   }, [searchQuery, giftcards]);
 
   // Handlers
-  const handleProviderSelect = (provider: GiftCard) => {
+  const handleProviderSelect = (provider: Giftcard) => {
     setFormData((prev) => ({ ...prev, service_id: provider.slug }));
     setStep(2);
   };
 
-  const handleVariantSelect = (variant: GiftCard) => {
+  const handleVariantSelect = (variant: Giftcard) => {
     setFormData((prev) => ({
       ...prev,
       selectedVariant: variant,
@@ -212,7 +179,7 @@ export default function GiftCard() {
       }
 
       const res = await api.post<ApiResponse>(`/giftcard-transactions/${variant.reference}`, payload)
-      if (!res.data.error) {
+      if (res.data.error) {
         setSuccess(false);
         setStep(3);
         toast.error(res.data.message)
@@ -261,14 +228,22 @@ export default function GiftCard() {
   };
 
   return (
-    <div className="w-full h-full mx-auto max-w-xl flex flex-col">
-      {step > 1 && (
-        <div className="flex items-center justify-between p-4">
-          <button onClick={handleBack} className="p-2 hover:bg-card rounded-full transition-colors">
-            <ArrowLeft size={24} />
-          </button>
+    <div className="w-full h-full mx-auto max-w-xl flex flex-col space-y-4 px-4">
+
+      <div className="flex items-center justify-between">
+        <div className="w-full">
+          {step > 1 && (
+            <button onClick={handleBack} className="py-2 hover:bg-card bg-stone-950/25 px-4 border border-stone-800 rounded-4xl transition-colors">
+              Back
+            </button>
+          )}
         </div>
-      )}
+        <Link className="w-auto flex-none flex items-center justify-end space-x-2 purple-text text-lg font-bold" href={"/app/giftcards/history"}>
+          <ListFilter size={20} />
+          <span>View history</span>
+        </Link>
+      </div>
+
       <div className="flex-1 overflow-y-auto p-4">
         <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
       </div>
@@ -282,7 +257,7 @@ export default function GiftCard() {
 function StepOne({ providers, searchQuery, setSearchQuery, selectedServiceId, onSelect }: any) {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-      <div className="text-center space-y-2">
+      <div className="flex flex-col space-y-1">
         <h2 className="text-2xl font-extrabold text-stone-400">Select Gift Card</h2>
         <p className="text-stone-200">Pick a gift card to sell quickly and safely</p>
       </div>
@@ -291,7 +266,7 @@ function StepOne({ providers, searchQuery, setSearchQuery, selectedServiceId, on
         <TextInput value={searchQuery} onChange={setSearchQuery} placeholder="Search gift cards..." type="text" className="pl-12 rounded-xl border border-stone-200 shadow-sm outline-none" />
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        {providers.map((p: GiftCard) => (
+        {providers.map((p: Giftcard) => (
           <GiftCardItem key={p.reference} provider={p} selected={selectedServiceId === p.slug} onClick={() => onSelect(p)} />
         ))}
       </div>
@@ -330,14 +305,14 @@ function StepTwo({
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-      <div className="text-center space-y-2">
+      <div className="flex flex-col space-y-1">
         <h2 className="text-2xl font-extrabold text-stone-400">Enter Gift Card Details</h2>
         <p className="text-stone-200">Select a variant, enter amount, voucher code & upload proof</p>
       </div>
 
       {variants[0] && (
-        <div className="w-full h-40 relative rounded-2xl overflow-hidden shadow">
-          <Image src={`/img/giftcard/${variants[0].logo}`} alt={variants[0].name} fill className="object-contain rounded-xl" />
+        <div className="w-full h-40 bg-stone-50 relative rounded-2xl overflow-hidden shadow">
+          <Image src={`/img/giftcard/${variants[0].logo}`} alt={variants[0].name} fill className="object-cover rounded-xl" />
         </div>
       )}
       <VariantDropdown
@@ -407,15 +382,15 @@ function StepTwo({
 
 function StepThree({ formData, providers, onNext, onBack }: any) {
   const variant = formData.selectedVariant;
-  const provider = providers.find((p: GiftCard) => p.slug === formData.service_id);
+  const provider = providers.find((p: Giftcard) => p.slug === formData.service_id);
   const received = formatToNGN(Number(formData.amount) * Number(variant.ngn_rate));
   const firstCountry = variant?.countries[0]?.country || "";
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-      <div className="bg-transparent rounded-2xl shadow p-6 space-y-4">
-        <h2 className="text-xl font-bold text-center">Summary</h2>
-        <div className="flex justify-between items-center text-md font-bold">
+      <div className="bg-transparent rounded-2xl shadow space-y-2">
+        <h2 className="text-2xl text-stone-400 font-bold mb-8">Summary</h2>
+        <div className="flex justify-between items-center text-md font-semibold text-stone-200 text-lg">
           <span>{variant.name} ({variant?.currency} {formData.amount})</span>
           <ArrowRight size={20} />
           <span>{received}</span>
@@ -458,15 +433,15 @@ function ReviewItem({ label, value }: { label: string; value: string }) {
   );
 }
 interface VariantDropdownProps {
-  variants: GiftCard[];
-  selectedVariant: GiftCard;
+  variants: Giftcard[];
+  selectedVariant: Giftcard;
   handleVariantSelect: any;
 }
 function VariantDropdown({ variants, selectedVariant, handleVariantSelect }: VariantDropdownProps) {
   const [query, setQuery] = useState("");
 
   const filteredVariants = useMemo(() => {
-    return variants.filter((v: GiftCard) =>
+    return variants.filter((v: Giftcard) =>
       v.countries[0].country.toLowerCase().includes(query.toLowerCase()) ||
       v.currency.toLowerCase().includes(query.toLowerCase())
     );
