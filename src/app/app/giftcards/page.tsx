@@ -1,13 +1,17 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Check, X, Eye, EyeOff, ArrowRight, Search, Upload } from "lucide-react";
+import { ArrowLeft, Check, X, ArrowRight, Search, Upload, Circle } from "lucide-react";
 import api from "@/lib/axios";
 import TextInput from "@/components/ui/TextInput";
 import Button from "@/components/ui/Button";
-import { Keypad } from "@/components/modals/Keypad";
+import { ApiResponse } from "@/types/api";
+import toast from "react-hot-toast";
+import { formatToNGN } from "@/utils/amount";
+import { EnterPin } from "@/components/EnterPin";
+import { LoadingOverlay } from "@/components/Loading";
 
 interface Country {
   country: string;
@@ -49,32 +53,30 @@ type FormDataType = {
   selectedVariant: GiftCard | null;
   amount: string;
   voucher: string;
-  uploadedImage: File | null;
-  imagePreview: string | null;
-  transactionData: TransactionData | null;
+  proof: string | null;
 };
 
 export default function GiftCard() {
   const [step, setStep] = useState(1);
   const [otp, setOtp] = useState(["", "", "", ""]);
+  const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<boolean | null>(null);
-  const [showOTPFull, setShowOTPFull] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [giftcards, setGiftcards] = useState<GiftCard[]>([]);
   const [filteredProviders, setFilteredProviders] = useState<GiftCard[]>([]);
   const [providers, setProviders] = useState<GiftCard[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [formData, setFormData] = useState<FormDataType>({
+  const defaultFormData = {
     service_id: "",
     selectedVariant: null,
     amount: "",
     voucher: "",
-    uploadedImage: null,
-    imagePreview: null,
-    transactionData: null,
-  });
+    proof: null,
+  }
+
+  const [formData, setFormData] = useState<FormDataType>(defaultFormData);
 
   // Fetch gift cards
   useEffect(() => {
@@ -133,16 +135,46 @@ export default function GiftCard() {
   const handleAmountChange = (value: string) => setFormData((prev) => ({ ...prev, amount: value }));
   const handleVoucherChange = (value: string) => setFormData((prev) => ({ ...prev, voucher: value }));
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUploading(true)
+    try {
+      const file = e.target.files?.[0];
+      if (!file) {
+        toast.error("No file selected");
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append("file", file);
+
+      const res = await api.post<ApiResponse>(
+        "/upload-file",
+        fd,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (res.data?.error) {
+        toast.error(res.data.message || "Failed to upload proof");
+        return;
+      }
+
       setFormData((prev) => ({
         ...prev,
-        uploadedImage: file,
-        imagePreview: URL.createObjectURL(file),
+        proof: res.data.data,
       }));
+
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      toast.error("Something went wrong during upload");
+    } finally {
+      setUploading(false)
     }
   };
+
 
   const handleBack = () => {
     if (step === 1) return window.history.back();
@@ -158,67 +190,44 @@ export default function GiftCard() {
       if (!variant) return;
       const min = parseFloat(variant.min_face_value);
       const max = parseFloat(variant.max_face_value);
-      if (amountNum < min || amountNum > max || !formData.voucher || !formData.uploadedImage) return;
+      if (amountNum < min || amountNum > max || !formData.voucher || !formData.proof) return;
     }
     setStep((prev) => prev + 1);
-  };
-
-  const handleNumberClick = (num: string) => {
-    if (num === "←") {
-      const last = otp.reduce((acc, val, idx) => (val ? idx : acc), -1);
-      if (last >= 0) {
-        const newOtp = [...otp];
-        newOtp[last] = "";
-        setOtp(newOtp);
-      }
-    } else if (num === "✓") {
-      if (otp.every((d) => d)) handleSubmit();
-    } else {
-      const emptyIndex = otp.findIndex((d) => !d);
-      if (emptyIndex !== -1) {
-        const newOtp = [...otp];
-        newOtp[emptyIndex] = num;
-        setOtp(newOtp);
-      }
-    }
   };
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await new Promise((res) => setTimeout(res, 2000));
 
       const variant = formData.selectedVariant;
       if (!variant) return;
 
-      const amountNum = parseFloat(formData.amount);
-      const rate = parseFloat(variant.ngn_rate);
-      const received = Math.round(amountNum * rate).toString();
-
       const firstCountry = variant.countries[0];
 
-      const transactionData: TransactionData = {
-        dateTime: new Date().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", second: "2-digit" }),
-        paymentMethod: "Cashley",
-        status: "Completed",
-        description: "Sell Gift Card",
-        transactionId: `TRX${Date.now()}`,
-        providerLogo: `/img/giftcard/${variant.logo}`,
-        providerName: variant.name,
-        planName: `${variant.currency} ${formData.amount}`,
-        voucherCode: formData.voucher,
+      const payload = {
+        value: formData.amount,
+        voucher: formData.voucher,
         country: firstCountry.country,
-        currency: variant.currency,
-        received,
-      };
+        proof: formData.proof
+      }
 
-      setSuccess(true);
-      setFormData((prev) => ({ ...prev, transactionData }));
-      setStep(5);
+      const res = await api.post<ApiResponse>(`/giftcard-transactions/${variant.reference}`, payload)
+      if (!res.data.error) {
+        setSuccess(false);
+        setStep(3);
+        toast.error(res.data.message)
+      } else {
+        setSuccess(true);
+        setStep(1);
+        setFormData(defaultFormData);
+        toast.success(res.data.message)
+      }
     } catch {
+      toast.error("An error was encountered, please try again!")
       setSuccess(false);
-      setStep(5);
+      setStep(3);
     } finally {
+      setOtp(["", "", "", ""])
       setLoading(false);
     }
   };
@@ -232,7 +241,7 @@ export default function GiftCard() {
         const amountNum = parseFloat(formData.amount);
         const min = parseFloat(variant.min_face_value);
         const max = parseFloat(variant.max_face_value);
-        return amountNum >= min && amountNum <= max && !!formData.voucher && !!formData.uploadedImage;
+        return amountNum >= min && amountNum <= max && !!formData.voucher && !!formData.proof;
       }
       case 3: return true;
       case 4: return otp.every((d) => d);
@@ -244,10 +253,9 @@ export default function GiftCard() {
   const renderStep = () => {
     switch (step) {
       case 1: return <StepOne providers={filteredProviders} searchQuery={searchQuery} setSearchQuery={setSearchQuery} selectedServiceId={formData.service_id} onSelect={handleProviderSelect} />;
-      case 2: return <StepTwo formData={formData} variants={giftcards.filter((g) => g.slug === formData.service_id)} handleVariantSelect={handleVariantSelect} handleAmountChange={handleAmountChange} handleVoucherChange={handleVoucherChange} handleImageUpload={handleImageUpload} fileInputRef={fileInputRef} onNext={handleNext} isStepValid={isStepValid} />;
+      case 2: return <StepTwo formData={formData} variants={giftcards.filter((g) => g.slug === formData.service_id)} handleVariantSelect={handleVariantSelect} handleAmountChange={handleAmountChange} handleVoucherChange={handleVoucherChange} handleImageUpload={handleImageUpload} fileInputRef={fileInputRef} onNext={handleNext} isStepValid={isStepValid} uploading={uploading} />;
       case 3: return <StepThree formData={formData} providers={providers} onNext={handleNext} onBack={handleBack} />;
-      case 4: return <StepFour otp={otp} showOTPFull={showOTPFull} setShowOTPFull={setShowOTPFull} handleNumberClick={handleNumberClick} loading={loading} />;
-      case 5: return <StepFive transactionData={formData.transactionData} success={success} />;
+      case 4: return <StepFour otp={otp} setOtp={setOtp} loading={loading} handleSubmit={handleSubmit} handleBack={handleBack} />;
       default: return null;
     }
   };
@@ -264,6 +272,7 @@ export default function GiftCard() {
       <div className="flex-1 overflow-y-auto p-4">
         <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
       </div>
+      {loading && <LoadingOverlay />}
     </div>
   );
 }
@@ -301,8 +310,6 @@ function GiftCardItem({ provider, selected, onClick }: any) {
   );
 }
 
-/** Additional Steps (StepTwo, StepThree, StepFour, StepFive) would follow a similar modular pattern **/
-/** ---------- Step 2: Select Variant & Enter Details ---------- **/
 function StepTwo({
   formData,
   variants,
@@ -313,6 +320,7 @@ function StepTwo({
   fileInputRef,
   onNext,
   isStepValid,
+  uploading
 }: any) {
   const selectedVariant = formData.selectedVariant;
   const rate = selectedVariant ? parseFloat(selectedVariant.ngn_rate) : 0;
@@ -332,25 +340,11 @@ function StepTwo({
           <Image src={`/img/giftcard/${variants[0].logo}`} alt={variants[0].name} fill className="object-contain rounded-xl" />
         </div>
       )}
-
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 items-center gap-2">
-        {variants.map((variant: GiftCard) => {
-          const firstCountry = variant.countries[0];
-          const isSelected = selectedVariant?.id === variant.id;
-          return (
-            <motion.button
-              key={variant.id}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleVariantSelect(variant)}
-              className={`rounded-2xl p-2 text-center border transition ${isSelected ? "border-stone-600 bg-card" : "border-stone-800 bg-transparent"}`}
-            >
-              <div className="text-2xl mb-0">{firstCountry.flag}</div>
-              <span className="text-xs font-medium">{variant.currency}</span>
-            </motion.button>
-          );
-        })}
-      </div>
+      <VariantDropdown
+        variants={variants}
+        selectedVariant={selectedVariant}
+        handleVariantSelect={handleVariantSelect}
+      />
 
       {selectedVariant && (
         <div className="space-y-4">
@@ -385,15 +379,17 @@ function StepTwo({
           />
 
           {/* Upload Proof */}
-          <label className="w-full justify-center py-3 flex items-center gap-2 text-lg cursor-pointer text-stone-200 hover:text-stone-400">
-            <Upload size={20} /> Upload Proof
+          <label className="w-full flex items-center justify-center py-3 text-lg cursor-pointer text-stone-200 hover:text-stone-400">
+            {!uploading ? <div className="flex items-center gap-2 "><Upload size={20} /> {formData.proof ? "Change Proof" : "Upload Proof"}</div> : <div className="flex items-center gap-2 "><Circle size={20} /> Uploading</div>}
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
           </label>
-          {formData.imagePreview && (
-            <div className="mt-2 w-28 h-28 relative rounded overflow-hidden">
-              <Image src={formData.imagePreview} alt="Proof" fill className="object-cover" />
-            </div>
-          )}
+          <div className="w-full flex items-center justify-center">
+            {!uploading && formData.proof && (
+              <div className="mt-2 w-28 h-28 relative rounded overflow-hidden">
+                <Image src={formData.proof} alt="Proof" fill className="object-cover" />
+              </div>
+            )}
+          </div>
 
           {/* Estimated Receive */}
           {formData.amount && (
@@ -409,28 +405,27 @@ function StepTwo({
   );
 }
 
-/** ---------- Step 3: Summary ---------- **/
 function StepThree({ formData, providers, onNext, onBack }: any) {
   const variant = formData.selectedVariant;
   const provider = providers.find((p: GiftCard) => p.slug === formData.service_id);
-  const received = parseInt(formData.transactionData?.received || "0").toLocaleString();
+  const received = formatToNGN(Number(formData.amount) * Number(variant.ngn_rate));
   const firstCountry = variant?.countries[0]?.country || "";
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
       <div className="bg-transparent rounded-2xl shadow p-6 space-y-4">
         <h2 className="text-xl font-bold text-center">Summary</h2>
-        <div className="flex justify-between items-center text-lg font-bold">
-          <span>{variant?.currency} {formData.amount}</span>
-          <ArrowRight size={24} />
-          <span>₦{received}</span>
+        <div className="flex justify-between items-center text-md font-bold">
+          <span>{variant.name} ({variant?.currency} {formData.amount})</span>
+          <ArrowRight size={20} />
+          <span>{received}</span>
         </div>
         <ReviewItem label="Product" value="Sell Gift Card" />
         <ReviewItem label="Brand" value={provider?.name || variant?.name || ""} />
         <ReviewItem label="Country" value={firstCountry} />
         <ReviewItem label="Amount" value={`${variant?.currency} ${formData.amount}`} />
         <ReviewItem label="Voucher" value={formData.voucher} />
-        <ReviewItem label="Receive" value={`₦${received}`} />
+        <ReviewItem label="Receive" value={received} />
       </div>
       <div className="flex gap-4">
         <Button onclick={onBack} type="primary" text="Back" width="flex-1 py-4" />
@@ -440,70 +435,88 @@ function StepThree({ formData, providers, onNext, onBack }: any) {
   );
 }
 
-/** ---------- Step 4: Enter OTP ---------- **/
-function StepFour({ otp, showOTPFull, setShowOTPFull, handleNumberClick, loading }: any) {
+function StepFour({ otp, setOtp, handleSubmit, handleBack, loading }: any) {
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-      <div className="text-center space-y-2">
-        <h2 className="text-3xl font-extrabold">Enter Your PIN</h2>
-        <p className="text-stone-500">To complete this transaction, enter your 4-digit PIN</p>
-      </div>
-
-      <div className="flex justify-center gap-4 mb-6">
-        {otp.map((digit: string, i: number) => (
-          <motion.div
-            key={i}
-            animate={{ scale: digit ? 1.1 : 1 }}
-            className={`w-14 h-14 rounded-full flex items-center justify-center text-xl font-semibold ${showOTPFull ? "" : digit ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white" : "bg-stone-100"}`}
-          >
-            {showOTPFull ? digit || "" : digit ? "•" : ""}
-          </motion.div>
-        ))}
-      </div>
-
-      <button
-        onClick={() => setShowOTPFull(!showOTPFull)}
-        className="flex items-center justify-center gap-2 mx-auto mb-6 text-sm text-stone-700 hover:text-stone-900"
-      >
-        {showOTPFull ? <EyeOff size={18} /> : <Eye size={18} />} {showOTPFull ? "Hide" : "Show"} PIN
-      </button>
-
-      <Keypad disableConfirm={false} onConfirm={() => null} onDelete={() => null} numbers={["1", "2", "3", "4", "5", "6", "7", "8", "9", "✓", "0", "←"]} onNumberClick={handleNumberClick} loading={loading} />
-    </motion.div>
+    <EnterPin
+      otp={otp}
+      show={true}
+      setOtp={setOtp}
+      headerText={"Enter your 4-digit transaction pin"}
+      buttonText={"Sell"}
+      onConfirm={handleSubmit}
+      onBack={handleBack}
+    />
   );
 }
 
-/** ---------- Step 5: Transaction Result ---------- **/
-function StepFive({ transactionData, success }: any) {
+function ReviewItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="space-y-10">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 text-center bg-transparent rounded-2xl shadow p-6">
-        <div className="w-20 h-20 rounded-full mx-auto flex items-center justify-center bg-gradient-to-r from-purple-500 to-blue-500">
-          {success ? <Check size={40} className="text-white" /> : <X size={40} className="text-white" />}
-        </div>
-        <h2 className="text-3xl font-bold">{success ? "Transaction Successful" : "Transaction Failed"}</h2>
-        <p className="text-stone-500">{success ? "Gift card sold successfully" : "Something went wrong. Please try again."}</p>
-        {transactionData && (
-          <div className="mt-4">
-            <h3 className="font-semibold text-lg">Amount Received</h3>
-            <span className="text-2xl font-bold">₦{parseInt(transactionData.received || "0").toLocaleString()}</span>
-          </div>
-        )}
-      </motion.div>
-      <div className="flex gap-4">
-        <button className="w-full py-4 px-5 rounded-full bg-stone-100">Share as Image</button>
-        <button className="w-full py-4 px-5 rounded-full bg-stone-100">Share as PDF</button>
-      </div>
+    <div className="flex justify-between py-2 border-b border-stone-700">
+      <span className="text-stone-300">{label}</span>
+      <span className="font-medium">{value}</span>
     </div>
   );
 }
+interface VariantDropdownProps {
+  variants: GiftCard[];
+  selectedVariant: GiftCard;
+  handleVariantSelect: any;
+}
+function VariantDropdown({ variants, selectedVariant, handleVariantSelect }: VariantDropdownProps) {
+  const [query, setQuery] = useState("");
 
-/** ---------- Review Item ---------- **/
-function ReviewItem({ label, value }: { label: string; value: string }) {
+  const filteredVariants = useMemo(() => {
+    return variants.filter((v: GiftCard) =>
+      v.countries[0].country.toLowerCase().includes(query.toLowerCase()) ||
+      v.currency.toLowerCase().includes(query.toLowerCase())
+    );
+  }, [variants, query]);
+
   return (
-    <div className="flex justify-between py-2 border-b border-stone-200">
-      <span className="text-stone-700">{label}</span>
-      <span className="font-medium">{value}</span>
+    <div className="w-full space-y-2">
+      {/* Search Box */}
+      <input
+        type="text"
+        placeholder="Search country or currency..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="w-full rounded-xl bg-stone-950 border border-stone-700 px-3 py-2 text-sm focus:ring-2 focus:ring-stone-600 outline-none"
+      />
+
+      {/* Dropdown Box */}
+      <div className="relative w-full">
+        <div className="max-h-48 overflow-y-auto rounded-xl border border-stone-800 p-2 bg-stone-950 shadow-lg">
+
+          {filteredVariants.length === 0 && (
+            <p className="text-center text-sm text-stone-500 py-4">No match found</p>
+          )}
+
+          {filteredVariants.map((variant: any) => {
+            const firstCountry = variant.countries[0];
+            const isSelected = selectedVariant?.id === variant.id;
+
+            return (
+              <button
+                key={variant.id}
+                onClick={() => handleVariantSelect(variant)}
+                className={`
+                  w-full flex items-center gap-3 px-3 py-2 rounded-lg transition
+                  ${isSelected ? "bg-stone-800 border border-stone-600" : "hover:bg-stone-900"}
+                `}
+              >
+                <span className="text-xl">
+                  {variant.currency === "EUR" ? "🇪🇺" : firstCountry.flag}
+                </span>
+
+                <div className="flex flex-col text-left">
+                  <span className="font-medium text-sm">{firstCountry.country}</span>
+                  <span className="text-xs text-stone-400">{variant.currency}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }
