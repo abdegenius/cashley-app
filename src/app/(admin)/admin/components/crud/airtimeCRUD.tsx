@@ -1,16 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { AirtimeService, Transaction } from "@/types/api";
-import { purchaseAirtime } from "@/lib/data";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { AirtimeService } from "@/types/api";
+import { Button } from "@/components/ui/buttonshed";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -36,60 +29,132 @@ import {
 } from "@/components/ui/dialog";
 import { Eye, Edit, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import useFetch from "./components/hook/useFetch";
+import api from "@/lib/axios";
 
-interface TransactionsCRUDProps {
+interface AirtimeCRUDProps {
   searchQuery: string;
 }
 
-export default function AirtimeCRUD({
-  searchQuery,
-}: TransactionsCRUDProps) {
-  const [transactions, setTransactions] = useState(purchaseAirtime.getAll());
-  const [selectedTransaction, setSelectedTransaction] =
-    useState<AirtimeService | null>(null);
+export default function AirtimeCRUD({ searchQuery }: AirtimeCRUDProps) {
+  // Fetch airtime transactions from API
+  const {
+    data: apiData,
+    loading: fetchLoading,
+    error: fetchError,
+    refetch,
+  } = useFetch("/admin/transactions?action=airtime");
+  const [transactions, setTransactions] = useState<AirtimeService[]>([]);
+  const [selectedTransaction, setSelectedTransaction] = useState<AirtimeService | null>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [editFormData, setEditFormData] = useState<Partial<AirtimeService>>({});
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const filteredTransactions = transactions.filter((transaction) => {
-    const matchesSearch =
-      transaction.reference
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      transaction.description
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase());
+  // Transform API data to match AirtimeService type
+  useEffect(() => {
+    if (apiData) {
+      // Check if data is an array or has a data property
+      const dataArray = Array.isArray(apiData)
+        ? apiData
+        : (apiData as any)?.data
+          ? (apiData as any).data
+          : apiData;
 
-    const matchesStatus =
-      statusFilter === "all" || transaction.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
-  });
-
-  const handleUpdate = () => {
-    if (selectedTransaction?.id) {
-      purchaseAirtime.update(
-        String(selectedTransaction.id),
-        selectedTransaction
-      );
-      setTransactions(purchaseAirtime.getAll());
-      setSelectedTransaction(null);
-      setIsEditDialogOpen(false);
+      if (Array.isArray(dataArray)) {
+        const transformedTransactions = dataArray.map((transaction: any) => ({
+          id: transaction.id?.toString() || "",
+          user_id: transaction.user_id?.toString() || "",
+          reference: transaction.reference || "",
+          session_id: transaction.session_id || "",
+          type: transaction.type || "",
+          action: transaction.action || "",
+          amount: transaction.amount?.toString() || "0",
+          status: transaction.status || "",
+          wallet: transaction.wallet || "",
+          description: transaction.description || "",
+          extra: transaction.extra || {
+            phone: "",
+            amount: 0,
+            service_id: "",
+            recipient: "",
+          },
+          created_at: transaction.created_at || new Date().toISOString(),
+          updated_at: transaction.updated_at || null,
+          // Add any additional fields from your API
+          ...transaction,
+        }));
+        setTransactions(transformedTransactions);
+      }
     }
-  };
+  }, [apiData]);
+
   const isValidTransactionStatus = (
     value: string
   ): value is NonNullable<AirtimeService["status"]> => {
     return ["pending", "completed", "failed", "reversed"].includes(value);
   };
 
-  const handleDelete = () => {
-    if (selectedTransaction?.id) {
-      purchaseAirtime.delete(String(selectedTransaction.id));
-      setTransactions(purchaseAirtime.getAll());
-      setSelectedTransaction(null);
-      setIsDeleteDialogOpen(false);
+  const filteredTransactions = transactions.filter((transaction) => {
+    const matchesSearch =
+      transaction.reference?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transaction.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transaction.user_id?.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transaction.extra?.phone?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = statusFilter === "all" || transaction.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  const handleUpdate = async () => {
+    if (selectedTransaction?.id && selectedTransaction.id) {
+      setUpdateLoading(true);
+      try {
+        const response = await api.put(
+          `/admin/transactions?action=airtime/${selectedTransaction.id}`,
+          editFormData
+        );
+
+        if (response.data) {
+          refetch();
+          setSelectedTransaction(null);
+          setEditFormData({});
+          setIsEditDialogOpen(false);
+        }
+      } catch (error: any) {
+        console.error("Error updating airtime transaction:", error);
+        // Optional: Show error notification
+        alert(error.response?.data?.message || "Failed to update airtime transaction");
+      } finally {
+        setUpdateLoading(false);
+      }
+    }
+  };
+
+  // Normal API call for delete
+  const handleDelete = async () => {
+    if (selectedTransaction?.id && selectedTransaction.id) {
+      setDeleteLoading(true);
+      try {
+        const response = await api.delete(
+          `/admin/transactions?action=airtime/${selectedTransaction.id}`
+        );
+
+        if (response.data) {
+          refetch();
+          setSelectedTransaction(null);
+          setIsDeleteDialogOpen(false);
+        }
+      } catch (error: any) {
+        console.error("Error deleting airtime transaction:", error);
+        alert(error.response?.data?.message || "Failed to delete airtime transaction");
+      } finally {
+        setDeleteLoading(false);
+      }
     }
   };
 
@@ -99,7 +164,11 @@ export default function AirtimeCRUD({
   };
 
   const handleEdit = (transaction: AirtimeService) => {
-    setSelectedTransaction({ ...transaction });
+    setSelectedTransaction(transaction);
+    setEditFormData({
+      status: transaction.status || "",
+      description: transaction.description || "",
+    });
     setIsEditDialogOpen(true);
   };
 
@@ -127,11 +196,12 @@ export default function AirtimeCRUD({
     return type === "credit" ? "default" : "secondary";
   };
 
-  const formatCurrency = (amount?: number) => {
+  const formatCurrency = (amount?: string | number) => {
+    const numAmount = typeof amount === "string" ? parseFloat(amount) || 0 : amount || 0;
     return new Intl.NumberFormat("en-NG", {
       style: "currency",
       currency: "NGN",
-    }).format(amount || 0);
+    }).format(numAmount);
   };
 
   const formatDate = (dateString?: string) => {
@@ -148,15 +218,35 @@ export default function AirtimeCRUD({
   // Calculate transaction statistics
   const transactionStats = {
     totalTransactions: transactions.length,
-    totalVolume: transactions.reduce((sum, t) => sum + (Number(t.amount) || 0), 0),
-    completedTransactions: transactions.filter((t) => t.status === "completed")
-      .length,
-    pendingTransactions: transactions.filter((t) => t.status === "pending")
-      .length,
-    // totalFees: transactions.reduce((sum, t) => sum + (t.fee || 0), 0),
+    totalVolume: transactions.reduce((sum, t) => sum + (parseFloat(t.amount || "0") || 0), 0),
+    completedTransactions: transactions.filter((t) => t.status === "completed").length,
+    pendingTransactions: transactions.filter((t) => t.status === "pending").length,
+    failedTransactions: transactions.filter((t) => t.status === "failed").length,
     creditTransactions: transactions.filter((t) => t.type === "credit").length,
     debitTransactions: transactions.filter((t) => t.type === "debit").length,
   };
+
+  if (fetchLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading airtime transactions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div className="p-6 text-center">
+        <div className="text-red-500 mb-4">Error loading airtime transactions: {fetchError}</div>
+        <Button onClick={() => refetch()} variant="outline">
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -168,26 +258,18 @@ export default function AirtimeCRUD({
             <Badge variant="default">₦</Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {formatCurrency(transactionStats.totalVolume)}
-            </div>
-            <p className="text-xs text-muted-foreground">All transactions</p>
+            <div className="text-2xl font-bold">{formatCurrency(transactionStats.totalVolume)}</div>
+            <p className="text-xs text-muted-foreground">All airtime purchases</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Transactions
-            </CardTitle>
-            <Badge variant="secondary">
-              {transactionStats.totalTransactions}
-            </Badge>
+            <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
+            <Badge variant="secondary">{transactionStats.totalTransactions}</Badge>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {transactionStats.totalTransactions}
-            </div>
+            <div className="text-2xl font-bold">{transactionStats.totalTransactions}</div>
             <p className="text-xs text-muted-foreground">All time</p>
           </CardContent>
         </Card>
@@ -195,29 +277,37 @@ export default function AirtimeCRUD({
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <Badge variant="default">
-              {transactionStats.completedTransactions}
-            </Badge>
+            <Badge variant="default">{transactionStats.completedTransactions}</Badge>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
               {transactionStats.completedTransactions}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Successful transactions
-            </p>
+            <p className="text-xs text-muted-foreground">Successful purchases</p>
           </CardContent>
         </Card>
 
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+            <Badge variant="secondary">{transactionStats.pendingTransactions}</Badge>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-yellow-600">
+              {transactionStats.pendingTransactions}
+            </div>
+            <p className="text-xs text-muted-foreground">Awaiting completion</p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Transactions Table */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Transactions Management</CardTitle>
+            <CardTitle>Airtime Purchases Management</CardTitle>
             <CardDescription>
-              View and manage all transactions ({filteredTransactions.length})
+              View and manage all airtime purchases ({filteredTransactions.length})
             </CardDescription>
           </div>
           <div className="flex gap-2">
@@ -236,93 +326,88 @@ export default function AirtimeCRUD({
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Reference</TableHead>
-                <TableHead>User ID</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Recipiant</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredTransactions.map((transaction) => (
-                <TableRow
-                  key={transaction.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => handleView(transaction)}
-                >
-                  <TableCell className="font-medium">
-                    {transaction.reference}
-                  </TableCell>
-                  <TableCell>{transaction.user_id}</TableCell>
-                  <TableCell>
-
-                      {transaction.action?.toUpperCase()}
-                    
-                  </TableCell>
-                  <TableCell
-                    className={`font-semibold ${
-                      transaction.type === "credit"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {transaction.type === "credit" ? "+" : "-"}
-                    {formatCurrency(Number(transaction.amount))}
-                  </TableCell>
-                  {/* <TableCell className="text-muted-foreground">
-                    {transaction.extra.recipient}
-                  </TableCell> */}
-                  <TableCell>{transaction.extra.phone}</TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusVariant(transaction.status)}>
-                      {transaction.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{formatDate(transaction.created_at)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleView(transaction);
-                        }}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(transaction);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteClick(transaction);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+          {transactions.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No airtime transactions found
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Reference</TableHead>
+                  <TableHead>User ID</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Recipient</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredTransactions.map((transaction) => (
+                  <TableRow
+                    key={transaction.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => handleView(transaction)}
+                  >
+                    <TableCell className="font-medium">{transaction.reference}</TableCell>
+                    <TableCell>{transaction.user_id}</TableCell>
+                    <TableCell>{transaction.action?.toUpperCase()}</TableCell>
+                    <TableCell
+                      className={`font-semibold ${
+                        transaction.type === "credit" ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {transaction.type === "credit" ? "+" : "-"}
+                      {formatCurrency(transaction.amount)}
+                    </TableCell>
+                    <TableCell>{transaction.extra?.phone || "N/A"}</TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusVariant(transaction.status)}>
+                        {transaction.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{formatDate(transaction.created_at)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleView(transaction);
+                          }}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit(transaction);
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(transaction);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
@@ -330,104 +415,79 @@ export default function AirtimeCRUD({
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Transaction Details</DialogTitle>
-            <DialogDescription>
-              Complete transaction information
-            </DialogDescription>
+            <DialogTitle>Airtime Purchase Details</DialogTitle>
+            <DialogDescription>Complete airtime purchase information</DialogDescription>
           </DialogHeader>
           {selectedTransaction && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Reference
-                  </label>
-                  <p className="text-sm font-mono">
-                    {selectedTransaction.reference}
-                  </p>
+                  <label className="text-sm font-medium text-muted-foreground">Reference</label>
+                  <p className="text-sm font-mono">{selectedTransaction.reference}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    User ID
-                  </label>
+                  <label className="text-sm font-medium text-muted-foreground">User ID</label>
                   <p className="text-sm">{selectedTransaction.user_id}</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Type
-                  </label>
+                  <label className="text-sm font-medium text-muted-foreground">Type</label>
                   <Badge variant={getTypeVariant(selectedTransaction.type)}>
                     {selectedTransaction.type?.toUpperCase()}
                   </Badge>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Action
-                  </label>
-                  <p className="text-sm capitalize">
-                    {selectedTransaction.action}
-                  </p>
+                  <label className="text-sm font-medium text-muted-foreground">Action</label>
+                  <p className="text-sm capitalize">{selectedTransaction.action}</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Amount
-                  </label>
+                  <label className="text-sm font-medium text-muted-foreground">Amount</label>
                   <p
                     className={`text-lg font-semibold ${
-                      selectedTransaction.type === "credit"
-                        ? "text-green-600"
-                        : "text-red-600"
+                      selectedTransaction.type === "credit" ? "text-green-600" : "text-red-600"
                     }`}
                   >
                     {selectedTransaction.type === "credit" ? "+" : "-"}
-                    {formatCurrency(Number(selectedTransaction.amount))}
+                    {formatCurrency(selectedTransaction.amount)}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Recipiant
-                  </label>
-                  {/* <p className="text-sm">
-                    {selectedTransaction.extra.recipient}
-                  </p> */}
+                  <label className="text-sm font-medium text-muted-foreground">Phone Number</label>
+                  <p className="text-sm font-mono">{selectedTransaction.extra?.phone || "N/A"}</p>
                 </div>
               </div>
-             
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Status
-                  </label>
+                  <label className="text-sm font-medium text-muted-foreground">Service ID</label>
+                  <p className="text-sm">{selectedTransaction.extra?.service_id || "N/A"}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Session ID</label>
+                  <p className="text-sm font-mono">{selectedTransaction.session_id || "N/A"}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Status</label>
                   <Badge variant={getStatusVariant(selectedTransaction.status)}>
                     {selectedTransaction.status}
                   </Badge>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">
-                    Wallet
-                  </label>
-                  <p className="text-sm capitalize">
-                    {selectedTransaction.wallet}
-                  </p>
+                  <label className="text-sm font-medium text-muted-foreground">Wallet</label>
+                  <p className="text-sm capitalize">{selectedTransaction.wallet}</p>
                 </div>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">
-                  Description
-                </label>
+                <label className="text-sm font-medium text-muted-foreground">Description</label>
                 <p className="text-sm">{selectedTransaction.description}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-muted-foreground">
-                  Date
-                </label>
-                <p className="text-sm">
-                  {formatDate(selectedTransaction.created_at)}
-                </p>
+                <label className="text-sm font-medium text-muted-foreground">Date</label>
+                <p className="text-sm">{formatDate(selectedTransaction.created_at)}</p>
               </div>
             </div>
           )}
@@ -438,21 +498,19 @@ export default function AirtimeCRUD({
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Transaction</DialogTitle>
-            <DialogDescription>
-              Update transaction status and details
-            </DialogDescription>
+            <DialogTitle>Edit Airtime Purchase</DialogTitle>
+            <DialogDescription>Update airtime purchase status and details</DialogDescription>
           </DialogHeader>
           {selectedTransaction && (
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium">Status</label>
                 <Select
-                  value={selectedTransaction.status || ""}
+                  value={editFormData.status || selectedTransaction.status || ""}
                   onValueChange={(value: string) => {
                     if (isValidTransactionStatus(value)) {
-                      setSelectedTransaction({
-                        ...selectedTransaction,
+                      setEditFormData({
+                        ...editFormData,
                         status: value,
                       });
                     }
@@ -472,10 +530,10 @@ export default function AirtimeCRUD({
               <div>
                 <label className="text-sm font-medium">Description</label>
                 <Input
-                  value={selectedTransaction.description || ""}
+                  value={editFormData.description || selectedTransaction.description || ""}
                   onChange={(e) =>
-                    setSelectedTransaction({
-                      ...selectedTransaction,
+                    setEditFormData({
+                      ...editFormData,
                       description: e.target.value,
                     })
                   }
@@ -484,13 +542,12 @@ export default function AirtimeCRUD({
             </div>
           )}
           <div className="flex gap-2 justify-end">
-            <Button
-              variant="outline"
-              onClick={() => setIsEditDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleUpdate}>Update Transaction</Button>
+            <Button onClick={handleUpdate} disabled={updateLoading}>
+              {updateLoading ? "Updating..." : "Update Transaction"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -499,10 +556,9 @@ export default function AirtimeCRUD({
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Transaction</DialogTitle>
+            <DialogTitle>Delete Airtime Purchase</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this transaction? This action
-              cannot be undone.
+              Are you sure you want to delete this airtime purchase? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           {selectedTransaction && (
@@ -511,8 +567,10 @@ export default function AirtimeCRUD({
                 <strong>Reference:</strong> {selectedTransaction.reference}
               </p>
               <p>
-                <strong>Amount:</strong>{" "}
-                {formatCurrency(Number(selectedTransaction.amount))}
+                <strong>Amount:</strong> {formatCurrency(selectedTransaction.amount)}
+              </p>
+              <p>
+                <strong>Phone:</strong> {selectedTransaction.extra?.phone || "N/A"}
               </p>
               <p>
                 <strong>User ID:</strong> {selectedTransaction.user_id}
@@ -520,14 +578,11 @@ export default function AirtimeCRUD({
             </div>
           )}
           <div className="flex gap-2 justify-end">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Delete Transaction
+            <Button variant="destructive" onClick={handleDelete} disabled={deleteLoading}>
+              {deleteLoading ? "Deleting..." : "Delete Transaction"}
             </Button>
           </div>
         </DialogContent>

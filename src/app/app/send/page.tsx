@@ -14,7 +14,7 @@ import { pinExtractor } from "@/utils/string";
 import { EnterPin } from "@/components/EnterPin";
 import ViewTransactionDetails from "@/components/modals/ViewTransactionModal";
 import { LoadingOverlay } from "@/components/Loading";
-import { Beneficiary, Favourites } from "@/components/flows/service-flow";
+import { Beneficiary, Favourites, SelectedBeneficiary } from "@/components/flows/service-flow";
 import useBeneficiary from "@/hooks/useBeneficiary";
 import useFavourite from "@/hooks/useFavourite";
 
@@ -57,10 +57,10 @@ export default function SendMoney() {
   const [transaction, setTransaction] = useState<any>(null);
   const [search, setSearch] = useState("");
   const [_imageSrc, setImageSrc] = useState("");
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedBeneficiary, setSelectedBeneficiary] = useState<SelectedBeneficiary | null>(null);
   const [toggleBeneficiary, setToggleBeneficiary] = useState(false);
-  const [selectedBeneficiary, setSelectedBeneficiary] = useState<string | null>(null);
+  const [existingBeneficiary, setExistingBeneficiary] = useState<any>(null);
+  const [existingFavourite, setExistingFavourite] = useState<any>(null);
 
   const [formData, setFormData] = useState<FormData>({
     entity: "",
@@ -76,18 +76,21 @@ export default function SendMoney() {
     setToggleBeneficiary(!toggleBeneficiary);
   };
 
-  const filteredType = () => {
-    switch (sendMethod) {
-      case "entity":
-        return "intra";
-      default:
-        return "inter";
-    }
-  };
+  const type = sendMethod === "entity" ? "intra" : "inter;"
+
+  // const filteredType = (): string => {
+  //   switch (sendMethod) {
+  //     case "entity":
+  //       return "intra";
+  //     default:
+  //       return "inter";
+  //   }
+  // };
+
   useEffect(() => {
-    fetchBeneficiaries(filteredType());
-    fetchFavourites(filteredType());
-  }, [step]);
+    fetchBeneficiaries(type);
+    fetchFavourites(type);
+  }, [step, type]);
 
   const fetchBanks = async () => {
     try {
@@ -209,6 +212,30 @@ export default function SendMoney() {
     }
   }, [formData.bank_code, formData.entity, formData.account_number]);
 
+
+  useEffect(() => {
+    if (selectedBeneficiary) {
+      setFormData((prev) => ({
+        ...prev,
+        ...(type === "intra" && { entity: selectedBeneficiary?.customer_id ?? "" }),
+        ...(type !== "intra" && { account_number: selectedBeneficiary?.customer_id ?? "" }),
+        ...(type !== "intra" && { bank_code: selectedBeneficiary?.variation_code ?? "" }),
+      }));
+    }
+
+    if (selectedBeneficiary) {
+      setToggleBeneficiary(false);
+    }
+  }, [selectedBeneficiary, type]);
+
+  useEffect(() => {
+    if (!formData.entity || !formData.account_number || !formData.bank_code) return;
+    if (favourites)
+      setExistingFavourite(favourites.find((b) => b.data.phone === formData.entity || (b.data.phone === formData.account_number && b.data.extra?.bank_code === formData.bank_code)))
+    if (beneficiaries)
+      setExistingBeneficiary(beneficiaries.find((b) => b.data.phone === formData.entity || (b.data.phone === formData.account_number && b.data.extra?.bank_code === formData.bank_code)))
+  }, [favourites, beneficiaries, formData.bank_code, formData.entity, formData.account_number]);
+
   const renderStep1 = () => (
     <div className="space-y-8">
       <div className="text-center space-y-2">
@@ -274,14 +301,14 @@ export default function SendMoney() {
         </h2>
       </div>
       <div className="w-full relative">
-        <button
+        {/* <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="w-full flex justify-between items-center"
         >
           <span className="gradient-text-orange-to-purple">Favourites</span>
-          {/* <ChevronRight size={20} color="purple" /> */}
         </button>
-        {isDropdownOpen && <Favourites setSelected={setSelectedTag} favourites={favourites} />}
+        {isDropdownOpen && <Favourites type={type} setSelected={setSelectedBeneficiary} favourites={favourites} />} */}
+        <Favourites type={type} setSelected={setSelectedBeneficiary} favourites={favourites} />
       </div>
       {sendMethod === "bank" && (
         <div className="relative">
@@ -361,12 +388,12 @@ export default function SendMoney() {
           </span>
         </div>
       )} */}
-      <Beneficiary
+      {/* <Beneficiary
         toggle={toggleBeneficiary}
         onclose={onClose}
         beneficiaries={beneficiaries}
         setSelected={setSelectedBeneficiary}
-      />
+      /> */}
       <div className="py-8">
         <Button
           text="Continue"

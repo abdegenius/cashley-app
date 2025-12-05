@@ -1,3 +1,5 @@
+import { SupportedCoin } from ".";
+
 export type ApiResponse<T = any> = {
   error: boolean;
   message: string;
@@ -67,29 +69,33 @@ export interface User {
 
 export interface Notification {
   id: string;
+  reference: string;
   title: string;
-  date: string;
-  description: string;
-  isRead?: boolean;
-  type?: string;
+  body: string;
+  status?: string;
   created_at?: string;
 }
 
 export interface Transaction {
-  id: number;
+   user_id?: string;
+  id: number | string;
   reference: string;
-  session_id: string;
+  session_id?: string;
   type: "debit" | "credit";
   action: string;
   amount: string;
   fee: string;
   status: "completed" | "failed" | "pending";
   description: string;
-  extra: any;
+  extra?: any;
+  balance_before: number;
+  balance_after: number;
   created_at: string;
+  wallet:string;
 }
 
 export interface Wallet {
+  user_id: number;
   id: number;
   ngn_balance: string;
   eth_balance: string;
@@ -97,7 +103,7 @@ export interface Wallet {
   usdt_balance: string;
   created_at?: string;
   updated_at?: string;
-  locked? : number
+  locked?: number | string;
 }
 export interface BankAccount {
   id: number;
@@ -282,4 +288,102 @@ export interface TvService {
     smartcard_number: string;
   };
   created_at: string;
+}
+export interface AssetChain {
+  chain: string;
+  needTag: string;
+  depositConfirm: string;
+  withdrawConfirm: string;
+  minDepositAmount: string;
+  minWithdrawAmount: string;
+  txUrl: string;
+}
+
+export interface UserCryptoWallet {
+  id: string;
+  key: string;
+  reference: string;
+  coin: string;
+  chain: string;
+  network: string;
+  tag: string;
+  status: boolean;
+  address: string;
+  balance: number;
+  created_at: string;
+  updated_at: string;
+}
+export interface WalletAsset {
+  coin: string;
+  balance: string;
+  frozen: string;
+  updatedAt: string;
+}
+
+export interface EstimateFee {
+  coin: string;
+  chain: string;
+  withdrawFee: string;
+  minWithdrawAmount: string;
+  withdrawable: string;
+}
+
+export interface Rate {
+  usd_value: number;
+  usd_rate: number;
+  ngn_value: number;
+  ngn_rate: number;
+}
+
+export interface Schedule {
+  id: number;
+  title: string;
+  action: string;
+  identifier: string;
+  interval: number;
+  frequency: string;
+  status: string;
+  reference: string;
+  data: {
+    [key: string]: any;
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export type Networks = {
+  [K in SupportedCoin]: AssetChain[];
+};
+
+export interface CryptoWallet {
+  reference: string;
+  coin: string;
+  chain: string;
+  network: string;
+  address: string;
+  tag: string | null;
+  balance: number | string;
+  [key: string]: any;
+}
+
+export interface Giftcard {
+  id: number;
+  reference: string;
+  name: string;
+  logo: string;
+  slug: string;
+  currency: string;
+  min_face_value: string;
+  max_face_value: string;
+  ngn_rate: string;
+  countries: GiftcardCountry[];
+  extra: string;
+  instruction: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GiftcardCountry {
+  country: string;
+  flag: string;
 }

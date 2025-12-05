@@ -10,16 +10,21 @@ export default function AdminLayout() {
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
-    <div className="flex h-screen bg-white">
-      <Sidebar 
-        activeEntity={activeEntity} 
-        onEntityChange={setActiveEntity} 
-      />
-      <div className="flex-1 flex flex-col">
+    <div className="flex w-full min-h-screen h-full bg-white relative">
+     <div className='hidden lg:flex'>
+        <Sidebar 
+          activeEntity={activeEntity} 
+          onEntityChange={setActiveEntity} 
+          setToggle={() => false}
+        />
+     </div>
+      <div className="w-full lg:pl-[300px] flex flex-col">
         <MainContent
           activeEntity={activeEntity}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+          setActiveTab={setActiveEntity}
+          onEntityChange={setActiveEntity}
         />
       </div>
     </div>

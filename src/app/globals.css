@@ -106,8 +106,16 @@ body {
   color: var(--placeholder);
 }
 
+.text-background{
+    color: var(--card);
+
+}
 .bg-card {
   background: var(--card);
+}
+
+.bg-admin{
+    background: var(--foreground);
 }
 
 .blue-text {

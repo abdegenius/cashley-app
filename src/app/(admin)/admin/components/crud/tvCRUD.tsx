@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { TvService, Transaction } from "@/types/api";
 import { purchaseTv } from "@/lib/data";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/buttonshed";
 import {
   Card,
   CardContent,

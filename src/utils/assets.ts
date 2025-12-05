@@ -41,62 +41,6 @@ export const CRYPTO_ASSETS = {
     stable: true,
     active: true,
   },
-  USDC: {
-    name: "USD Coin",
-    symbol: "USDC",
-    logo: "/img/crypto/usdc.svg",
-    decimals: 6,
-    network: "Ethereum",
-    type: "stablecoin",
-    homepage: "https://www.circle.com/usdc",
-    explorer: "https://etherscan.io/token/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    about:
-      "USDC is a fully-reserved U.S. dollar stablecoin issued by Circle, designed for transparency and regulatory compliance.",
-    stable: true,
-    active: false,
-  },
-  BNB: {
-    name: "BNB",
-    symbol: "BNB",
-    logo: "/img/crypto/bnb.svg",
-    decimals: 18,
-    network: "BNB Smart Chain",
-    type: "coin",
-    homepage: "https://www.bnbchain.org",
-    explorer: "https://bscscan.com",
-    about:
-      "BNB powers the BNB Chain ecosystem and is used for gas fees, staking, and participation in Binance Launchpad.",
-    stable: false,
-    active: false,
-  },
-  SOL: {
-    name: "Solana",
-    symbol: "SOL",
-    logo: "/img/crypto/sol.svg",
-    decimals: 9,
-    network: "Solana",
-    type: "coin",
-    homepage: "https://solana.com",
-    explorer: "https://solscan.io",
-    about:
-      "Solana is a high-speed blockchain that uses Proof-of-History and supports DeFi, NFTs, and scalable dApps.",
-    stable: false,
-    active: false,
-  },
-  TRX: {
-    name: "TRON",
-    symbol: "TRX",
-    logo: "/img/crypto/trx.svg",
-    decimals: 6,
-    network: "TRON",
-    type: "coin",
-    homepage: "https://tron.network",
-    explorer: "https://tronscan.org",
-    about:
-      "TRON is a blockchain focused on fast, low-fee transactions and is widely used for stablecoin transfers like USDT-TRC20.",
-    stable: false,
-    active: false,
-  },
 } as const;
 
 export type CryptoSymbol = keyof typeof CRYPTO_ASSETS;

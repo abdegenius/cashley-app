@@ -11,14 +11,18 @@ import AirtimeCRUD from './crud/airtimeCRUD';
 import DataCRUD from './crud/dataCRUD';
 import ElectricityCRUD from './crud/electricityCRUD';
 import TvCRUD from './crud/tvCRUD';
+import { Dispatch, SetStateAction } from 'react';
 
 interface MainContentProps {
   activeEntity: EntityType;
   searchQuery: string;
   onSearchChange: (query: string) => void;
+  setActiveTab: Dispatch<SetStateAction<EntityType>>
+  onEntityChange: (entity: EntityType) => void;
+  
 }
 
-export default function MainContent({ activeEntity, searchQuery, onSearchChange }: MainContentProps) {
+export default function MainContent({ activeEntity, searchQuery, onSearchChange, onEntityChange }: MainContentProps) {
   const renderEntityContent = () => {
     switch (activeEntity) {
       case 'dashboard':
@@ -51,13 +55,14 @@ export default function MainContent({ activeEntity, searchQuery, onSearchChange 
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="w-full min-h-screen h-full flex flex-col">
       <Header 
+      onEntityChange={onEntityChange}
         activeEntity={activeEntity}
         searchQuery={searchQuery}
         onSearchChange={onSearchChange}
       />
-      <main className="flex-1 overflow-auto">
+      <main className="w-full h-auto overflow-auto">
         {renderEntityContent()}
       </main>
     </div>

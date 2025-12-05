@@ -236,7 +236,6 @@ export const mockTransactions: Transaction[] = [
     balance_before: 100000,
     balance_after: 149950,
     status: "completed",
-    wallet: "main",
     description: "Bank Transfer Deposit",
     created_at: "2024-01-15T10:30:00Z",
   },
@@ -250,7 +249,6 @@ export const mockTransactions: Transaction[] = [
     balance_before: 95000,
     balance_after: 74900,
     status: "completed",
-    wallet: "main",
     description: "ATM Withdrawal",
     created_at: "2024-01-16T14:45:00Z",
   },
@@ -259,12 +257,11 @@ export const mockTransactions: Transaction[] = [
     reference: "REF-003",
     type: "credit",
     action: "fund_transfer",
-    amount: 15000,
-    fee: 10,
+    amount: "15000",
+    fee: "10",
     balance_before: 10000,
     balance_after: 24990,
     status: "pending",
-    wallet: "main",
     description: "Peer-to-Peer Transfer",
     created_at: "2024-01-17T09:15:00Z",
   },
@@ -274,12 +271,11 @@ export const mockTransactions: Transaction[] = [
     reference: "REF-004",
     type: "debit",
     action: "electricity",
-    amount: 25000,
-    fee: 25,
+    amount: "25000",
+    fee: "25",
     balance_before: 149950,
     balance_after: 124925,
     status: "failed",
-    wallet: "main",
     description: "Bill Payment - Electricity",
     created_at: "2024-01-18T16:20:00Z",
   },
@@ -289,12 +285,11 @@ export const mockTransactions: Transaction[] = [
     reference: "REF-005",
     type: "credit",
     action: "wallet_topup",
-    amount: 75000,
-    fee: 75,
+    amount: "75000",
+    fee: "75",
     balance_before: 0,
     balance_after: 74925,
     status: "completed",
-    wallet: "main",
     description: "Mobile Money Deposit",
     created_at: "2024-01-19T11:10:00Z",
   },
@@ -304,45 +299,45 @@ export const mockWallets: Wallet[] = [
   {
     id: 1,
     ngn_balance: "2000",
-  eth_balance: "2000",
-  btc_balance: "2000",
-  usdt_balance:  "124925",
+    eth_balance: "2000",
+    btc_balance: "2000",
+    usdt_balance: "124925",
     locked: 5000,
     created_at: "2024-01-15",
   },
   {
     id: 2,
     ngn_balance: "2000",
-  eth_balance: "2000",
-  btc_balance: "2000",
-  usdt_balance:  "74900",
+    eth_balance: "2000",
+    btc_balance: "2000",
+    usdt_balance: "74900",
     locked: 2000,
     created_at: "2024-01-16",
   },
   {
     id: 3,
     ngn_balance: "2000",
-  eth_balance: "2000",
-  btc_balance: "2000",
-  usdt_balance:  "24990",
+    eth_balance: "2000",
+    btc_balance: "2000",
+    usdt_balance: "24990",
     locked: 1000,
     created_at: "2024-01-17",
   },
   {
     id: 4,
     ngn_balance: "2000",
-  eth_balance: "2000",
-  btc_balance: "2000",
-  usdt_balance:  "74925",
+    eth_balance: "2000",
+    btc_balance: "2000",
+    usdt_balance: "74925",
     locked: 3000,
     created_at: "2024-01-18",
   },
   {
     id: 5,
     ngn_balance: "2000",
-  eth_balance: "2000",
-  btc_balance: "2000",
-  usdt_balance:  "0",
+    eth_balance: "2000",
+    btc_balance: "2000",
+    usdt_balance: "0",
     locked: 0,
     created_at: "2024-01-19",
   },
@@ -398,8 +393,7 @@ export const electricityService: ElectricityService[] = [
     amount: "1000.00",
     status: "failed",
     wallet: "balance",
-    description:
-      "KADUNA ELECTRIC token of ₦1,000.00 purchased for 1111111111111",
+    description: "KADUNA ELECTRIC token of ₦1,000.00 purchased for 1111111111111",
     extra: {
       amount: 1000,
       recipient: "1111111111111",
@@ -425,8 +419,7 @@ export const electricityService: ElectricityService[] = [
     amount: "1000.00",
     status: "failed",
     wallet: "balance",
-    description:
-      "KADUNA ELECTRIC token of ₦1,000.00 purchased for 1111111111111",
+    description: "KADUNA ELECTRIC token of ₦1,000.00 purchased for 1111111111111",
     extra: {
       amount: 1000,
       recipient: "1111111111111",
@@ -452,8 +445,7 @@ export const electricityService: ElectricityService[] = [
     amount: "1000.00",
     status: "failed",
     wallet: "balance",
-    description:
-      "KADUNA ELECTRIC token of ₦1,000.00 purchased for 1111111111111",
+    description: "KADUNA ELECTRIC token of ₦1,000.00 purchased for 1111111111111",
     extra: {
       amount: 1000,
       recipient: "1111111111111",
@@ -479,8 +471,7 @@ export const electricityService: ElectricityService[] = [
     amount: "1000.00",
     status: "failed",
     wallet: "balance",
-    description:
-      "KADUNA ELECTRIC token of ₦1,000.00 purchased for 1111111111111",
+    description: "KADUNA ELECTRIC token of ₦1,000.00 purchased for 1111111111111",
     extra: {
       amount: 1000,
       recipient: "1111111111111",
@@ -690,7 +681,7 @@ export const airtimeService: AirtimeService[] = [
     },
     created_at: "2025-10-14T21:20:45.000Z",
   },
-    {
+  {
     id: 38,
     user_id: "38",
     reference: "10007534480242448226",
@@ -708,7 +699,7 @@ export const airtimeService: AirtimeService[] = [
     },
     created_at: "2025-10-14T21:20:45.000Z",
   },
-    {
+  {
     id: 39,
     user_id: "39",
     reference: "10007534480242448226",
@@ -731,15 +722,15 @@ export const airtimeService: AirtimeService[] = [
 export const sidebarItems: SidebarItem[] = [
   { id: "dashboard", label: "Dashboard" },
   { id: "users", label: "Users" },
-  { id: "transactions", label: "Transactions" },
   { id: "wallets", label: "Wallets" },
-  { id: "airtime", label: "Airtime" },
-  { id: "data", label: "Data" },
-  { id: "electricity", label: "Electricity" },
+  { id: "airtime", label: "Airtime Purchases" },
+  { id: "data", label: "Data Subscriptions" },
+  { id: "electricity", label: "Electricity Bills" },
   {
     id: "tv-subscription",
-    label: "Tv-subscription",
+    label: "Cable/TV Subscriptions",
   },
+  { id: "transactions", label: "Transactions" },
 ];
 
 // User CRUD operations (Only Users have create functionality)
@@ -785,9 +776,7 @@ export const userService = {
 export const transactionService = {
   getAll: () => mockTransactions,
   update: (id: string, updates: Partial<Transaction>) => {
-    const index = mockTransactions.findIndex(
-      (transaction) => transaction.id === Number(id)
-    );
+    const index = mockTransactions.findIndex((transaction) => transaction.id === Number(id));
     if (index !== -1) {
       mockTransactions[index] = { ...mockTransactions[index], ...updates };
       return mockTransactions[index];
@@ -795,9 +784,7 @@ export const transactionService = {
     return null;
   },
   delete: (id: string) => {
-    const index = mockTransactions.findIndex(
-      (transaction) => transaction.id === Number(id)
-    );
+    const index = mockTransactions.findIndex((transaction) => transaction.id === Number(id));
     if (index !== -1) {
       return mockTransactions.splice(index, 1)[0];
     }
@@ -830,9 +817,7 @@ export const walletService = {
 export const purchaseElectricity = {
   getAll: () => electricityService,
   update: (id: string, updates: Partial<ElectricityService>) => {
-    const index = electricityService.findIndex(
-      (purchase) => purchase.id.toString() === id
-    );
+    const index = electricityService.findIndex((purchase) => purchase.id.toString() === id);
     if (index !== -1) {
       electricityService[index] = { ...electricityService[index], ...updates };
       return electricityService[index];
@@ -840,9 +825,7 @@ export const purchaseElectricity = {
     return null;
   },
   delete: (id: string) => {
-    const index = electricityService.findIndex(
-      (purchase) => purchase.id.toString() === id
-    );
+    const index = electricityService.findIndex((purchase) => purchase.id.toString() === id);
     if (index !== -1) {
       return electricityService.splice(index, 1)[0];
     }
@@ -850,13 +833,10 @@ export const purchaseElectricity = {
   },
 };
 
-
 export const purchaseData = {
   getAll: () => dataService,
   update: (id: string, updates: Partial<DataService>) => {
-    const index = dataService.findIndex(
-      (purchase) => purchase.id.toString() === id
-    );
+    const index = dataService.findIndex((purchase) => purchase.id.toString() === id);
     if (index !== -1) {
       dataService[index] = { ...dataService[index], ...updates };
       return dataService[index];
@@ -864,9 +844,7 @@ export const purchaseData = {
     return null;
   },
   delete: (id: string) => {
-    const index = dataService.findIndex(
-      (purchase) => purchase.id.toString() === id
-    );
+    const index = dataService.findIndex((purchase) => purchase.id.toString() === id);
     if (index !== -1) {
       return dataService.splice(index, 1)[0];
     }
@@ -874,13 +852,10 @@ export const purchaseData = {
   },
 };
 
-
 export const purchaseAirtime = {
   getAll: () => airtimeService,
   update: (id: string, updates: Partial<AirtimeService>) => {
-    const index = airtimeService.findIndex(
-      (purchase) => purchase.id.toString() === id
-    );
+    const index = airtimeService.findIndex((purchase) => purchase.id.toString() === id);
     if (index !== -1) {
       airtimeService[index] = { ...airtimeService[index], ...updates };
       return airtimeService[index];
@@ -888,9 +863,7 @@ export const purchaseAirtime = {
     return null;
   },
   delete: (id: string) => {
-    const index = airtimeService.findIndex(
-      (purchase) => purchase.id.toString() === id
-    );
+    const index = airtimeService.findIndex((purchase) => purchase.id.toString() === id);
     if (index !== -1) {
       return airtimeService.splice(index, 1)[0];
     }
@@ -898,13 +871,10 @@ export const purchaseAirtime = {
   },
 };
 
-
 export const purchaseTv = {
   getAll: () => tvService,
   update: (id: string, updates: Partial<TvService>) => {
-    const index = tvService.findIndex(
-      (purchase) => purchase.id.toString() === id
-    );
+    const index = tvService.findIndex((purchase) => purchase.id.toString() === id);
     if (index !== -1) {
       tvService[index] = { ...tvService[index], ...updates };
       return tvService[index];
@@ -912,9 +882,7 @@ export const purchaseTv = {
     return null;
   },
   delete: (id: string) => {
-    const index = tvService.findIndex(
-      (purchase) => purchase.id.toString() === id
-    );
+    const index = tvService.findIndex((purchase) => purchase.id.toString() === id);
     if (index !== -1) {
       return tvService.splice(index, 1)[0];
     }

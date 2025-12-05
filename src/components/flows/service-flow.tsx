@@ -7,7 +7,6 @@ import Image from "next/image";
 import React, {
   Dispatch,
   SetStateAction,
-  use,
   useCallback,
   useEffect,
   useMemo,
@@ -22,17 +21,21 @@ import { EnterPin } from "../EnterPin";
 import { cleanServiceName, pinExtractor, getPurchaseableService } from "@/utils/string";
 import { useRouter } from "next/navigation";
 import { LoadingOverlay } from "../Loading";
-import { Calendar, ChevronDown, ChevronRight, Plus, PlusCircle, Star, Trash, Trash2, Users, X } from "lucide-react";
+import { Calendar, ChevronRight, Star, Trash2, Users, X } from "lucide-react";
 import ViewTransactionDetails from "../modals/ViewTransactionModal";
 import useBeneficiary from "@/hooks/useBeneficiary";
 import useFavourite from "@/hooks/useFavourite";
-import { Schedule } from "@/app/app/services/schedule/page";
+import Link from "next/link";
 
 interface PurchaseProps {
   type: PurchaseType;
   user?: User | null;
 }
-
+export interface SelectedBeneficiary {
+  service_id?: string;
+  customer_id?: string;
+  variation_code?: string;
+}
 export default function Purchase({ type, user }: PurchaseProps) {
   const router = useRouter();
   const { beneficiaries, fetchBeneficiaries } = useBeneficiary();
@@ -45,22 +48,22 @@ export default function Purchase({ type, user }: PurchaseProps) {
   const [verifying, setVerifying] = useState(false);
   const [toggleBeneficiary, setToggleBeneficiary] = useState(false);
   const [toggleFavorite, setToggleFavorite] = useState(false);
-  const [toggleschedule, setToggleSchedule] = useState(false);
 
   const [formData, setFormData] = useState({
     service_id: "",
-    amount: "",
     customer_id: "",
+    amount: "",
     variation: null as Variation | null,
     type: "",
   });
 
-  console.log("Service ID", formData.service_id);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [variations, setVariations] = useState<Variation[]>([]);
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [verifyData, setVerifyData] = useState<any>(null);
-  const [selectedBeneficiary, setSelectedBeneficiary] = useState<string | null>(null);
+  const [existingBeneficiary, setExistingBeneficiary] = useState<any>(null);
+  const [existingFavourite, setExistingFavourite] = useState<any>(null);
+  const [selectedBeneficiary, setSelectedBeneficiary] = useState<SelectedBeneficiary | null>(null);
   const [addBeneficiary, setAddBeneficiary] = useState(false);
 
   const [loadingProviders, setLoadingProviders] = useState(false);
@@ -76,19 +79,36 @@ export default function Purchase({ type, user }: PurchaseProps) {
   const providersAbort = useRef<AbortController | null>(null);
   const variationsAbort = useRef<AbortController | null>(null);
 
-  const existingBeneficiary = beneficiaries.find((b) => b.data.phone === formData.customer_id);
-  const existingFavourites = favourites.find((b) => b.data.phone === formData.customer_id);
+  useEffect(() => {
+    if (!type || beneficiaries) return;
+    const getBeneficiaries = async () => {
+      await fetchBeneficiaries(type);
+    }
+    getBeneficiaries()
+  }, [beneficiaries, type]);
 
   useEffect(() => {
-    fetchBeneficiaries(type);
-    fetchFavourites(type);
-  }, []);
+    if (!type || favourites) return;
+    const getFavourites = async () => {
+      await fetchFavourites(type);
+    }
+    getFavourites()
+  }, [favourites, type]);
+
+  useEffect(() => {
+    if (!formData.service_id || !formData.customer_id) return;
+    if (favourites)
+      setExistingFavourite(favourites.find((b) => b.data.phone === formData.customer_id && b.data.service_id === formData.service_id))
+    if (beneficiaries)
+      setExistingBeneficiary(beneficiaries.find((b) => b.data.phone === formData.customer_id && b.data.service_id === formData.service_id))
+  }, [favourites, beneficiaries, formData.service_id, formData.customer_id]);
 
   useEffect(() => {
     if (selectedBeneficiary) {
       setFormData((prev) => ({
         ...prev,
-        customer_id: selectedBeneficiary,
+        customer_id: selectedBeneficiary?.customer_id ?? "",
+        service_id: selectedBeneficiary?.service_id ?? "",
       }));
     }
 
@@ -157,16 +177,15 @@ export default function Purchase({ type, user }: PurchaseProps) {
 
     setLoadingVariations(true);
     try {
-      const response = await api.get<ApiResponse>(
+      const res = await api.get<ApiResponse>(
         `/bill/service-variations?service_id=${service_id}`,
         {
           signal: controller.signal as any,
         }
       );
 
-      const raw = response?.data;
-      if (!raw.error && raw.data && Array.isArray(raw.data.variations)) {
-        const variationsData: Variation[] = raw.data.variations.map((v: any) => ({
+      if (!res.data.error && res.data.data && Array.isArray(res.data.data.variations)) {
+        const variationsData: Variation[] = res.data.data.variations.map((v: any) => ({
           variation_code: String(v.variation_code ?? v.code ?? ""),
           name: v.name ?? v.plan ?? "",
           variation_amount: String(v.variation_amount ?? v.amount ?? v.price ?? ""),
@@ -178,7 +197,6 @@ export default function Purchase({ type, user }: PurchaseProps) {
       }
     } catch (error: any) {
       if (error?.name === "CanceledError" || error?.name === "AbortError") {
-        // Silently handle abort
       } else {
         console.error("Network Error (fetchVariations):", error);
       }
@@ -197,7 +215,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
   useEffect(() => {
     if (!formData.service_id) {
       setVariations([]);
-      setVerifyData(null); // Clear verify data when provider changes
+      setVerifyData(null);
       return;
     }
     if (typeof formData.service_id !== "string" || !formData.service_id.trim()) {
@@ -424,12 +442,12 @@ export default function Purchase({ type, user }: PurchaseProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8 p-2 z-0"
-          > 
+          >
             <div className="space-y-1 justify-between flex items-center w-full">
               <h2 className="text-2xl font-black">{config?.step_1_title}</h2>
-            <button onClick={() => setToggleSchedule(!toggleschedule)}>
-              <Calendar size={20} color="purple" />
-            </button>
+              <Link href={`/app/schedules?type=${type}`}>
+                <Calendar size={20} color="purple" />
+              </Link>
             </div>
 
             <div className="space-y-6">
@@ -449,7 +467,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
                 getProviderImage={getProviderImage}
               />
               <div className="w-full flex items-start relative">
-                <Favourites favourites={favourites} setSelected={setSelectedBeneficiary} />
+                <Favourites favourites={favourites} setSelected={setSelectedBeneficiary} type={type} />
 
                 <ChevronRight size={16} color="purple" />
               </div>
@@ -458,6 +476,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
                 onclose={onClose}
                 beneficiaries={beneficiaries}
                 setSelected={setSelectedBeneficiary}
+                type={type}
               />
               {config?.show_variations && formData.service_id && (
                 <VariationSelect
@@ -519,8 +538,8 @@ export default function Purchase({ type, user }: PurchaseProps) {
                         <ChevronRight color="purple" />
                       ) : (
                         <div className="flex gap-2 items-center gradient-text-purple-to-blue">
-                          <span>Beneficiary</span>
                           <Users color="purple" />
+                          <span>Beneficiaries</span>
                         </div>
                       )}
                     </button>
@@ -564,7 +583,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
                 </div>
               )}
 
-              {type === "electricity" && formData.service_id && formData.variation && (
+              {/* {type === "electricity" && formData.service_id && formData.variation && (
                 <div className="space-y-1">
                   <label className="text-sm font-semibold">Meter Type</label>
                   <div className="flex gap-3">
@@ -592,7 +611,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
                     </motion.button>
                   </div>
                 </div>
-              )}
+              )} */}
 
               {config?.show_amount_grid && formData.service_id && !formData.variation && (
                 <AmountGrid
@@ -640,7 +659,7 @@ export default function Purchase({ type, user }: PurchaseProps) {
                   <h2 className="text-2xl font-black w-full text-center">Summary</h2>
                 </div>
 
-                {!existingFavourites && (
+                {!existingFavourite && (
                   <div className="absolute top-6 right-5">
                     {toggleFavorite ? (
                       <button
@@ -764,7 +783,6 @@ export default function Purchase({ type, user }: PurchaseProps) {
         {(purchasing || verifying) && <LoadingOverlay />}
       </div>
 
-      {toggleschedule && <Schedule type={type} close={setToggleSchedule} />}
     </div>
   );
 }
@@ -1001,19 +1019,20 @@ function ReviewItem({ label, value }: { label: string; value: string }) {
 }
 
 interface BeneficiaryProps {
-  beneficiaries: any[];
+  beneficiaries: any[] | null;
   onclose?: () => void;
   toggle: boolean;
-  setSelected: Dispatch<SetStateAction<string | null>>;
+  setSelected: Dispatch<SetStateAction<SelectedBeneficiary | null>>;
+  type: string;
 }
-export function Beneficiary({ beneficiaries, setSelected, onclose, toggle }: BeneficiaryProps) {
-  const { deleteBeneficiary } = useBeneficiary();
-  const safeBeneficiaries = Array.isArray(beneficiaries) ? beneficiaries : [];
+
+export function Beneficiary({ beneficiaries, setSelected, onclose, toggle, type }: BeneficiaryProps) {
+  const { deleteBeneficiary, fetchBeneficiaries } = useBeneficiary();
 
   return (
     <div
       onClick={() => onclose?.()}
-      className={`w-full h-full  absolute top-0 ${toggle ? "flex" : "hidden"} z-20 items-end  left-0 bg-black/70  `}
+      className={`w-full h-full  absolute top-0 ${toggle ? "flex" : "hidden"} z-[99] items-end  left-0 bg-black/70  `}
     >
       <div className="w-full space-y-4 p-6 h-[50%] bg-card rounded-t-4xl">
         <div className="flex items-start justify-between pr-1">
@@ -1029,10 +1048,10 @@ export function Beneficiary({ beneficiaries, setSelected, onclose, toggle }: Ben
           onClick={(e) => e.stopPropagation()}
           className="w-full grid  gap-2 relative z-20 items-center overflow-x-scroll"
         >
-          {safeBeneficiaries?.map((b, i) => (
+          {beneficiaries?.map((b, i) => (
             <button
               onClick={() => {
-                setSelected(b?.data?.phone ?? null);
+                setSelected({ customer_id: b?.data?.phone ?? null, service_id: b?.data?.service_id, variation_code: b?.data?.extra?.variation_code ?? b?.data?.extra?.bank_code });
               }}
               key={i}
               className="p-3 text-sm w-full gap-2 bg-background  justify-between flex hover:bg-hover items-center rounded-2xl mb-2"
@@ -1049,8 +1068,8 @@ export function Beneficiary({ beneficiaries, setSelected, onclose, toggle }: Ben
               ) : (
                 <>
                   <Image
-                    src={`/img/${b.data.servicer_id}.png` || "/img/placeholder.png"}
-                    alt={b.data.service_id}
+                    src={`${b.data?.service_id ? `/img/${b.data.service_id}.png` : '/img/placeholder.png'}`}
+                    alt={b.data.service_id || "ben"}
                     width={40}
                     height={40}
                     className="object-cover rounded-full"
@@ -1059,14 +1078,16 @@ export function Beneficiary({ beneficiaries, setSelected, onclose, toggle }: Ben
                 </>
               )}
 
-              <button
-                onClick={(e) => {
-                  (deleteBeneficiary(b.reference), e.stopPropagation());
+              <span
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await deleteBeneficiary(b.reference);
+                  fetchBeneficiaries(type)
                 }}
                 className="bg-card p-3 rounded-3xl cursor-pointer"
               >
                 <Trash2 color="red" size={16} />
-              </button>
+              </span>
             </button>
           ))}
         </motion.div>
@@ -1074,56 +1095,58 @@ export function Beneficiary({ beneficiaries, setSelected, onclose, toggle }: Ben
     </div>
   );
 }
-
 interface favouritesProps {
-  favourites: any[];
-  setSelected: Dispatch<SetStateAction<string | null>>;
+  favourites: any[] | null;
+  // setSelected: Dispatch<SetStateAction<SelectedBeneficiary | null>>;
+  setSelected: (selectedBeneficiary: SelectedBeneficiary) => void;
+  type: string;
 }
 
-export function Favourites({ favourites, setSelected }: favouritesProps) {
-  const { deleteFavourite } = useFavourite();
+export function Favourites({ favourites, setSelected, type }: favouritesProps) {
+  const { deleteFavourite, fetchFavourites } = useFavourite();
   return (
     <div className="w-full rounded-2xl h-fit max-h-70 overflow-auto  text-sm p-2 space-y-4">
       <div className="w-full flex gap-4 items-center overflow-x-scroll">
-        {favourites?.map((b, i) => (
+        {favourites?.map((f, i) => (
           <button
             onClick={() => {
-              setSelected(b?.data?.phone ?? null);
+              setSelected({ customer_id: f?.data?.phone ?? null, service_id: f?.data?.service_id, variation_code: f?.data?.extra?.variation_code ?? f?.data?.extra?.bank_code });
             }}
             key={i}
-            className="p-3 text-sm w-fit gap-2 bg-card  flex-none justify-between flex hover:bg-hover items-center rounded-2xl mb-2"
+            className="relative py-2 px-4 text-sm w-fit gap-2 bg-card flex-none justify-between flex hover:border hover:border-stone-700 items-center rounded-2xl mb-2"
           >
-            {b.action === "intra" ? (
+            {f.action === "intra" ? (
               <div className="flex flex-col gap-1 text-start">
-                <span className="truncate">{b.data.recipient}</span>{" "}
-                <span className="gradient-text-orange-to-purple">{b.data.phone}</span>
+                <span className="truncate">{f.data.recipient}</span>{" "}
+                <span className="gradient-text-orange-to-purple">{f.data.phone}</span>
               </div>
-            ) : b.action == "inter" ? (
+            ) : f.action == "inter" ? (
               <div className="space-y-1">
-                <div>{b.data.account_number}</div> <div>{b.data.bank_name}</div>
+                <div>{f.data.account_number}</div> <div>{f.data.bank_name}</div>
               </div>
             ) : (
               <>
                 <Image
-                  src={`/img/${b.data.service_id}.png` || "/img/placeholder.png"}
-                  alt={b.data.service_id || ""}
-                  width={40}
-                  height={40}
+                  src={`${f.data?.service_id ? `/img/${f.data.service_id}.png` : '/img/placeholder.png'}`}
+                  alt={f.data.service_id || "fav"}
+                  width={28}
+                  height={28}
                   className="object-cover rounded-full"
                 />
-                <span className="w-full text-start pl-3">{b?.data?.phone ?? ""}</span>
+                <span className="w-full text-start text-xs">{f?.data?.phone ?? ""}</span>
               </>
             )}
 
-            <button
+            <span
               onClick={async (e) => {
                 e.stopPropagation();
-                await deleteFavourite(b.reference);
+                await deleteFavourite(f.reference);
+                fetchFavourites(type)
               }}
-              className="bg-background p-3 rounded-3xl cursor-pointer"
+              className="bg-background p-2 rounded-3xl cursor-pointer absolute -top-2 -right-4"
             >
-              <Trash2 color="red" size={16} />
-            </button>
+              <Trash2 color="red" size={14} />
+            </span>
           </button>
         ))}
       </div>
