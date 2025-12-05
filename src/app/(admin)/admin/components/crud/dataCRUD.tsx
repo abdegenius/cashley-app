@@ -117,8 +117,8 @@ export default function DataCRUD({ searchQuery }: DataCRUDProps) {
       setUpdateLoading(true);
       try {
         const response = await api.put(
-          `/admin/transactions?action=data/${selectedTransaction.id}`,
-          editFormData
+          `/admin/transactions/${selectedTransaction.id}`,
+          {editFormData}
         );
 
         if (response.data) {
@@ -144,7 +144,7 @@ export default function DataCRUD({ searchQuery }: DataCRUDProps) {
       setDeleteLoading(true);
       try {
         const response = await api.delete(
-          `/admin/transactions?action=data/${selectedTransaction.id}`
+          `/admin/transactions/${selectedTransaction.id}`
         );
 
         if (response.data) {

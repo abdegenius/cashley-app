@@ -264,7 +264,7 @@ export interface DataService {
 export interface TvService {
   id: number;
   user_id: string;
-  reference: string | number;
+  reference: string;
   session_id: string | null;
   type: "credit" | "debit";
   action: string;
